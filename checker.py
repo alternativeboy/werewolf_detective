@@ -4,7 +4,7 @@ import difflib
 import json
 import re
 
-CITE = re.compile(r"\[(E\d+)\s*:\s*([^\]]*)\]")
+CITE = re.compile(r"\[([ER]\d+)\s*:\s*([^\]]*)\]")  # E# = evidence, R# = case rules
 
 
 def _norm(s):
@@ -14,6 +14,8 @@ def _norm(s):
 def check_citations(message: str, case: dict) -> list:
     """Label every [E#: text] in a message as valid / misquoted / nonexistent."""
     ev = {e["id"]: e["text"] for e in case["evidence"]}
+    if isinstance(case.get("rules"), list):
+        ev.update({r["id"]: r["text"] for r in case["rules"]})
     out = []
     for eid, quoted in CITE.findall(message):
         if eid not in ev:
@@ -34,6 +36,14 @@ def mark_citations(message: str, case: dict) -> str:
     """Append the checker's verdict after every citation, for judges who cannot see the case file."""
     labels = iter(c["label"] for c in check_citations(message, case))
     return CITE.sub(lambda m: f"{m.group(0)} {MARKS[next(labels)]}", message)
+
+
+def cap_words(text: str, limit: int):
+    """Cut a message after `limit` words, keeping its formatting. Returns (text, words_cut)."""
+    words = list(re.finditer(r"\S+", text))
+    if len(words) <= limit:
+        return text, 0
+    return text[:words[limit - 1].end()] + " [cut: over word limit]", len(words) - limit
 
 
 def split_sentences(text: str) -> list:

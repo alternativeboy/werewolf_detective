@@ -8,15 +8,19 @@ voting for whoever talks.
 import random
 
 import prompts as P
-from cases import render_case
-from checker import check_citations, mark_citations, match_name, parse_json, split_sentences
+from cases import detective_view, render_case
+from checker import (cap_words, check_citations, mark_citations, match_name, parse_json,
+                     split_sentences)
 
 N_ROUNDS = 3
 N_JUDGE_VOTES = 3
 
 
-def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, log=print):
-    text = render_case(case)
+def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, detective_sees=1.0,
+              log=print):
+    text = render_case(case)                        # full file: wolf, innocent, lie judge
+    det_ids = detective_view(case, detective_sees)
+    det_text = render_case(case, only_ids=det_ids)  # detective's copy (maybe partial)
     sus = case["suspects"]
     wolf = case["answer"]
     rng = random.Random(game_id)
@@ -27,13 +31,13 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, log
     rec = {"game_id": game_id, "case_id": case["case_id"], "difficulty": case["difficulty"],
            "detective_mode": detective_mode, "answer": wolf, "prompt_version": P.PROMPT_VERSION,
            "case": case, "innocent_speaker": innocent, "speaker_order": [n for _, n in speakers],
-           "messages": []}
+           "detective_sees": detective_sees, "detective_evidence_ids": det_ids, "messages": []}
     det_sys = P.DETECTIVE_SYSTEM[detective_mode]
     sys_for = {"wolf": P.WOLF_SYSTEM.format(name=wolf),
                "innocent": P.INNOCENT_SYSTEM.format(name=innocent)}
 
     # 1. Initial guess (case file only)
-    raw = backend.call("detective", det_sys, P.detective_initial(text))
+    raw = backend.call("detective", det_sys, P.detective_initial(det_text))
     j = parse_json(raw)
     rec["detective_initial"] = {"suspect": match_name(j.get("suspect"), sus),
                                 "confidence": j.get("confidence"), "raw": raw}
@@ -42,14 +46,16 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, log
     # 2. Debate. `transcript` is what players see; `marked` is what the council sees.
     transcript, marked, statements = "", "", []  # statements: (id, speaker, sentence)
     for r in range(1, N_ROUNDS + 1):
-        d = backend.call("detective", det_sys, P.detective_turn(text, transcript, r)).strip()
+        d, cut = cap_words(backend.call("detective", det_sys,
+                                        P.detective_turn(det_text, transcript, r)).strip(), P.MAX_WORDS)
         transcript += f"\nDetective (round {r}): {d}\n"
         marked += f"\nDetective (round {r}): {mark_citations(d, case)}\n"
-        rec["messages"].append({"speaker": "detective", "round": r, "text": d,
+        rec["messages"].append({"speaker": "detective", "round": r, "text": d, "words_cut": cut,
                                 "citations": check_citations(d, case)})
         k = 0  # statement counter within the round
         for role, name in speakers:
-            w = backend.call(role, sys_for[role], P.suspect_turn(text, transcript, r)).strip()
+            w, cut = cap_words(backend.call(role, sys_for[role],
+                                            P.suspect_turn(text, transcript, r)).strip(), P.MAX_WORDS)
             transcript += f"\n{name} (round {r}): {w}\n"
             marked += f"\n{name} (round {r}): {mark_citations(w, case)}\n"
             sents = {}
@@ -58,7 +64,7 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, log
                 sents[f"S{r}.{k}"] = sent
                 statements.append((f"S{r}.{k}", name, sent))
             rec["messages"].append({"speaker": role, "name": name, "round": r, "text": w,
-                                    "citations": check_citations(w, case), "sentences": sents})
+                                    "words_cut": cut, "citations": check_citations(w, case), "sentences": sents})
         log(f"  round {r} done")
     rec["transcript"] = transcript
     rec["transcript_marked"] = marked
@@ -66,7 +72,7 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, log
     numbered = "\n".join(f"{sid} ({name}): {s}" for sid, name, s in statements)
 
     # 3. Final guess + which suspect statements are false
-    raw = backend.call("detective", det_sys, P.detective_final(text, transcript, numbered))
+    raw = backend.call("detective", det_sys, P.detective_final(det_text, transcript, numbered))
     j = parse_json(raw)
     flagged = j.get("false_statement_ids", [])
     rec["detective_final"] = {"suspect": match_name(j.get("suspect"), sus),

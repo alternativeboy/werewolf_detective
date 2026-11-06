@@ -158,8 +158,8 @@ def make_case(case_id: str, level: str, rng: random.Random) -> dict:
         "answer": wolf,
         "summary": f"Last night {victim} was murdered at {scene}. One of the villagers listed "
                    f"below is a werewolf who did it.",
-        "rules": "Known facts: after the murder the werewolf went straight home. "
-                 "Confirmed alibis are reliable.",
+        "rules": [{"id": "R1", "text": "After the murder, the werewolf went straight home."},
+                  {"id": "R2", "text": "Confirmed alibis are reliable."}],
         "evidence": evidence,
     }
 
@@ -190,12 +190,33 @@ def make_valid_case(case_id: str, level: str, rng: random.Random, tries: int = 5
     raise RuntimeError(f"could not build an unambiguous {level} case")
 
 
-def render_case(case: dict) -> str:
-    """Case file text shown to players (never includes the answer, clue roles or facts)."""
-    lines = [case["summary"], case.get("rules", ""), "", "Suspects: " + ", ".join(case["suspects"]),
-             "", "Evidence:"]
-    lines += [f"[{e['id']}] {e['text']}" for e in case["evidence"]]
+def render_case(case: dict, only_ids=None) -> str:
+    """Case file text shown to players (never includes the answer, clue roles or facts).
+
+    only_ids: show only these evidence ids (the detective's partial copy). Clue ids keep their
+    original numbers, so a missing E7 shows up as a gap and citations mean the same for everyone.
+    """
+    rules = case.get("rules", "")
+    if isinstance(rules, list):  # v3+: rules have ids so they can be cited and checked
+        rules = "Rules:\n" + "\n".join(f"[{r['id']}] {r['text']}" for r in rules)
+    lines = [case["summary"], rules, "", "Suspects: " + ", ".join(case["suspects"]), "", "Evidence:"]
+    ev = case["evidence"]
+    if only_ids is not None:
+        ev = [e for e in ev if e["id"] in set(only_ids)]
+        lines.insert(0, "NOTE: your copy of the case file is incomplete. Some evidence is missing; "
+                        "the other speakers have the full file.\n")
+    lines += [f"[{e['id']}] {e['text']}" for e in ev]
     return "\n".join(lines)
+
+
+def detective_view(case: dict, fraction: float):
+    """Evidence ids the detective sees. Same subset for every condition of a case (paired design)."""
+    if fraction >= 1:
+        return None
+    ids = [e["id"] for e in case["evidence"]]
+    rng = random.Random(f"{case['case_id']}-{case['answer']}-{fraction}")
+    keep = set(rng.sample(ids, max(1, round(fraction * len(ids)))))
+    return [i for i in ids if i in keep]
 
 
 def generate(n: int, seed: int, out_path: str, levels=("L1", "L3")) -> list:

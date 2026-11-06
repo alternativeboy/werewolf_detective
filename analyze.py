@@ -61,6 +61,12 @@ def council_row(g, j):
     }
 
 
+def level_of(g):
+    """Group label: level, plus how much of the file the detective saw if it was partial."""
+    sees = g.get("detective_sees", 1.0)
+    return g["difficulty"] + (f" sees{sees:g}" if sees < 1 else "")
+
+
 def rate(rows, key):
     return sum(r[key] for r in rows) / len(rows) if rows else float("nan")
 
@@ -132,7 +138,7 @@ def report(games, judgements):
     det = defaultdict(list)
     for g in games:
         r = detective_row(g)
-        for lv in (g["difficulty"], "all"):
+        for lv in (level_of(g), "all"):
             det[(g["detective_mode"], lv)].append(r)
     print("\n######## DETECTIVE ########")
     for (mode, lv), rows in sorted(det.items()):
@@ -149,7 +155,7 @@ def report(games, judgements):
             continue
         seen.add(k)
         r = council_row(g, j)
-        for lv in (g["difficulty"], "all"):
+        for lv in (level_of(g), "all"):
             council[(j["judge_model"], g["detective_mode"], lv)].append(r)
     print("\n######## COUNCIL ########")
     for (model, mode, lv), rows in sorted(council.items()):
