@@ -58,6 +58,10 @@ def match_name(raw, suspects):
     """Map a model's free-text answer onto a suspect name (or None)."""
     if not raw:
         return None
-    raw = str(raw).lower()
-    hits = [s for s in suspects if s.lower() in raw]
+    raw = str(raw).strip().lower()
+    exact = [s for s in suspects if s.lower() == raw]
+    if exact:
+        return exact[0]
+    # Whole words only: "Ek" must not match inside "Lek", "Chai" not inside "Somchai".
+    hits = [s for s in suspects if re.search(rf"\b{re.escape(s.lower())}\b", raw)]
     return hits[0] if len(hits) == 1 else None
