@@ -1,0 +1,106 @@
+"""One game: initial guess -> 3 debate rounds -> final guess + lie flags -> lie labels -> votes.
+
+Speakers each round: the Detective first, then the wolf and one innocent suspect in a random
+(per game) order. The innocent speaker matters: if only the wolf spoke, a judge could win by
+voting for whoever talks.
+"""
+
+import random
+
+import prompts as P
+from cases import render_case
+from checker import check_citations, mark_citations, match_name, parse_json, split_sentences
+
+N_ROUNDS = 3
+N_JUDGE_VOTES = 3
+
+
+def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, log=print):
+    text = render_case(case)
+    sus = case["suspects"]
+    wolf = case["answer"]
+    rng = random.Random(game_id)
+    innocent = rng.choice([s for s in sus if s != wolf])
+    speakers = [("wolf", wolf), ("innocent", innocent)]
+    rng.shuffle(speakers)
+
+    rec = {"game_id": game_id, "case_id": case["case_id"], "difficulty": case["difficulty"],
+           "detective_mode": detective_mode, "answer": wolf, "prompt_version": P.PROMPT_VERSION,
+           "case": case, "innocent_speaker": innocent, "speaker_order": [n for _, n in speakers],
+           "messages": []}
+    det_sys = P.DETECTIVE_SYSTEM[detective_mode]
+    sys_for = {"wolf": P.WOLF_SYSTEM.format(name=wolf),
+               "innocent": P.INNOCENT_SYSTEM.format(name=innocent)}
+
+    # 1. Initial guess (case file only)
+    raw = backend.call("detective", det_sys, P.detective_initial(text))
+    j = parse_json(raw)
+    rec["detective_initial"] = {"suspect": match_name(j.get("suspect"), sus),
+                                "confidence": j.get("confidence"), "raw": raw}
+    log(f"  initial guess: {rec['detective_initial']['suspect']}")
+
+    # 2. Debate. `transcript` is what players see; `marked` is what the council sees.
+    transcript, marked, statements = "", "", []  # statements: (id, speaker, sentence)
+    for r in range(1, N_ROUNDS + 1):
+        d = backend.call("detective", det_sys, P.detective_turn(text, transcript, r)).strip()
+        transcript += f"\nDetective (round {r}): {d}\n"
+        marked += f"\nDetective (round {r}): {mark_citations(d, case)}\n"
+        rec["messages"].append({"speaker": "detective", "round": r, "text": d,
+                                "citations": check_citations(d, case)})
+        k = 0  # statement counter within the round
+        for role, name in speakers:
+            w = backend.call(role, sys_for[role], P.suspect_turn(text, transcript, r)).strip()
+            transcript += f"\n{name} (round {r}): {w}\n"
+            marked += f"\n{name} (round {r}): {mark_citations(w, case)}\n"
+            sents = {}
+            for sent in split_sentences(w):
+                k += 1
+                sents[f"S{r}.{k}"] = sent
+                statements.append((f"S{r}.{k}", name, sent))
+            rec["messages"].append({"speaker": role, "name": name, "round": r, "text": w,
+                                    "citations": check_citations(w, case), "sentences": sents})
+        log(f"  round {r} done")
+    rec["transcript"] = transcript
+    rec["transcript_marked"] = marked
+    rec["statement_speaker"] = {sid: name for sid, name, _ in statements}
+    numbered = "\n".join(f"{sid} ({name}): {s}" for sid, name, s in statements)
+
+    # 3. Final guess + which suspect statements are false
+    raw = backend.call("detective", det_sys, P.detective_final(text, transcript, numbered))
+    j = parse_json(raw)
+    flagged = j.get("false_statement_ids", [])
+    rec["detective_final"] = {"suspect": match_name(j.get("suspect"), sus),
+                              "confidence": j.get("confidence"),
+                              "flagged_false": [x for x in flagged if isinstance(x, str)]
+                              if isinstance(flagged, list) else [],
+                              "raw": raw}
+
+    # 4. Reference labels for every suspect statement (lie judge sees the case file)
+    raw = backend.call("lie_judge", P.LIE_JUDGE_SYSTEM, P.lie_check(text, numbered))
+    rec["statement_labels"] = parse_json(raw).get("labels", {})
+
+    # 5. Council votes with this backend's default judge model
+    j = judge_game(rec, backend, n_votes=n_votes)
+    rec["judges"] = {j["judge_model"]: j}
+    log(f"  final guess: {rec['detective_final']['suspect']}, "
+        f"council (debate only): {j['debate_votes']}, alone: {j['file_alone_vote']}, answer: {wolf}")
+    return rec
+
+
+def judge_game(rec, backend, model=None, n_votes=N_JUDGE_VOTES):
+    """Council votes on a finished game. Used by play_game and by rejudge.py.
+
+    debate_votes:    judge sees only the marked debate (no case file)  -> the main measurement
+    file_alone_vote: judge sees only the case file (no debate)         -> what this judge can do alone
+    """
+    case = rec["case"]
+    sus = case["suspects"]
+    model = model or backend.models["judge"]
+    votes = []
+    for _ in range(n_votes):
+        raw = backend.call("judge", P.JUDGE_DEBATE_SYSTEM,
+                           P.judge_debate_vote(sus, rec["transcript_marked"]), model=model)
+        votes.append(match_name(parse_json(raw).get("vote"), sus))
+    raw = backend.call("judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(render_case(case)), model=model)
+    return {"judge_model": model, "prompt_version": P.PROMPT_VERSION, "debate_votes": votes,
+            "file_alone_vote": match_name(parse_json(raw).get("vote"), sus)}
