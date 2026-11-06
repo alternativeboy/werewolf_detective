@@ -11,6 +11,7 @@ import random
 import re
 import shlex
 import subprocess
+import tempfile
 import time
 
 # Role -> model. Detective and both speaking suspects share a model so the debate is even;
@@ -30,9 +31,17 @@ API_ALIASES = {"haiku": "claude-haiku-5-5", "sonnet": "claude-sonnet-5-5", "opus
 
 
 class CLIBackend:
-    """Calls `claude -p`. Unset ANTHROPIC_API_KEY so it bills your plan, not the API."""
+    """Calls `claude -p`. Unset ANTHROPIC_API_KEY so it bills your plan, not the API.
+
+    Each call is isolated: no tools (so a player cannot open cases.jsonl and read the answer),
+    no settings sources (so no CLAUDE.md, which describes this experiment), and it runs in an
+    empty temporary directory. Without this, every call silently received the project notes.
+    """
+
+    ISOLATION = ["--tools", "", "--setting-sources", ""]
 
     def __init__(self, models=None, extra_args=None, retries=3):
+        self.workdir = tempfile.mkdtemp(prefix="werewolf_cli_")
         self.models = models or MODELS["cli"]
         self.extra = extra_args if extra_args is not None else shlex.split(
             os.environ.get("CLAUDE_EXTRA_ARGS", ""))
@@ -42,9 +51,10 @@ class CLIBackend:
 
     def call(self, role, system, prompt, model=None):
         cmd = ["claude", "-p", "--model", model or self.models[role], "--output-format", "json",
-               "--system-prompt", system, *self.extra]
+               "--system-prompt", system, *self.ISOLATION, *self.extra]
         for attempt in range(self.retries):
-            proc = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=300)
+            proc = subprocess.run(cmd, input=prompt, capture_output=True, text=True, timeout=300,
+                                  cwd=self.workdir)
             if proc.returncode == 0:
                 try:
                     return json.loads(proc.stdout)["result"]

@@ -81,7 +81,9 @@ One game ≈ 16 model calls; each extra judge model ≈ votes + 1 calls per game
 ## Status (6 Nov 2026)
 
 - v1: first real game (`c0000-honest`, easy) — everyone correct, nothing measured. Kept in
-  `results/v1_pilot/`; `analyze.py` skips v1 games.
+  `results/v1_pilot/`; `analyze.py` skips v1 games. That game is also contaminated: `claude -p`
+  loaded this CLAUDE.md (and the user's global one) into every call, and had file tools.
+  Fixed: CLIBackend now runs each call with `--tools "" --setting-sources ""` in an empty temp dir.
 - v2 design implemented (council sees debate only, innocent speaker, levels L0–L4 with code solver,
   pilot.py, rejudge.py). Tested end to end with the mock backend only; no real v2 games yet.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`.
