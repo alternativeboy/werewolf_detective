@@ -53,6 +53,7 @@ Hypotheses:
   incomplete copy, no debate) and a ceiling (same judge reading the full file); main number is
   gap closed = (council − floor) / (ceiling − floor), by level and judge size (it10). Before it10
   H3 compared against the ceiling only, which is ~100% and so could never be positive.
+  Since it11 floor, ceiling and council each get 3 votes, scored by majority (no majority = wrong).
 
 Metrics (in `analyze.py`): detective accuracy before/after and flips, fabricated-citation rate,
 lie recall (wolf), lie precision, innocent statements flagged; per judge model: chance, judge alone,
@@ -85,7 +86,8 @@ Run: `unset ANTHROPIC_API_KEY; python3 pilot.py --backend cli`, then
 ## Budget
 
 The user is on **Pro**. Pro has no monthly API credits; `claude -p` draws from plan usage limits.
-One game ≈ 16 model calls; each extra judge model ≈ votes + 1 calls per game. Pro is fine for ~10 test games; the 400-game run likely needs API credits
+One hide-1 game ≈ 21 model calls (12 debate + 9 judge: 3 council, 3 floor, 3 ceiling); each extra
+judge model ≈ 3 × votes calls per game. Pro is fine for ~10 test games; the 400-game run likely needs API credits
 (Message Batches API) or a temporary Max upgrade ($100/month API credit, claimable after 7 days).
 
 ## Status (7 Nov 2026)
@@ -103,7 +105,10 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
   innocent speaker (now random, ~20%)?
 - Word cap used to cut citations in half; every "misquote" in smoke_v3/v4 was that artifact.
   Fixed in it5. The cap still fires in most messages (open decision: ask for ~90 words?).
-- Smoke games: smoke_v2 (4, full view), smoke_v3 (4, 60%), smoke_v4 (2, 60%, prompt v4).
+- Smoke games: smoke_v2 (4, full view), smoke_v3 (4, 60%), smoke_v4 (2, 60%, prompt v4),
+  smoke_hide1 (4, hide-1, L2/L4; with 3-vote floor/ceiling: floor 2/4, council 4/4, ceiling 4/4).
+- Open (it11): honest and win games of one case give floor/ceiling identical input, so their
+  bootstrap CIs over games are too narrow; resample by case instead?
 - README has a draft pre-registration section; levels and fraction left blank for the user.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`.
 

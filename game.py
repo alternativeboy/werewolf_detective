@@ -105,17 +105,23 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
     j = judge_game(rec, backend, n_votes=n_votes)
     rec["judges"] = {j["judge_model"]: j}
     log(f"  final guess: {rec['detective_final']['suspect']}, "
-        f"council (debate only): {j['debate_votes']}, alone: {j['file_alone_vote']}, answer: {wolf}")
+        f"council (debate only): {j['debate_votes']}, ceiling: {j['file_alone_votes']}, "
+        f"floor: {j['file_partial_votes']}, answer: {wolf}")
     return rec
 
 
 def judge_game(rec, backend, model=None, n_votes=N_JUDGE_VOTES):
     """Council votes on a finished game. Used by play_game and by rejudge.py.
 
-    debate_votes:      judge sees only the marked debate (no case file) -> the main measurement
-    file_alone_vote:   judge sees the full case file, no debate         -> ceiling for H3
-    file_partial_vote: judge sees the detective's incomplete copy, no debate -> floor for H3
-                       (only for games where the detective's copy was partial; else None)
+    Every judge condition gets the same number of votes (n_votes) and is scored by majority,
+    so the council is not favoured by voting more often than the floor or the ceiling.
+
+    debate_votes:       judge sees only the marked debate (no case file) -> the main measurement
+    file_alone_votes:   judge sees the full case file, no debate         -> ceiling for H3
+    file_partial_votes: judge sees the detective's incomplete copy, no debate -> floor for H3
+                        (only for games where the detective's copy was partial; else None)
+    Games judged before it11 have a single ceiling vote in `file_alone_vote` (and a single floor
+    vote in `file_partial_vote`); analyze.py reads both shapes.
     """
     case = rec["case"]
     sus = case["suspects"]
@@ -125,18 +131,27 @@ def judge_game(rec, backend, model=None, n_votes=N_JUDGE_VOTES):
         raw = backend.call("judge", P.JUDGE_DEBATE_SYSTEM,
                            P.judge_debate_vote(sus, rec["transcript_marked"]), model=model)
         votes.append(match_name(parse_json(raw).get("vote"), sus))
-    raw = backend.call("judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(render_case(case)), model=model)
     return {"judge_model": model, "prompt_version": P.PROMPT_VERSION, "debate_votes": votes,
-            "file_alone_vote": match_name(parse_json(raw).get("vote"), sus),
-            "file_partial_vote": partial_file_vote(rec, backend, model)}
+            "file_alone_votes": file_votes(rec, backend, model, n_votes),
+            "file_partial_votes": file_votes(rec, backend, model, n_votes, partial=True)}
 
 
-def partial_file_vote(rec, backend, model):
-    """One vote by a judge reading the detective's incomplete copy alone (H3 floor), or None."""
-    ids = rec.get("detective_evidence_ids")
-    if ids is None:
-        return None
+def file_votes(rec, backend, model, n, partial=False):
+    """n votes by a judge reading a case file alone, no debate.
+
+    partial=False: the full file (H3 ceiling).
+    partial=True:  the detective's incomplete copy (H3 floor); None if that copy was complete.
+    """
     case = rec["case"]
-    text = render_case(case, only_ids=ids, note=PARTIAL_NOTE_JUDGE)
-    raw = backend.call("judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(text), model=model)
-    return match_name(parse_json(raw).get("vote"), case["suspects"])
+    if partial:
+        ids = rec.get("detective_evidence_ids")
+        if ids is None:
+            return None
+        text = render_case(case, only_ids=ids, note=PARTIAL_NOTE_JUDGE)
+    else:
+        text = render_case(case)
+    out = []
+    for _ in range(n):
+        raw = backend.call("judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(text), model=model)
+        out.append(match_name(parse_json(raw).get("vote"), case["suspects"]))
+    return out

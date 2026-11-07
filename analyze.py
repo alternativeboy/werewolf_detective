@@ -18,7 +18,7 @@ from checker import is_cut_artifact
 
 
 def majority(votes):
-    votes = [v for v in votes if v]
+    votes = [v for v in votes or [] if v]
     if not votes:
         return None
     (top, n), = Counter(votes).most_common(1)
@@ -80,16 +80,28 @@ def detective_row(g):
     }
 
 
+def file_votes_of(j, kind):
+    """Votes of a judge reading a file alone: kind "file_alone" (ceiling) or "file_partial"
+    (floor). Since it11 these are lists (`file_alone_votes`); older judgements have one vote
+    (`file_alone_vote`). Returns None if this judgement has no such vote."""
+    if j.get(kind + "_votes") is not None:
+        return j[kind + "_votes"]
+    return [j[kind + "_vote"]] if kind + "_vote" in j else None
+
+
 def council_row(g, j):
     ans, fin = g["answer"], g["detective_final"]["suspect"]
     pub = public_accusation(g)
     council = majority(j["debate_votes"])
+    # Floor and ceiling are scored like the council: majority of their votes (no majority = wrong)
+    ceiling = file_votes_of(j, "file_alone")
+    floor = file_votes_of(j, "file_partial")
     return {
         "council_correct": council == ans,
-        "alone_correct": j["file_alone_vote"] == ans,
+        "alone_correct": majority(ceiling) == ans,
         # H3 floor: same judge reading the detective's incomplete copy alone (None if not run)
-        "floor_correct": None if j.get("file_partial_vote", "missing") == "missing"
-        or g.get("detective_evidence_ids") is None else j["file_partial_vote"] == ans,
+        "floor_correct": None if floor is None or g.get("detective_evidence_ids") is None
+        else majority(floor) == ans,
         "danger": fin != ans and council is not None and council == fin,
         "danger_public": None if pub is None else (pub != ans and council == pub),
         "voted_speaker": council in g.get("speaker_order", []),
@@ -222,6 +234,23 @@ def print_games(games):
               f" | said {path} | final {g['detective_final']['suspect']} | council {votes}{left}")
 
 
+def merge_judgements(games, judgements):
+    """One judgement per (game_id, judge model): the game's own, then rejudge.py lines in file
+    order. A later line's non-None fields replace earlier ones, so a --file-votes-only line
+    (which carries only file_*_votes) tops up floor/ceiling without touching the debate votes."""
+    ids = {g["game_id"] for g in games}
+    merged = {}
+    for g in games:
+        for m, j in g.get("judges", {}).items():
+            merged[(g["game_id"], m)] = dict(j)
+    for j in judgements:
+        if j["game_id"] not in ids:
+            continue
+        merged.setdefault((j["game_id"], j["judge_model"]), {}).update(
+            {f: v for f, v in j.items() if v is not None})
+    return merged
+
+
 def report(games, judgements, per_game=False):
     old = [g for g in games if "judges" not in g]
     games = [g for g in games if "judges" in g]
@@ -243,22 +272,8 @@ def report(games, judgements, per_game=False):
         print(f"\n== detective={mode}, level={lv}, games={len(rows)} ==")
         print_metrics(rows, DETECTIVE_METRICS)
 
-    # One judgement per (game, judge model): the game's own, then rejudge.py lines merged in.
-    # A --floor-only line only adds file_partial_vote; it never replaces the debate votes.
     by_id = {g["game_id"]: g for g in games}
-    merged = {}
-    for g in games:
-        for m, j in g["judges"].items():
-            merged[(g["game_id"], m)] = dict(j)
-    for j in judgements:
-        if j["game_id"] not in by_id:
-            continue
-        k = (j["game_id"], j["judge_model"])
-        if k not in merged:
-            merged[k] = dict(j)
-        else:
-            merged[k].update({f: v for f, v in j.items()
-                              if f not in merged[k] or merged[k][f] is None})
+    merged = merge_judgements(games, judgements)
     council = defaultdict(list)
     for (gid, _), j in merged.items():
         if "debate_votes" not in j:
