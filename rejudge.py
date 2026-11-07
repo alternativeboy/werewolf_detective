@@ -15,6 +15,11 @@ Reruns skip pairs that are already done.
 to --votes votes each, for judge models that already voted on the debate. Use it on games
 judged before it11, which have one floor/ceiling vote instead of three:
   python rejudge.py --backend cli --games results/smoke_hide1/games.jsonl --judges haiku --file-votes-only
+
+--no-marks (ablation, it14) adds --votes council votes on the same debate with the clerk's
+(verified)/(MISQUOTED)/(NOT IN CASE FILE) marks removed, to see how much the council relies on
+them. The debate is not rerun, so the speakers behave exactly as in the marked condition:
+  python rejudge.py --backend cli --games results/smoke_hide1/games.jsonl --judges haiku --no-marks
 """
 
 import argparse
@@ -23,8 +28,8 @@ import os
 
 from analyze import file_votes_of, merge_judgements
 from backends import make_backend
-from game import N_JUDGE_VOTES, file_votes, judge_game
-from prompts import PROMPT_VERSION
+from game import N_JUDGE_VOTES, file_votes, judge_game, nomarks_votes
+from prompts import NOMARKS_VERSION, PROMPT_VERSION
 
 
 def load_jsonl(path):
@@ -62,12 +67,29 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="only the first N games")
     ap.add_argument("--file-votes-only", action="store_true",
                     help="only top up floor and ceiling votes to --votes each (no debate votes)")
+    ap.add_argument("--no-marks", action="store_true",
+                    help="ablation: council votes on the debate with the clerk's marks removed")
     a = ap.parse_args()
 
     out = os.path.join(os.path.dirname(a.games) or ".", "judgements.jsonl")
     games = [g for g in load_jsonl(a.games) if "transcript_marked" in g][:a.limit]
     backend = make_backend(a.backend)
     merged = merge_judgements(games, load_jsonl(out))
+
+    if a.no_marks:
+        for g in games:
+            for m in a.judges:
+                j = merged.get((g["game_id"], m), {})
+                if j.get("debate_votes_nomarks") is not None:
+                    continue
+                v = nomarks_votes(g, backend, m, a.votes)
+                print(f"{g['game_id']} judge={m}: no marks {v}, "
+                      f"with marks {j.get('debate_votes')}, answer {g['answer']}")
+                append(out, {"game_id": g["game_id"], "judge_model": m,
+                             "prompt_version": PROMPT_VERSION, "nomarks_version": NOMARKS_VERSION,
+                             "debate_votes_nomarks": v})
+        print(f"\nSaved to {out}. Next: python analyze.py {a.games}")
+        return
 
     if a.file_votes_only:
         for g in games:

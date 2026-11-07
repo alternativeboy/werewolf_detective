@@ -136,6 +136,19 @@ def judge_game(rec, backend, model=None, n_votes=N_JUDGE_VOTES):
             "file_partial_votes": file_votes(rec, backend, model, n_votes, partial=True)}
 
 
+def nomarks_votes(rec, backend, model, n):
+    """Ablation (it14): n council votes on the same debate with the clerk's marks removed
+    (rec["transcript"] is what the players saw; rec["transcript_marked"] is what the council
+    normally sees). Run after the fact with rejudge.py --no-marks; not part of play_game."""
+    sus = rec["case"]["suspects"]
+    out = []
+    for _ in range(n):
+        raw = backend.call("judge", P.JUDGE_DEBATE_NOMARKS_SYSTEM,
+                           P.judge_debate_nomarks_vote(sus, rec["transcript"]), model=model)
+        out.append(match_name(parse_json(raw).get("vote"), sus))
+    return out
+
+
 def file_votes(rec, backend, model, n, partial=False):
     """n votes by a judge reading a case file alone, no debate.
 

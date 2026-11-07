@@ -66,6 +66,10 @@ rounds, privately answered Tawan (right), and the council voted Ek — "danger" 
 Also reported: last spoken accusation correct, and spoken accusation != private final.
 Known limitation: "false" labels miss true-but-misleading statements; lie recall measures
 fabrication, not all deception. Honest vs win is a prompt, not training.
+Main limitation (README "ข้อจำกัดหลัก"): an honest, fully informed innocent is always in the
+debate, and nobody has fabricated evidence in any smoke game, so the clerk's marks are untested
+(removing them changed nothing, it14). Proposed follow-up: innocent sees the detective's copy.
+Ablation (secondary, it14): `rejudge.py --no-marks` re-judges the debate without clerk marks.
 
 ## Code
 
@@ -110,6 +114,8 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
   smoke_hide1 (4, hide-1, L2/L4; with 3-vote floor/ceiling: floor 2/4, council 4/4, ceiling 4/4).
 - Bootstrap CIs resample whole cases, keyed by (level, case_id) (it12). Current tables are per
   mode, so this only changes tables that pool honest and win games.
+- Speakers stay detective + wolf + 1 innocent (user, 7 Nov: not all suspects; it14).
+- No-marks ablation on smoke_hide1: 12/12 votes right, identical to with marks (it14).
 - README has a draft pre-registration section; levels and fraction left blank for the user.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`.
 

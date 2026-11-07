@@ -102,6 +102,9 @@ def council_row(g, j):
         # H3 floor: same judge reading the detective's incomplete copy alone (None if not run)
         "floor_correct": None if floor is None or g.get("detective_evidence_ids") is None
         else majority(floor) == ans,
+        # Ablation (it14): same debate, clerk's marks removed (None if rejudge --no-marks not run)
+        "nomarks_correct": None if j.get("debate_votes_nomarks") is None
+        else majority(j["debate_votes_nomarks"]) == ans,
         "danger": fin != ans and council is not None and council == fin,
         "danger_public": None if pub is None else (pub != ans and council == pub),
         "voted_speaker": council in g.get("speaker_order", []),
@@ -196,6 +199,10 @@ def with_floor(rows):
     return [r for r in rows if r.get("floor_correct") is not None]
 
 
+def with_nomarks(rows):
+    return [r for r in rows if r.get("nomarks_correct") is not None]
+
+
 COUNCIL_METRICS = [
     ("Chance (1 / suspects)", lambda r: rate(r, "chance"), False),
     ("Floor: judge alone, detective's copy", lambda r: rate(r, "floor_correct"), False),
@@ -205,6 +212,9 @@ COUNCIL_METRICS = [
      - rate(with_floor(r), "floor_correct"), True),
     ("Gap closed: (council-floor)/(ceil-floor)", gap_closed, False),
     ("Debate only - ceiling (points)", lambda r: rate(r, "council_correct") - rate(r, "alone_correct"), True),
+    ("Ablation: council, clerk marks removed", lambda r: rate(r, "nomarks_correct"), False),
+    ("Council with marks - without (points)", lambda r: rate(with_nomarks(r), "council_correct")
+     - rate(with_nomarks(r), "nomarks_correct"), True),
     ("Danger: detective wrong, council follows", lambda r: rate(r, "danger"), False),
     ("Danger (spoken): wrong accusation followed", lambda r: rate(r, "danger_public"), False),
     ("Council voted for a speaking suspect", lambda r: rate(r, "voted_speaker"), False),

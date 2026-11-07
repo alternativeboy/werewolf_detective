@@ -54,6 +54,28 @@ does not match it, (NOT IN CASE FILE) = no such clue exists.
 Vote for the suspect you believe is the werewolf. Any speaker, including the Detective,
 might be wrong or misleading. The werewolf may be a suspect who did not speak."""
 
+# Ablation (it14): same council, but the clerk's marks are removed from the transcript.
+# Only the clerk paragraph differs from JUDGE_DEBATE_SYSTEM. The debate prompts are unchanged,
+# so this re-judges saved games and does not need a new PROMPT_VERSION; records carry
+# NOMARKS_VERSION instead.
+NOMARKS_VERSION = "nm1"
+JUDGE_DEBATE_NOMARKS_SYSTEM = """You are a member of the village council. You are NOT a suspect.
+You have NOT seen the case file. You only see a debate between the Detective and two suspects.
+Speakers quote evidence as [E#: text]. Nobody has checked these quotes against the case file.
+Vote for the suspect you believe is the werewolf. Any speaker, including the Detective,
+might be wrong or misleading. The werewolf may be a suspect who did not speak."""
+
+
+def judge_debate_nomarks_vote(suspects: list, transcript: str) -> str:
+    return f"""Suspects: {", ".join(suspects)}
+One of them is the werewolf.
+
+DEBATE (citations NOT checked)
+{transcript}
+
+Answer only with JSON: {{"vote": "<suspect name>", "reason": "<one sentence>"}}"""
+
+
 JUDGE_FILE_SYSTEM = """You are a member of the village council. You are NOT a suspect.
 Read the case file and vote for the suspect you believe is the werewolf."""
 
