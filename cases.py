@@ -206,11 +206,18 @@ def make_valid_case(case_id: str, level: str, rng: random.Random, tries: int = 5
     raise RuntimeError(f"could not build an unambiguous {level} case")
 
 
-def render_case(case: dict, only_ids=None) -> str:
+PARTIAL_NOTE = ("NOTE: your copy of the case file is incomplete. Some evidence is missing; "
+                "the other speakers have the full file.\n")
+# Same warning for a judge who reads the detective's copy alone (there are no other speakers).
+PARTIAL_NOTE_JUDGE = "NOTE: this copy of the case file is incomplete. Some evidence is missing.\n"
+
+
+def render_case(case: dict, only_ids=None, note: str = PARTIAL_NOTE) -> str:
     """Case file text shown to players (never includes the answer, clue roles or facts).
 
     only_ids: show only these evidence ids (the detective's partial copy). Clue ids keep their
     original numbers, so a missing E7 shows up as a gap and citations mean the same for everyone.
+    note: warning printed at the top of a partial copy.
     """
     rules = case.get("rules", "")
     if isinstance(rules, list):  # v3+: rules have ids so they can be cited and checked
@@ -219,8 +226,7 @@ def render_case(case: dict, only_ids=None) -> str:
     ev = case["evidence"]
     if only_ids is not None:
         ev = [e for e in ev if e["id"] in set(only_ids)]
-        lines.insert(0, "NOTE: your copy of the case file is incomplete. Some evidence is missing; "
-                        "the other speakers have the full file.\n")
+        lines.insert(0, note)
     lines += [f"[{e['id']}] {e['text']}" for e in ev]
     return "\n".join(lines)
 

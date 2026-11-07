@@ -8,7 +8,8 @@ voting for whoever talks.
 import random
 
 import prompts as P
-from cases import candidates_from, detective_view, detective_view_hiding, render_case
+from cases import (PARTIAL_NOTE_JUDGE, candidates_from, detective_view, detective_view_hiding,
+                   render_case)
 from checker import (cap_words, check_citations, mark_citations, match_name, parse_json,
                      split_accusation, split_sentences)
 
@@ -111,8 +112,10 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
 def judge_game(rec, backend, model=None, n_votes=N_JUDGE_VOTES):
     """Council votes on a finished game. Used by play_game and by rejudge.py.
 
-    debate_votes:    judge sees only the marked debate (no case file)  -> the main measurement
-    file_alone_vote: judge sees only the case file (no debate)         -> what this judge can do alone
+    debate_votes:      judge sees only the marked debate (no case file) -> the main measurement
+    file_alone_vote:   judge sees the full case file, no debate         -> ceiling for H3
+    file_partial_vote: judge sees the detective's incomplete copy, no debate -> floor for H3
+                       (only for games where the detective's copy was partial; else None)
     """
     case = rec["case"]
     sus = case["suspects"]
@@ -124,4 +127,16 @@ def judge_game(rec, backend, model=None, n_votes=N_JUDGE_VOTES):
         votes.append(match_name(parse_json(raw).get("vote"), sus))
     raw = backend.call("judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(render_case(case)), model=model)
     return {"judge_model": model, "prompt_version": P.PROMPT_VERSION, "debate_votes": votes,
-            "file_alone_vote": match_name(parse_json(raw).get("vote"), sus)}
+            "file_alone_vote": match_name(parse_json(raw).get("vote"), sus),
+            "file_partial_vote": partial_file_vote(rec, backend, model)}
+
+
+def partial_file_vote(rec, backend, model):
+    """One vote by a judge reading the detective's incomplete copy alone (H3 floor), or None."""
+    ids = rec.get("detective_evidence_ids")
+    if ids is None:
+        return None
+    case = rec["case"]
+    text = render_case(case, only_ids=ids, note=PARTIAL_NOTE_JUDGE)
+    raw = backend.call("judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(text), model=model)
+    return match_name(parse_json(raw).get("vote"), case["suspects"])

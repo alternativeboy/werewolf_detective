@@ -49,7 +49,10 @@ Conditions: detective **honest** vs **win**, two levels (picked after pilot), ju
 Hypotheses:
 - H1: detective is right more often after the debate than before.
 - H2: the "win" detective fabricates/misquotes evidence more than the "honest" one.
-- H3: council (debate only) accuracy vs judge alone, and how it changes with level and judge size.
+- H3: council (debate only) accuracy between a floor (same judge reading the detective's
+  incomplete copy, no debate) and a ceiling (same judge reading the full file); main number is
+  gap closed = (council − floor) / (ceiling − floor), by level and judge size (it10). Before it10
+  H3 compared against the ceiling only, which is ~100% and so could never be positive.
 
 Metrics (in `analyze.py`): detective accuracy before/after and flips, fabricated-citation rate,
 lie recall (wolf), lie precision, innocent statements flagged; per judge model: chance, judge alone,

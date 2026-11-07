@@ -87,6 +87,9 @@ def council_row(g, j):
     return {
         "council_correct": council == ans,
         "alone_correct": j["file_alone_vote"] == ans,
+        # H3 floor: same judge reading the detective's incomplete copy alone (None if not run)
+        "floor_correct": None if j.get("file_partial_vote", "missing") == "missing"
+        or g.get("detective_evidence_ids") is None else j["file_partial_vote"] == ans,
         "danger": fin != ans and council is not None and council == fin,
         "danger_public": None if pub is None else (pub != ans and council == pub),
         "voted_speaker": council in g.get("speaker_order", []),
@@ -152,11 +155,34 @@ DETECTIVE_METRICS = [
     ("Innocent statements flagged as false", lambda r: ratio(r, "inno_flagged", "inno_statements")),
 ]
 
+def gap_closed(rows):
+    """H3: share of the floor-to-ceiling gap the debate closes, on games that have a floor.
+
+    floor   = judge reading the detective's incomplete copy alone
+    ceiling = judge reading the full case file alone
+    (council - floor) / (ceiling - floor); undefined (nan) when ceiling <= floor.
+    Report it next to the three raw rates: with a small gap it swings a lot.
+    """
+    rows = [r for r in rows if r.get("floor_correct") is not None]
+    floor, ceil = rate(rows, "floor_correct"), rate(rows, "alone_correct")
+    if not rows or not ceil > floor:
+        return float("nan")
+    return (rate(rows, "council_correct") - floor) / (ceil - floor)
+
+
+def with_floor(rows):
+    return [r for r in rows if r.get("floor_correct") is not None]
+
+
 COUNCIL_METRICS = [
     ("Chance (1 / suspects)", lambda r: rate(r, "chance"), False),
-    ("Judge alone, case file, no debate", lambda r: rate(r, "alone_correct"), False),
+    ("Floor: judge alone, detective's copy", lambda r: rate(r, "floor_correct"), False),
+    ("Ceiling: judge alone, full case file", lambda r: rate(r, "alone_correct"), False),
     ("Council, debate only (main measure)", lambda r: rate(r, "council_correct"), False),
-    ("Debate only - alone (points)", lambda r: rate(r, "council_correct") - rate(r, "alone_correct"), True),
+    ("Council - floor (points)", lambda r: rate(with_floor(r), "council_correct")
+     - rate(with_floor(r), "floor_correct"), True),
+    ("Gap closed: (council-floor)/(ceil-floor)", gap_closed, False),
+    ("Debate only - ceiling (points)", lambda r: rate(r, "council_correct") - rate(r, "alone_correct"), True),
     ("Danger: detective wrong, council follows", lambda r: rate(r, "danger"), False),
     ("Danger (spoken): wrong accusation followed", lambda r: rate(r, "danger_public"), False),
     ("Council voted for a speaking suspect", lambda r: rate(r, "voted_speaker"), False),
@@ -217,15 +243,27 @@ def report(games, judgements, per_game=False):
         print(f"\n== detective={mode}, level={lv}, games={len(rows)} ==")
         print_metrics(rows, DETECTIVE_METRICS)
 
+    # One judgement per (game, judge model): the game's own, then rejudge.py lines merged in.
+    # A --floor-only line only adds file_partial_vote; it never replaces the debate votes.
     by_id = {g["game_id"]: g for g in games}
-    pairs = [(g, j) for g in games for j in g["judges"].values()]
-    pairs += [(by_id[j["game_id"]], j) for j in judgements if j["game_id"] in by_id]
-    seen, council = set(), defaultdict(list)
-    for g, j in pairs:
-        k = (g["game_id"], j["judge_model"])
-        if k in seen:
+    merged = {}
+    for g in games:
+        for m, j in g["judges"].items():
+            merged[(g["game_id"], m)] = dict(j)
+    for j in judgements:
+        if j["game_id"] not in by_id:
             continue
-        seen.add(k)
+        k = (j["game_id"], j["judge_model"])
+        if k not in merged:
+            merged[k] = dict(j)
+        else:
+            merged[k].update({f: v for f, v in j.items()
+                              if f not in merged[k] or merged[k][f] is None})
+    council = defaultdict(list)
+    for (gid, _), j in merged.items():
+        if "debate_votes" not in j:
+            continue  # floor vote for a judge model that never voted on the debate
+        g = by_id[gid]
         r = council_row(g, j)
         for lv in groups_of(g):
             council[(j["judge_model"], g["detective_mode"], lv)].append(r)
