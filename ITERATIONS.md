@@ -283,3 +283,19 @@ findings. Newest entries at the bottom.
 - **Note for analysis:** honest and win games of one case give the floor and ceiling the same
   input (same copy, same file), so those votes are repeats, not new cases. CIs for floor and
   ceiling should be read as per-case, not per-game (n cases, not 2n games).
+- **Decision (7 Nov, user):** resample by case (it12).
+
+## it12 — bootstrap CIs resample whole cases (7 Nov)
+
+- **Problem (raised in it11):** games of one case share the case file and the detective's copy,
+  so the floor and ceiling see identical input in the honest and the win game. Resampling single
+  games treats such a pair as two independent draws and makes intervals too narrow.
+- **User decision:** resample by case.
+- **Change:** `analyze.ci` resamples clusters keyed by (level, case_id); every row in the report
+  carries that key. Rows without it count as their own case. No prompt change (v4).
+- **Check:** on smoke_hide1 the output is byte-identical to before. That is expected and is a
+  correction of what I said in it11: every current table is split by detective mode, so one table
+  never holds both the honest and the win game of a case, and the old intervals were already
+  per case there. The change matters for any table that pools the two modes (e.g. a pooled
+  floor/ceiling number, or a paired win − honest comparison). Synthetic check: 20 cases played
+  twice with identical outcomes give CI [15%, 55%] by case vs [22.5%, 50%] by game.

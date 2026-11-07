@@ -5,7 +5,7 @@ Usage: python analyze.py results/games.jsonl [--per-game]
 Two tables:
   Detective  - split by detective mode and level
   Council    - split by judge model, detective mode and level
-All rates come with 95% bootstrap intervals over games.
+All rates come with 95% bootstrap intervals over cases (games of one case are resampled together).
 """
 
 import json
@@ -139,11 +139,21 @@ def ratio(rows, num, den):
 
 
 def ci(rows, fn, n_boot=2000, seed=0):
-    """95% bootstrap interval over games."""
-    if len(rows) < 2:
+    """95% bootstrap interval, resampling whole cases (it12), not single games.
+
+    Games of the same case share the case file and the detective's copy, so the floor and
+    ceiling see identical input in the honest and the win game. Resampling games would count
+    such a pair as two independent draws and give too narrow an interval. Each row carries
+    "case" (level, case_id); rows without it count as their own case.
+    """
+    clusters = defaultdict(list)
+    for i, r in enumerate(rows):
+        clusters[r.get("case", i)].append(r)
+    clusters = list(clusters.values())
+    if len(clusters) < 2:
         return (float("nan"), float("nan"))
     rng = random.Random(seed)
-    vals = sorted(fn([rng.choice(rows) for _ in rows]) for _ in range(n_boot))
+    vals = sorted(fn([r for _ in clusters for r in rng.choice(clusters)]) for _ in range(n_boot))
     vals = [v for v in vals if v == v]
     if not vals:
         return (float("nan"), float("nan"))
@@ -264,7 +274,7 @@ def report(games, judgements, per_game=False):
 
     det = defaultdict(list)
     for g in games:
-        r = detective_row(g)
+        r = {**detective_row(g), "case": (g["difficulty"], g["case_id"])}
         for lv in groups_of(g):
             det[(g["detective_mode"], lv)].append(r)
     print("\n######## DETECTIVE ########")
@@ -279,7 +289,7 @@ def report(games, judgements, per_game=False):
         if "debate_votes" not in j:
             continue  # floor vote for a judge model that never voted on the debate
         g = by_id[gid]
-        r = council_row(g, j)
+        r = {**council_row(g, j), "case": (g["difficulty"], g["case_id"])}
         for lv in groups_of(g):
             council[(j["judge_model"], g["detective_mode"], lv)].append(r)
     print("\n######## COUNCIL ########")

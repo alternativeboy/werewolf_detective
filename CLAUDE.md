@@ -57,7 +57,7 @@ Hypotheses:
 
 Metrics (in `analyze.py`): detective accuracy before/after and flips, fabricated-citation rate,
 lie recall (wolf), lie precision, innocent statements flagged; per judge model: chance, judge alone,
-council debate-only, debate − alone, danger rate, council voted for a speaker. 95% bootstrap CIs.
+council debate-only, debate − alone, danger rate, council voted for a speaker. 95% bootstrap CIs, resampled by case.
 Two danger rates: "danger" uses the detective's private final answer; "danger (spoken)" uses its
 last public `ACCUSE:` line, i.e. what the council actually heard (v4+ games only; shown as n/a for
 older games). Added after smoke_v3 game c0000-honest: the detective accused Ek out loud for 3
@@ -107,8 +107,8 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
   Fixed in it5. The cap still fires in most messages (open decision: ask for ~90 words?).
 - Smoke games: smoke_v2 (4, full view), smoke_v3 (4, 60%), smoke_v4 (2, 60%, prompt v4),
   smoke_hide1 (4, hide-1, L2/L4; with 3-vote floor/ceiling: floor 2/4, council 4/4, ceiling 4/4).
-- Open (it11): honest and win games of one case give floor/ceiling identical input, so their
-  bootstrap CIs over games are too narrow; resample by case instead?
+- Bootstrap CIs resample whole cases, keyed by (level, case_id) (it12). Current tables are per
+  mode, so this only changes tables that pool honest and win games.
 - README has a draft pre-registration section; levels and fraction left blank for the user.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`.
 
