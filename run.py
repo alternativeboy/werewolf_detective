@@ -36,6 +36,9 @@ def main():
     ap.add_argument("--votes", type=int, default=N_JUDGE_VOTES, help="council votes per game")
     ap.add_argument("--detective-sees", type=float, default=1.0,
                     help="fraction of evidence in the detective's copy of the case file (0-1]")
+    ap.add_argument("--detective-hides", type=int, default=0,
+                    help="hide this many solution clues from the detective (1 = one alibi of a "
+                         "suspect in the wolf's row, leaving 2 possible suspects)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--out", default="results")
     a = ap.parse_args()
@@ -49,12 +52,13 @@ def main():
     for case in cases:
         for mode in a.modes:
             gid = f"{case['case_id']}-{mode}" + (f"-sees{a.detective_sees:g}"
-                                                   if a.detective_sees < 1 else "")
+                                                   if a.detective_sees < 1 else "") + (
+                f"-hide{a.detective_hides}" if a.detective_hides > 0 else "")
             if gid in done:
                 continue
             print(f"{gid} ({case['difficulty']})")
             rec = play_game(case, backend, mode, gid, n_votes=a.votes,
-                            detective_sees=a.detective_sees)
+                            detective_sees=a.detective_sees, detective_hides=a.detective_hides)
             with open(games_path, "a", encoding="utf-8") as f:
                 f.write(json.dumps(rec, ensure_ascii=False) + "\n")
     print(f"\nSaved to {games_path}.\nNext: python rejudge.py --games {games_path} --judges ...  "

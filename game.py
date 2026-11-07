@@ -8,7 +8,7 @@ voting for whoever talks.
 import random
 
 import prompts as P
-from cases import detective_view, render_case
+from cases import candidates_from, detective_view, detective_view_hiding, render_case
 from checker import (cap_words, check_citations, mark_citations, match_name, parse_json,
                      split_accusation, split_sentences)
 
@@ -17,10 +17,18 @@ N_JUDGE_VOTES = 3
 
 
 def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, detective_sees=1.0,
-              log=print):
+              detective_hides=0, log=print):
+    """detective_sees < 1: detective gets a random fraction of the evidence.
+    detective_hides = n > 0: detective gets everything except n solution clues (see
+    cases.detective_view_hiding). Use one or the other."""
+    if detective_hides > 0 and detective_sees < 1:
+        raise ValueError("use either detective_sees or detective_hides, not both")
     text = render_case(case)                        # full file: wolf, innocent, lie judge
-    det_ids = detective_view(case, detective_sees)
+    det_ids = (detective_view_hiding(case, detective_hides) if detective_hides > 0
+               else detective_view(case, detective_sees))
     det_text = render_case(case, only_ids=det_ids)  # detective's copy (maybe partial)
+    # Suspects still logically possible from the detective's copy (code solver, no model call)
+    det_cands = candidates_from(case, det_ids)
     sus = case["suspects"]
     wolf = case["answer"]
     rng = random.Random(game_id)
@@ -31,7 +39,11 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
     rec = {"game_id": game_id, "case_id": case["case_id"], "difficulty": case["difficulty"],
            "detective_mode": detective_mode, "answer": wolf, "prompt_version": P.PROMPT_VERSION,
            "case": case, "innocent_speaker": innocent, "speaker_order": [n for _, n in speakers],
-           "detective_sees": detective_sees, "detective_evidence_ids": det_ids, "messages": []}
+           "detective_sees": detective_sees, "detective_hides": detective_hides,
+           "detective_evidence_ids": det_ids, "detective_candidates": det_cands,
+           # True if the innocent speaker is one of the suspects the detective cannot rule out
+           # (with hide-1: the neighbour whose alibi is hidden, who can simply cite it)
+           "innocent_is_candidate": innocent in det_cands, "messages": []}
     det_sys = P.DETECTIVE_SYSTEM[detective_mode]
     sys_for = {"wolf": P.WOLF_SYSTEM.format(name=wolf),
                "innocent": P.INNOCENT_SYSTEM.format(name=innocent)}

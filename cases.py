@@ -235,6 +235,26 @@ def detective_view(case: dict, fraction: float):
     return [i for i in ids if i in keep]
 
 
+def detective_view_hiding(case: dict, n: int = 1, lo: int = 2, hi: int = 3):
+    """Evidence ids the detective sees when exactly n solution clues are hidden.
+
+    A clue is eligible if hiding it alone leaves lo..hi suspects still possible (checked with
+    the code solver). In practice (L1-L4) only the alibi of a suspect who lives in the wolf's row
+    qualifies: hiding it leaves two suspects, the wolf and that neighbour (the "decoy").
+    Hiding the death time, the trail or a residence list leaves everyone possible instead.
+    Same choice for every condition of a case (paired design). Returns None if n <= 0.
+    """
+    if n <= 0:
+        return None
+    ids = [e["id"] for e in case["evidence"]]
+    eligible = [i for i in ids if lo <= len(candidates_from(case, [j for j in ids if j != i])) <= hi]
+    if len(eligible) < n:
+        raise ValueError(f"{case['case_id']}: only {len(eligible)} clue(s) can be hidden, need {n}")
+    rng = random.Random(f"{case['case_id']}-{case['answer']}-hide{n}")
+    hidden = set(rng.sample(eligible, n))
+    return [i for i in ids if i not in hidden]
+
+
 def generate(n: int, seed: int, out_path: str, levels=("L1", "L3")) -> list:
     """Case i gets levels[i % len(levels)]. The same seed always gives the same cases."""
     rng = random.Random(seed)

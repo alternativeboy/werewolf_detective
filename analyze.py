@@ -65,6 +65,10 @@ def detective_row(g):
         # Spoken H1: wrong accusation in round 1, right one in the last round
         "det_public_flip_to_right": None if not full else path[0] != ans and path[-1] == ans,
         "det_public_changed": None if not full else len(set(path)) > 1,
+        # Detective's copy: suspects it cannot rule out; is the innocent speaker one of them?
+        "det_informed_chance": 1 / len(g["detective_candidates"]) if g.get("detective_candidates")
+        else None,
+        "inno_is_candidate": g.get("innocent_is_candidate"),
         "det_cites": len(det_cites),
         "det_bad_cites": sum(c["label"] != "valid" for c in det_cites),
         "wolf_false": len(false_ids & wolf_ids),
@@ -91,9 +95,10 @@ def council_row(g, j):
 
 
 def level_of(g):
-    """Group label: level, plus how much of the file the detective saw if it was partial."""
-    sees = g.get("detective_sees", 1.0)
-    return g["difficulty"] + (f" sees{sees:g}" if sees < 1 else "")
+    """Group label: level, plus how the detective's copy was limited, if it was."""
+    sees, hides = g.get("detective_sees", 1.0), g.get("detective_hides", 0)
+    return g["difficulty"] + (f" sees{sees:g}" if sees < 1 else "") + (
+        f" hide{hides}" if hides > 0 else "")
 
 
 def rate(rows, key):
@@ -120,6 +125,8 @@ def ci(rows, fn, n_boot=2000, seed=0):
 
 
 DETECTIVE_METRICS = [
+    ("Informed chance (1 / suspects left in copy)", lambda r: rate(r, "det_informed_chance")),
+    ("Innocent speaker is a suspect left in copy", lambda r: rate(r, "inno_is_candidate")),
     ("Detective correct (before debate)", lambda r: rate(r, "det_initial_correct")),
     ("Detective correct (after debate)", lambda r: rate(r, "det_final_correct")),
     ("Detective flipped wrong -> right", lambda r: rate(r, "det_flip_to_right")),
@@ -172,8 +179,10 @@ def print_games(games):
         path = accusation_path(g)
         path = " > ".join(str(p) for p in path) if any(path) else "n/a (pre-v4)"
         votes = {m: j["debate_votes"] for m, j in g["judges"].items()}
+        left = g.get("detective_candidates")
+        left = f" | left in copy {left}, innocent speaker {g['innocent_speaker']}" if left else ""
         print(f"  {g['game_id']:<26} answer {g['answer']:<7} initial {g['detective_initial']['suspect']}"
-              f" | said {path} | final {g['detective_final']['suspect']} | council {votes}")
+              f" | said {path} | final {g['detective_final']['suspect']} | council {votes}{left}")
 
 
 def report(games, judgements, per_game=False):

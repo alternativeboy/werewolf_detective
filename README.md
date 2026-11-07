@@ -60,6 +60,11 @@ python pilot.py --backend cli --levels L1 L2 L3 L4 --per-level 10
 python pilot.py --backend cli --levels L2 L4 --per-level 10 --detective-sees 0.5 0.6 0.7 \
   --out results/pilot_sees.jsonl
 ```
+หรือซ่อนหลักฐานแค่ 1 ชิ้นที่เป็นส่วนของคำตอบ (alibi ของเพื่อนบ้านแถวเดียวกับหมาป่า ทำให้เหลือผู้ต้องสงสัยที่เป็นไปได้ 2 คน):
+```bash
+python pilot.py --backend cli --levels L2 L4 --per-level 10 --detective-hides 1
+python run.py --backend cli --cases 2 --levels L4 --detective-hides 1
+```
 
 **3. เกมจริง** (ต้อง login Claude Code และ *ห้าม* ตั้ง `ANTHROPIC_API_KEY` ถ้าจะใช้แพ็กเกจ)
 ```bash

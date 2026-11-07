@@ -142,3 +142,38 @@ findings. Newest entries at the bottom.
 - **Status:** DRAFT. The primary-metric choices are proposals; the user must confirm or change
   them before the main run, and any later change gets its own entry here.
 - CLAUDE.md status / next steps updated to point here.
+
+## it8 — hide exactly one clue (7 Nov)
+
+- **User decision:** limit the detective's copy by hiding one link of the solution, not a random
+  fraction.
+- **Prototype (code only, 800 generated cases, L1–L4):** the only single clue whose removal leaves
+  2–3 suspects possible is the confirmed alibi of a suspect who lives in the wolf's row. It always
+  leaves exactly 2: the wolf and that neighbour (the "decoy"). Hiding the death time, the trail or
+  a residence list leaves all suspects possible, so those are not useful single hides.
+- **Change:** `cases.detective_view_hiding(case, n)` (clue chosen with the solver, seeded per
+  case); `run.py` / `game.py` `--detective-hides 1` (game id suffix `-hide1`); games record
+  `detective_candidates` and `innocent_is_candidate` (the decoy is the innocent speaker, so it can
+  cite its own alibi); `pilot.py --detective-hides 1`; `analyze.py` groups "L4 hide1" and adds
+  informed chance and "innocent speaker is a suspect left in copy".
+- **Run:** pilot on the same 20 cases as it6 (seed 1000, L2 and L4), 20 detective calls; judge
+  votes reused (`results/pilot_sees.jsonl`, rows with key `-hide1`).
+- **Outcome:**
+
+  | level | view | solvable from copy | informed chance | detective | judge (full file) |
+  | --- | --- | --- | --- | --- | --- |
+  | L2 | hide1 | 0/10 | 50% | 20% | 100% |
+  | L4 | hide1 | 0/10 | 50% | 20% | 100% |
+
+  All 20 guesses were one of the 2 suspects left; 16/20 picked the decoy, i.e. below the 50%
+  informed chance. In the copy, the wolf always has the level's red herring (L2: seen somewhere
+  early in the evening; L4: a confirmed alibi that ends hours before the death) and the decoy now
+  has nothing, so the detective reads the herring as clearing the wolf. Logically both remain
+  possible; the herring works as designed.
+- **What it means:** pre-debate accuracy is low (~20%) for a known, explainable reason, and the
+  wrong answer is nearly always the same innocent (the decoy). That gives H1 room in both
+  directions and makes "danger" concrete: did the debate get an innocent neighbour convicted?
+  n = 10 per level (± ~30 points).
+- **Open (user's call):** the innocent speaker is chosen at random, so the decoy speaks in ~20% of
+  L2+ games and can simply cite its own hidden alibi. Keep random (report the split), or fix it
+  (always / never the decoy)?

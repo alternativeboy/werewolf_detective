@@ -16,7 +16,8 @@ import random
 
 import prompts as P
 from backends import make_backend
-from cases import LEVELS, candidates_from, detective_view, make_valid_case, render_case
+from cases import (LEVELS, candidates_from, detective_view, detective_view_hiding, make_valid_case,
+                   render_case)
 from checker import match_name, parse_json
 
 
@@ -29,9 +30,15 @@ def main():
     ap.add_argument("--detective-sees", type=float, nargs="+", default=[1.0],
                     help="fraction(s) of evidence in the detective's copy (judge always sees all); "
                          "with several values the judge is called once per case and reused")
+    ap.add_argument("--detective-hides", type=int, nargs="*", default=[],
+                    help="also test hiding n solution clues (e.g. 1); see cases.detective_view_hiding")
     ap.add_argument("--seed", type=int, default=1000)
     ap.add_argument("--out", default="results/pilot.jsonl")
     a = ap.parse_args()
+    # Detective views to test: (label, function case -> evidence ids or None for the full file)
+    views = [("full" if s >= 1 else f"sees{s:g}", lambda c, s=s: detective_view(c, s))
+             for s in a.detective_sees if not (a.detective_hides and s >= 1)]
+    views += [(f"hide{n}", lambda c, n=n: detective_view_hiding(c, n)) for n in a.detective_hides]
 
     os.makedirs(os.path.dirname(a.out) or ".", exist_ok=True)
     done = {}
@@ -50,41 +57,43 @@ def main():
         for i in range(a.per_level):
             case = make_valid_case(f"p{lv}-{i:03d}", lv, rng)
             text, sus = render_case(case), case["suspects"]
-            jv = None  # the judge sees the full file, so one call serves every fraction
-            for sees in a.detective_sees:
-                key = f"{a.seed}-{case['case_id']}-{judge}" + (f"-sees{sees:g}" if sees < 1 else "")
+            jv = None  # the judge sees the full file, so one call serves every view
+            for label, view in views:
+                key = f"{a.seed}-{case['case_id']}-{judge}" + ("" if label == "full" else f"-{label}")
+                ids = view(case)
                 # Computed in code (free), so also filled in for rows saved by older runs
-                n_cands[key] = len(candidates_from(case, detective_view(case, sees)))
+                n_cands[key] = len(candidates_from(case, ids))
                 if key in done:
-                    rows.append(done[key])
+                    rows.append(dict(done[key], view=label))
                     jv = jv or done[key]["judge"]
                     continue
-                det_text = render_case(case, only_ids=detective_view(case, sees))
+                det_text = render_case(case, only_ids=ids)
                 det = match_name(parse_json(backend.call(
                     "detective", P.DETECTIVE_SYSTEM["honest"], P.detective_initial(det_text))).get("suspect"), sus)
                 if jv is None:
                     jv = match_name(parse_json(backend.call(
                         "judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(text), model=judge)).get("vote"), sus)
+                cands = candidates_from(case, ids)
                 r = {"key": key, "level": lv, "judge_model": judge, "answer": case["answer"],
-                     "detective_sees": sees,
+                     "view": label, "detective_evidence_ids": ids, "candidates": cands,
                      "n_suspects": len(sus), "detective": det, "judge": jv}
                 rows.append(r)
                 with open(a.out, "a", encoding="utf-8") as f:
                     f.write(json.dumps(r, ensure_ascii=False) + "\n")
-                print(f"{case['case_id']} sees {sees:g}: detective {det}, judge {jv}, "
-                      f"answer {case['answer']}")
+                print(f"{case['case_id']} {label}: detective {det}, judge {jv}, "
+                      f"answer {case['answer']}, still possible {cands}")
 
     print("\nThe judge always sees the whole case file; only the detective's copy is partial.")
     print("solvable = the detective's copy alone still leaves exactly one possible suspect;")
     print("informed chance = mean of 1 / (suspects still possible from the detective's copy).")
-    print(f"{'level':<6}{'sees':>6}{'n':>4}{'chance':>9}{'solvable':>10}{'inf.chance':>12}"
+    print(f"{'level':<6}{'view':>8}{'n':>4}{'chance':>9}{'solvable':>10}{'inf.chance':>12}"
           f"{'detective':>11}{'judge (' + judge + ')':>16}")
     for lv in a.levels:
-        for sees in a.detective_sees:
-            rs = [r for r in rows if r["level"] == lv and r["detective_sees"] == sees]
+        for label, _ in views:
+            rs = [r for r in rows if r["level"] == lv and r["view"] == label]
             acc = lambda k: sum(r[k] == r["answer"] for r in rs) / len(rs)
             nc = [n_cands[r["key"]] for r in rs]
-            print(f"{lv:<6}{sees:>6.0%}{len(rs):>4}{1 / rs[0]['n_suspects']:>9.0%}"
+            print(f"{lv:<6}{label:>8}{len(rs):>4}{1 / rs[0]['n_suspects']:>9.0%}"
                   f"{sum(n == 1 for n in nc):>7}/{len(nc):<2}{sum(1 / n for n in nc) / len(nc):>12.0%}"
                   f"{acc('detective'):>11.0%}{acc('judge'):>16.0%}")
     print("\nWith n=10 per level, each rate is +/- ~30 points. Use it to rule levels in or out, "
