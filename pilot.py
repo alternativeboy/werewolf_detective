@@ -26,8 +26,9 @@ def main():
     ap.add_argument("--levels", nargs="+", default=["L1", "L2", "L3", "L4"], choices=LEVELS)
     ap.add_argument("--per-level", type=int, default=10)
     ap.add_argument("--judge-model", default=None, help="default: the backend's judge model")
-    ap.add_argument("--detective-sees", type=float, default=1.0,
-                    help="fraction of evidence in the detective's copy (judge always sees all)")
+    ap.add_argument("--detective-sees", type=float, nargs="+", default=[1.0],
+                    help="fraction(s) of evidence in the detective's copy (judge always sees all); "
+                         "with several values the judge is called once per case and reused")
     ap.add_argument("--seed", type=int, default=1000)
     ap.add_argument("--out", default="results/pilot.jsonl")
     a = ap.parse_args()
@@ -48,32 +49,37 @@ def main():
     for lv in a.levels:
         for i in range(a.per_level):
             case = make_valid_case(f"p{lv}-{i:03d}", lv, rng)
-            key = f"{a.seed}-{case['case_id']}-{judge}" + (
-                f"-sees{a.detective_sees:g}" if a.detective_sees < 1 else "")
-            if key in done:
-                rows.append(done[key])
-                continue
             text, sus = render_case(case), case["suspects"]
-            det_text = render_case(case, only_ids=detective_view(case, a.detective_sees))
-            det = match_name(parse_json(backend.call(
-                "detective", P.DETECTIVE_SYSTEM["honest"], P.detective_initial(det_text))).get("suspect"), sus)
-            jv = match_name(parse_json(backend.call(
-                "judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(text), model=judge)).get("vote"), sus)
-            r = {"key": key, "level": lv, "judge_model": judge, "answer": case["answer"],
-                 "detective_sees": a.detective_sees,
-                 "n_suspects": len(sus), "detective": det, "judge": jv}
-            rows.append(r)
-            with open(a.out, "a", encoding="utf-8") as f:
-                f.write(json.dumps(r, ensure_ascii=False) + "\n")
-            print(f"{case['case_id']}: detective {det}, judge {jv}, answer {case['answer']}")
+            jv = None  # the judge sees the full file, so one call serves every fraction
+            for sees in a.detective_sees:
+                key = f"{a.seed}-{case['case_id']}-{judge}" + (f"-sees{sees:g}" if sees < 1 else "")
+                if key in done:
+                    rows.append(done[key])
+                    jv = jv or done[key]["judge"]
+                    continue
+                det_text = render_case(case, only_ids=detective_view(case, sees))
+                det = match_name(parse_json(backend.call(
+                    "detective", P.DETECTIVE_SYSTEM["honest"], P.detective_initial(det_text))).get("suspect"), sus)
+                if jv is None:
+                    jv = match_name(parse_json(backend.call(
+                        "judge", P.JUDGE_FILE_SYSTEM, P.judge_file_vote(text), model=judge)).get("vote"), sus)
+                r = {"key": key, "level": lv, "judge_model": judge, "answer": case["answer"],
+                     "detective_sees": sees,
+                     "n_suspects": len(sus), "detective": det, "judge": jv}
+                rows.append(r)
+                with open(a.out, "a", encoding="utf-8") as f:
+                    f.write(json.dumps(r, ensure_ascii=False) + "\n")
+                print(f"{case['case_id']} sees {sees:g}: detective {det}, judge {jv}, "
+                      f"answer {case['answer']}")
 
-    print(f"\ndetective sees {a.detective_sees:.0%} of the evidence; the judge sees all of it")
-    print(f"{'level':<6}{'n':>4}{'chance':>9}{'detective':>12}{'judge (' + judge + ')':>18}")
+    print("\nThe judge always sees the whole case file; only the detective's copy is partial.")
+    print(f"{'level':<6}{'sees':>6}{'n':>4}{'chance':>9}{'detective':>12}{'judge (' + judge + ')':>18}")
     for lv in a.levels:
-        rs = [r for r in rows if r["level"] == lv]
-        acc = lambda k: sum(r[k] == r["answer"] for r in rs) / len(rs)
-        print(f"{lv:<6}{len(rs):>4}{1 / rs[0]['n_suspects']:>9.0%}{acc('detective'):>12.0%}"
-              f"{acc('judge'):>18.0%}")
+        for sees in a.detective_sees:
+            rs = [r for r in rows if r["level"] == lv and r["detective_sees"] == sees]
+            acc = lambda k: sum(r[k] == r["answer"] for r in rs) / len(rs)
+            print(f"{lv:<6}{sees:>6.0%}{len(rs):>4}{1 / rs[0]['n_suspects']:>9.0%}"
+                  f"{acc('detective'):>12.0%}{acc('judge'):>18.0%}")
     print("\nWith n=10 per level, each rate is +/- ~30 points. Use it to rule levels in or out, "
           "not as a result.")
 
