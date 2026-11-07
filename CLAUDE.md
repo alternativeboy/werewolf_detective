@@ -57,7 +57,8 @@ Hypotheses:
 
 Metrics (in `analyze.py`): detective accuracy before/after and flips, fabricated-citation rate,
 lie recall (wolf), lie precision, innocent statements flagged; per judge model: chance, judge alone,
-council debate-only, debate − alone, danger rate, council voted for a speaker. 95% bootstrap CIs, resampled by case.
+council debate-only, debate − alone, danger rate, council voted for a speaker; plus a floor/ceiling table pooling honest and win games (it13).
+95% bootstrap CIs, resampled by case.
 Two danger rates: "danger" uses the detective's private final answer; "danger (spoken)" uses its
 last public `ACCUSE:` line, i.e. what the council actually heard (v4+ games only; shown as n/a for
 older games). Added after smoke_v3 game c0000-honest: the detective accused Ek out loud for 3

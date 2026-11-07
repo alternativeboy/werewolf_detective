@@ -210,6 +210,14 @@ COUNCIL_METRICS = [
     ("Council voted for a speaking suspect", lambda r: rate(r, "voted_speaker"), False),
 ]
 
+POOLED_METRICS = [
+    ("Chance (1 / suspects)", lambda r: rate(r, "chance"), False),
+    ("Floor: judge alone, detective's copy", lambda r: rate(r, "floor_correct"), False),
+    ("Ceiling: judge alone, full case file", lambda r: rate(r, "alone_correct"), False),
+    ("Ceiling - floor: room for debate (points)", lambda r: rate(with_floor(r), "alone_correct")
+     - rate(with_floor(r), "floor_correct"), True),
+]
+
 
 def print_metrics(rows, metrics):
     for name, fn, *signed in metrics:
@@ -217,6 +225,8 @@ def print_metrics(rows, metrics):
         lo, hi = ci(rows, fn)
         if v != v:  # nan: nothing measurable in these games (e.g. a v4 metric on v3 games)
             print(f"  {name:<44}     n/a")
+        elif lo != lo:  # one case only: nothing to resample
+            print(f"  {name:<44} {v:{'+' if signed and signed[0] else ''}7.1%}   95% CI n/a (1 case)")
         elif signed and signed[0]:
             print(f"  {name:<44} {v:+7.1%}   95% CI [{lo:+.0%}, {hi:+.0%}]")
         else:
@@ -296,6 +306,21 @@ def report(games, judgements, per_game=False):
     for (model, mode, lv), rows in sorted(council.items()):
         print(f"\n== judge={model}, detective={mode}, level={lv}, games={len(rows)} ==")
         print_metrics(rows, COUNCIL_METRICS)
+
+    # Floor and ceiling never see the debate, so they do not depend on the detective mode:
+    # pool honest and win games for a tighter estimate. The two games of a case share the same
+    # input (repeat votes, not new cases); ci() resamples by case, so the CI reflects cases.
+    # No decoy split here: it depends on who spoke, which floor and ceiling never see.
+    pooled = defaultdict(list)
+    for (model, mode, lv), rows in council.items():
+        if "|" not in lv:
+            pooled[(model, lv)] += rows
+    print("\n######## FLOOR / CEILING, BOTH DETECTIVE MODES POOLED ########")
+    print("(the council is not pooled: it depends on the detective mode; see the tables above)")
+    for (model, lv), rows in sorted(pooled.items()):
+        n_cases = len({r["case"] for r in rows})
+        print(f"\n== judge={model}, level={lv}, cases={n_cases}, games={len(rows)} ==")
+        print_metrics(rows, POOLED_METRICS)
 
 
 if __name__ == "__main__":

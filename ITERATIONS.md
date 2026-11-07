@@ -299,3 +299,18 @@ findings. Newest entries at the bottom.
   per case there. The change matters for any table that pools the two modes (e.g. a pooled
   floor/ceiling number, or a paired win − honest comparison). Synthetic check: 20 cases played
   twice with identical outcomes give CI [15%, 55%] by case vs [22.5%, 50%] by game.
+
+## it13 — pooled floor/ceiling table (7 Nov)
+
+- **User decision:** add a table that pools the honest and win games for floor and ceiling.
+- **Why it is valid:** floor and ceiling never see the debate, so the detective mode cannot
+  affect them; pooling gives each case 6 floor and 6 ceiling votes instead of 3. The two games of
+  a case are repeats of the same input, and the it12 bootstrap resamples by case, so the CI
+  counts cases, not games. The table prints both `cases=` and `games=`.
+- **Change:** `analyze.py` prints "FLOOR / CEILING, BOTH DETECTIVE MODES POOLED" per judge model
+  and level: chance, floor, ceiling, ceiling − floor ("room for debate"). The council is not
+  pooled (it depends on the mode), and there is no decoy split (it depends on who spoke, which
+  floor and ceiling never see). Tables with one case now print "CI n/a (1 case)" instead of nan.
+- **Outcome on smoke_hide1 (all levels, 2 cases, 4 games):** floor 50%, ceiling 100%, room for
+  debate +50 points, CI [+0, +100]. Same numbers as the per-mode tables, as expected when honest
+  and win agree; with 2 cases it says nothing yet.
