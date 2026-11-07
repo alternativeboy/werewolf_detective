@@ -101,6 +101,17 @@ def level_of(g):
         f" hide{hides}" if hides > 0 else "")
 
 
+def groups_of(g):
+    """Every table a game counts in: its level, "all", and for hide games also the split by
+    whether the innocent speaker is the decoy (a suspect the detective's copy cannot rule out,
+    who can cite its own hidden alibi). The innocent speaker is random, so both halves occur."""
+    out = [level_of(g), "all"]
+    if g.get("detective_hides", 0) > 0 and g.get("innocent_is_candidate") is not None:
+        split = "decoy speaks" if g["innocent_is_candidate"] else "decoy silent"
+        out += [f"{level_of(g)} | {split}", f"all | {split}"]
+    return out
+
+
 def rate(rows, key):
     """Share of rows where key is true. Rows where it is None (not measurable) are left out."""
     vals = [r[key] for r in rows if r.get(key) is not None]
@@ -199,7 +210,7 @@ def report(games, judgements, per_game=False):
     det = defaultdict(list)
     for g in games:
         r = detective_row(g)
-        for lv in (level_of(g), "all"):
+        for lv in groups_of(g):
             det[(g["detective_mode"], lv)].append(r)
     print("\n######## DETECTIVE ########")
     for (mode, lv), rows in sorted(det.items()):
@@ -216,7 +227,7 @@ def report(games, judgements, per_game=False):
             continue
         seen.add(k)
         r = council_row(g, j)
-        for lv in (level_of(g), "all"):
+        for lv in groups_of(g):
             council[(j["judge_model"], g["detective_mode"], lv)].append(r)
     print("\n######## COUNCIL ########")
     for (model, mode, lv), rows in sorted(council.items()):

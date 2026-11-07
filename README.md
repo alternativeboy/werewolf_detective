@@ -94,7 +94,11 @@ python run.py --backend api --cases 100 --levels L1 L3
 
 **ตั้งค่าที่ล็อก**
 - prompt `v4` ห้ามแก้ระหว่าง main run (ถ้าแก้ = version ใหม่ และต้องรันใหม่ทั้งชุด)
-- ระดับ: `____` และ `____` · detective เห็น `____`% (เลือกจาก `results/pilot_sees.jsonl`)
+- ระดับ: `____` และ `____` · สำเนาของ detective: `--detective-hides 1` (ซ่อน alibi 1 ชิ้น เหลือผู้ต้องสงสัย 2 คน
+  คือหมาป่ากับ "decoy" ดู ITERATIONS.md it8)
+- ผู้บริสุทธิ์ที่ได้พูดสุ่มจากผู้บริสุทธิ์ทุกคน จึงเป็น decoy ได้บางเกม (ประมาณ 20% ที่ L2+)
+  ผลหลักใช้ทุกเกมรวมกัน และรายงานแยก "decoy speaks" / "decoy silent" เป็นผลรองเสมอ (`analyze.py` แยกให้เอง)
+  ห้ามเปลี่ยนว่ากลุ่มไหนเป็นผลหลักหลังเห็นตัวเลข
 - 100 คดีต่อระดับ × 2 โหมด (honest, win) = 400 เกม · seed 0 (pilot ใช้ seed 1000, smoke ใช้ 2000)
 - judge หลัก: haiku · เพิ่ม sonnet ทุกเกม และ opus บางส่วนด้วย `rejudge.py`
 
