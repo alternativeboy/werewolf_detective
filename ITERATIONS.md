@@ -215,3 +215,4 @@ findings. Newest entries at the bottom.
   are therefore less paired than they could be, and "decoy speaks" can differ by mode by chance.
 - **Open (user's call):** draw the innocent speaker and speaker order per case (same in honest and
   win) instead of per game? Still random across cases, so the split report is unchanged.
+- **Decision (7 Nov, user):** keep drawing the innocent speaker per game for now.
