@@ -85,21 +85,27 @@ The user is on **Pro**. Pro has no monthly API credits; `claude -p` draws from p
 One game ≈ 16 model calls; each extra judge model ≈ votes + 1 calls per game. Pro is fine for ~10 test games; the 400-game run likely needs API credits
 (Message Batches API) or a temporary Max upgrade ($100/month API credit, claimable after 7 days).
 
-## Status (6 Nov 2026)
+## Status (7 Nov 2026)
 
-- v1: first real game (`c0000-honest`, easy) — everyone correct, nothing measured. Kept in
-  `results/v1_pilot/`; `analyze.py` skips v1 games. That game is also contaminated: `claude -p`
-  loaded this CLAUDE.md (and the user's global one) into every call, and had file tools.
-  Fixed: CLIBackend now runs each call with `--tools "" --setting-sources ""` in an empty temp dir.
-- v2 design implemented (council sees debate only, innocent speaker, levels L0–L4 with code solver,
-  pilot.py, rejudge.py). Tested end to end with the mock backend only; no real v2 games yet.
+Full history, results and decisions per iteration: `ITERATIONS.md` (it0–it7). Add an entry for
+every new iteration (what changed, what ran, outcome, decision) and commit it with the results.
+
+- v1 game is contaminated (CLI loaded CLAUDE.md, had file tools); fixed by CLI isolation.
+- Full case file: Sonnet detective and Haiku judge are 100% on L1–L4 (ceiling).
+- Detective sees part of the file (v3+): pre-debate errors appear, but only 3/60 partial copies
+  still determine the answer, so they are mostly missing information (it6). How to hide evidence
+  (random fraction vs one chain link vs harder level) is the user's open decision.
+- Word cap used to cut citations in half; every "misquote" in smoke_v3/v4 was that artifact.
+  Fixed in it5. The cap still fires in most messages (open decision: ask for ~90 words?).
+- Smoke games: smoke_v2 (4, full view), smoke_v3 (4, 60%), smoke_v4 (2, 60%, prompt v4).
+- README has a draft pre-registration section; levels and fraction left blank for the user.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`.
 
 ## Next steps
 
-1. Run `pilot.py` on L1–L4 (10 cases each) and pick two levels where accuracy is clearly between
-   chance and 100%.
-2. Run ~10 real v2 games and read transcripts by hand (check the innocent speaker and marks work).
+1. User decides how the detective's view is limited (ITERATIONS.md it6) and the word-target
+   question (it5); then fill the blanks in README's pre-registration and freeze the prompt.
+2. Run ~10 real games with the frozen setup and read transcripts by hand.
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Full run, then `rejudge.py --judges sonnet opus` (opus on a subset), then write up
    (README or blog, 2–3 pages, with limitations; say Claude helped write the code).

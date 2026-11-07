@@ -131,3 +131,14 @@ findings. Newest entries at the bottom.
      and the debate must supply that one fact. Cleaner to explain; needs a small `cases.py` change.
   3. Go back to the full file at a harder level, so failure is about reasoning; L4 is still at
      ceiling, which would need a harder level (L5).
+
+## it7 — draft pre-registration + docs (7 Nov)
+
+- **Change:** README gets "แผนการวิเคราะห์ที่ล็อกไว้ก่อน main run": frozen prompt version,
+  one primary metric per question (H1 private before → after, H2 bad-citation rate win − honest,
+  H3 council − alone, safety: danger (spoken)), secondary metrics, how unparsed answers and
+  missing ACCUSE lines are handled, and "spoken ≠ private final" reported as exploratory only.
+  Levels and the detective's view are left blank on purpose.
+- **Status:** DRAFT. The primary-metric choices are proposals; the user must confirm or change
+  them before the main run, and any later change gets its own entry here.
+- CLAUDE.md status / next steps updated to point here.
