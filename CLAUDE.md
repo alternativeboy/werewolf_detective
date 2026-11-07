@@ -116,13 +116,15 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
   mode, so this only changes tables that pool honest and win games.
 - Speakers stay detective + wolf + 1 innocent (user, 7 Nov: not all suspects; it14).
 - No-marks ablation on smoke_hide1: 12/12 votes right, identical to with marks (it14).
-- README has a draft pre-registration section; levels and fraction left blank for the user.
+- README has a draft pre-registration section; levels L2 + L4, view hide-1 (user, 7 Nov).
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`.
 
 ## Next steps
 
-1. User decides the decoy-speaker question (it8) and the word-target question (it5); then fill
-   the blanks in README's pre-registration (levels, view = hide1) and freeze the prompt.
+1. Levels chosen: L2 and L4 (user, 7 Nov); README pre-registration has them and the main-run
+   command (`--cases 200 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main`).
+   Still open before freezing v4: the word-target question (it5, ~90 words would be v5), and the
+   user marking the pre-registration as final (it still says "ร่าง").
 2. Run ~10 real games with the frozen setup and read transcripts by hand.
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Full run, then `rejudge.py --judges sonnet opus` (opus on a subset), then write up

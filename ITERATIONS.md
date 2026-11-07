@@ -339,3 +339,8 @@ findings. Newest entries at the bottom.
   always in the debate, and nobody has fabricated evidence yet, so the clerk is untested.
   Proposed follow-up (not scheduled): the innocent sees the detective's copy, so only the wolf
   knows the missing clue.
+- **Decision (7 Nov, user):** main-run levels are L2 and L4 (pilot it8: detective right before the
+  debate 2/10 on each, so both leave room for the debate). README pre-registration filled in,
+  with the main-run command: `run.py --cases 200 --levels L2 L4 --detective-hides 1 --seed 0
+  --out results/main` (`--cases` is the total, alternating levels: 100 per level × 2 modes =
+  400 games). Still open: word target (it5) and marking the pre-registration as final.
