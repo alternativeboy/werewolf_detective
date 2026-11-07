@@ -38,12 +38,30 @@ def mark_citations(message: str, case: dict) -> str:
     return CITE.sub(lambda m: f"{m.group(0)} {MARKS[next(labels)]}", message)
 
 
+CUT_MARK = "... (cut: over word limit)"  # round brackets, so CITE never reads it as a citation
+
+
 def cap_words(text: str, limit: int):
-    """Cut a message after `limit` words, keeping its formatting. Returns (text, words_cut)."""
+    """Cut a message after `limit` words, keeping its formatting. Returns (text, words_cut).
+
+    If the cut lands inside a citation, the whole unfinished citation is dropped. Otherwise a
+    half citation such as "[E9: Nobody can say where" is checked as MISQUOTED: in v3/v4 smoke
+    games every "bad" citation (10 of 10) was this artifact, not a real misquote.
+    """
     words = list(re.finditer(r"\S+", text))
     if len(words) <= limit:
         return text, 0
-    return text[:words[limit - 1].end()] + " [cut: over word limit]", len(words) - limit
+    cut = text[:words[limit - 1].end()]
+    start = cut.rfind("[")
+    if start != -1 and "]" not in cut[start:]:
+        cut = cut[:start].rstrip()
+    kept = len(re.findall(r"\S+", cut))
+    return f"{cut} {CUT_MARK}", len(words) - kept
+
+
+def is_cut_artifact(citation: dict) -> bool:
+    """True for a citation that was half cut by cap_words before the fix above."""
+    return "[cut: over word limit" in citation.get("quoted", "")
 
 
 ACCUSE_LINE = re.compile(r"^[\s*_#>-]*ACCUSE[\s*_]*:[\s*_]*(.+?)[\s*_.]*$", re.I | re.M)

@@ -14,6 +14,8 @@ import random
 import sys
 from collections import Counter, defaultdict
 
+from checker import is_cut_artifact
+
 
 def majority(votes):
     votes = [v for v in votes if v]
@@ -43,7 +45,9 @@ def detective_row(g):
     pub = public_accusation(g)
     path = accusation_path(g)
     full = bool(path) and None not in path  # every round has a parsed ACCUSE line
-    det_cites = [c for m in g["messages"] if m["speaker"] == "detective" for c in m["citations"]]
+    # Citations half cut by the old word cap (v3/v4 games) are not the speaker's doing: skip them.
+    det_cites = [c for m in g["messages"] if m["speaker"] == "detective" for c in m["citations"]
+                 if not is_cut_artifact(c)]
     labels = g.get("statement_labels", {})
     who = g.get("statement_speaker", {})
     wolf_ids = {i for i, n in who.items() if n == ans}
