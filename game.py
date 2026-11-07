@@ -10,7 +10,7 @@ import random
 import prompts as P
 from cases import detective_view, render_case
 from checker import (cap_words, check_citations, mark_citations, match_name, parse_json,
-                     split_sentences)
+                     split_accusation, split_sentences)
 
 N_ROUNDS = 3
 N_JUDGE_VOTES = 3
@@ -46,12 +46,16 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
     # 2. Debate. `transcript` is what players see; `marked` is what the council sees.
     transcript, marked, statements = "", "", []  # statements: (id, speaker, sentence)
     for r in range(1, N_ROUNDS + 1):
-        d, cut = cap_words(backend.call("detective", det_sys,
-                                        P.detective_turn(det_text, transcript, r)).strip(), P.MAX_WORDS)
+        body, accused = split_accusation(
+            backend.call("detective", det_sys, P.detective_turn(det_text, transcript, r)), sus)
+        d, cut = cap_words(body, P.MAX_WORDS)
+        if accused:  # put the line back after the cap, so the council always sees it
+            d += f"\n{P.ACCUSE_TAG}: {accused}"
         transcript += f"\nDetective (round {r}): {d}\n"
         marked += f"\nDetective (round {r}): {mark_citations(d, case)}\n"
         rec["messages"].append({"speaker": "detective", "round": r, "text": d, "words_cut": cut,
-                                "citations": check_citations(d, case)})
+                                "accused": accused, "citations": check_citations(d, case)})
+        log(f"  round {r}: detective accuses {accused}")
         k = 0  # statement counter within the round
         for role, name in speakers:
             w, cut = cap_words(backend.call(role, sys_for[role],
@@ -65,7 +69,6 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
                 statements.append((f"S{r}.{k}", name, sent))
             rec["messages"].append({"speaker": role, "name": name, "round": r, "text": w,
                                     "words_cut": cut, "citations": check_citations(w, case), "sentences": sents})
-        log(f"  round {r} done")
     rec["transcript"] = transcript
     rec["transcript_marked"] = marked
     rec["statement_speaker"] = {sid: name for sid, name, _ in statements}

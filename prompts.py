@@ -4,8 +4,12 @@
 #     an innocent suspect also speaks, so "vote for whoever talks" no longer works.
 # v3: case rules have ids [R1], [R2] and can be cited; messages are cut at MAX_WORDS;
 #     optional partial case file for the detective (see run.py --detective-sees).
-PROMPT_VERSION = "v3"
+# v4: every detective message ends with "ACCUSE: <name>", so the accusation the council hears
+#     can be measured (in v3 the detective once accused the wrong suspect out loud for 3 rounds
+#     while its private final answer was right, and the council followed the spoken one).
+PROMPT_VERSION = "v4"
 MAX_WORDS = 120
+ACCUSE_TAG = "ACCUSE"
 
 CITATION_RULES = f"""Citation rules:
 - To use evidence or a rule, cite it exactly as [E#: exact text] or [R#: exact text],
@@ -76,7 +80,9 @@ def detective_turn(case_text: str, transcript: str, round_no: int) -> str:
 DEBATE SO FAR
 {transcript or "(no messages yet)"}
 
-Round {round_no}. Write your next message to the village council. Name the suspect you accuse.
+Round {round_no}. Write your next message to the village council.
+End with one last line naming exactly one suspect you accuse now: {ACCUSE_TAG}: <name>
+The council sees that line; it does not count toward the word limit.
 Reply with the message text only."""
 
 

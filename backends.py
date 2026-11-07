@@ -112,6 +112,8 @@ class MockBackend:
         if '"suspect"' in prompt:
             return json.dumps({"suspect": pick, "confidence": 50, "reasoning": "mock"})
         eid, text = self.rng.choice(ev)
+        if role == "detective":
+            return f"Consider [{eid}: {text[:40]}]. That points to {pick}.\nACCUSE: {pick}"
         if role == "wolf" and self.rng.random() < 0.5:
             return f"I am innocent. [E99: someone saw {pick} with a knife]. Look elsewhere."
         return f"I accuse {pick}. Consider [{eid}: {text[:40]}]. That points to {pick}."

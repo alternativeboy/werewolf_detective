@@ -46,6 +46,23 @@ def cap_words(text: str, limit: int):
     return text[:words[limit - 1].end()] + " [cut: over word limit]", len(words) - limit
 
 
+ACCUSE_LINE = re.compile(r"^[\s*_#>-]*ACCUSE[\s*_]*:[\s*_]*(.+?)[\s*_.]*$", re.I | re.M)
+
+
+def split_accusation(text: str, suspects: list):
+    """Take the detective's 'ACCUSE: <name>' line out of a message.
+
+    Returns (body without that line, accused suspect or None). If there are several such
+    lines, the last one counts. The body is what gets word-capped, so the line is never cut.
+    """
+    found = list(ACCUSE_LINE.finditer(text))
+    if not found:
+        return text.strip(), None
+    last = found[-1]
+    body = (text[:last.start()] + text[last.end():]).strip()
+    return body, match_name(last.group(1), suspects)
+
+
 def split_sentences(text: str) -> list:
     """Split a message into sentences, keeping citations intact."""
     protected = CITE.sub(lambda m: m.group(0).replace(".", "§"), text)
