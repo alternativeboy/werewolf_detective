@@ -16,7 +16,7 @@ import random
 
 import prompts as P
 from backends import make_backend
-from cases import LEVELS, detective_view, make_valid_case, render_case
+from cases import LEVELS, candidates_from, detective_view, make_valid_case, render_case
 from checker import match_name, parse_json
 
 
@@ -44,7 +44,7 @@ def main():
     backend = make_backend(a.backend)
     judge = a.judge_model or backend.models["judge"]
     rng = random.Random(a.seed)
-    rows = []
+    rows, n_cands = [], {}  # n_cands: key -> suspects still possible from the detective's copy
 
     for lv in a.levels:
         for i in range(a.per_level):
@@ -53,6 +53,8 @@ def main():
             jv = None  # the judge sees the full file, so one call serves every fraction
             for sees in a.detective_sees:
                 key = f"{a.seed}-{case['case_id']}-{judge}" + (f"-sees{sees:g}" if sees < 1 else "")
+                # Computed in code (free), so also filled in for rows saved by older runs
+                n_cands[key] = len(candidates_from(case, detective_view(case, sees)))
                 if key in done:
                     rows.append(done[key])
                     jv = jv or done[key]["judge"]
@@ -73,13 +75,18 @@ def main():
                       f"answer {case['answer']}")
 
     print("\nThe judge always sees the whole case file; only the detective's copy is partial.")
-    print(f"{'level':<6}{'sees':>6}{'n':>4}{'chance':>9}{'detective':>12}{'judge (' + judge + ')':>18}")
+    print("solvable = the detective's copy alone still leaves exactly one possible suspect;")
+    print("informed chance = mean of 1 / (suspects still possible from the detective's copy).")
+    print(f"{'level':<6}{'sees':>6}{'n':>4}{'chance':>9}{'solvable':>10}{'inf.chance':>12}"
+          f"{'detective':>11}{'judge (' + judge + ')':>16}")
     for lv in a.levels:
         for sees in a.detective_sees:
             rs = [r for r in rows if r["level"] == lv and r["detective_sees"] == sees]
             acc = lambda k: sum(r[k] == r["answer"] for r in rs) / len(rs)
+            nc = [n_cands[r["key"]] for r in rs]
             print(f"{lv:<6}{sees:>6.0%}{len(rs):>4}{1 / rs[0]['n_suspects']:>9.0%}"
-                  f"{acc('detective'):>12.0%}{acc('judge'):>18.0%}")
+                  f"{sum(n == 1 for n in nc):>7}/{len(nc):<2}{sum(1 / n for n in nc) / len(nc):>12.0%}"
+                  f"{acc('detective'):>11.0%}{acc('judge'):>16.0%}")
     print("\nWith n=10 per level, each rate is +/- ~30 points. Use it to rule levels in or out, "
           "not as a result.")
 

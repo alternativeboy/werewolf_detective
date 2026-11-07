@@ -180,6 +180,22 @@ def solve(case: dict) -> list:
     return [s for s in residents if s not in cleared]
 
 
+def candidates_from(case: dict, ids) -> list:
+    """Who could still be the werewolf using only the evidence ids given (a partial copy).
+
+    Applies solve() to the subset. If a link of the chain is missing (death time, trail,
+    residence of the trail row), nobody can be ruled out, so every suspect is a candidate.
+    One candidate = the partial file still determines the answer.
+    """
+    if ids is None:
+        return solve(case)
+    sub = dict(case, evidence=[e for e in case["evidence"] if e["id"] in set(ids)])
+    try:
+        return solve(sub)
+    except (IndexError, StopIteration):
+        return list(case["suspects"])
+
+
 def make_valid_case(case_id: str, level: str, rng: random.Random, tries: int = 50) -> dict:
     for _ in range(tries):
         case = make_case(case_id, level, rng)

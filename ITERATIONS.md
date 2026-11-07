@@ -85,3 +85,49 @@ findings. Newest entries at the bottom.
 - **Still open (user's call):** the cap fired in 14/18 smoke_v4 messages (up to 51 words cut;
   21/36 in smoke_v3). Long arguments lose their ends, and verbose speakers lose more. Options:
   ask for ~90 words in the prompt (keep the hard cap at 120), raise the cap, or keep as is.
+
+## it6 — pilot: how much should the detective see? (7 Nov)
+
+- **Run:** `pilot.py --levels L2 L4 --per-level 10 --detective-sees 0.5 0.6 0.7`, seed 1000,
+  honest detective's initial guess only, judge (Haiku) reads the full file
+  (`results/pilot_sees.jsonl`, 20 cases × 3 fractions = 60 detective + 20 judge calls).
+- **New diagnostic:** `cases.candidates_from(case, ids)` applies the code solver to the
+  detective's partial copy: how many suspects are still logically possible. Computed in code,
+  no model calls; now printed by `pilot.py`.
+- **Outcome:**
+
+  | level | sees | chance | solvable from copy | informed chance | detective | judge (full file) |
+  | --- | --- | --- | --- | --- | --- | --- |
+  | L2 | 50% | 17% | 2/10 | 35% | 20% | 100% |
+  | L2 | 60% | 17% | 0/10 | 17% | 0% | 100% |
+  | L2 | 70% | 17% | 1/10 | 28% | 20% | 100% |
+  | L4 | 50% | 17% | 0/10 | 20% | 20% | 100% |
+  | L4 | 60% | 17% | 0/10 | 17% | 30% | 100% |
+  | L4 | 70% | 17% | 0/10 | 23% | 50% | 100% |
+
+  "Informed chance" = average of 1 / (suspects still possible from the copy).
+- **What it means:**
+  - Only 3 of 60 partial copies still determine the answer; the detective got all 3 right, and
+    every one of its 60 guesses was a suspect that the copy had not ruled out. So when it is
+    wrong before the debate, it is mostly **missing information**, not failed reasoning.
+  - With random hiding, pre-debate accuracy is close to (informed) chance; L4 at 70% is above it
+    (50% vs 23%, n = 10), probably from soft cues such as motive. The judge with the full file
+    stays at 100%, so the case logic itself is still easy for these models.
+  - So H1 with a partial view measures **whether the debate passes the missing facts to the
+    detective** (the innocent and the wolf both have the full file; only the wolf may lie).
+    That is a legitimate information-asymmetry test, but it is a different question from
+    "does debate help with hard reasoning", and the write-up must say which one is tested.
+  - The subsets for 50/60/70% are drawn independently (seeded by fraction), not nested, so a
+    case can be right at 50% and wrong at 70%.
+  - n = 10 per cell: each rate is ± ~30 points.
+- **Process slip (fixed):** a mock re-run to print the new columns appended 60 mock rows to
+  `results/pilot_sees.jsonl` (the judge name is part of the resume key). They were removed
+  (`judge_model == "mock"`); the 60 real rows were not touched and the table above is from them.
+- **Decision needed (user's call), not made here:**
+  1. Keep random hiding and frame H1 as information transfer; pick a fraction (L4 70% leaves
+     room both ways).
+  2. Hide in a controlled way: always remove exactly one link of the solution chain (e.g. the
+     death time, the trail row, or the wolf's alibi end), so the copy narrows to 2–3 suspects
+     and the debate must supply that one fact. Cleaner to explain; needs a small `cases.py` change.
+  3. Go back to the full file at a harder level, so failure is about reasoning; L4 is still at
+     ceiling, which would need a harder level (L5).
