@@ -87,14 +87,17 @@ One game ≈ 16 model calls; each extra judge model ≈ votes + 1 calls per game
 
 ## Status (7 Nov 2026)
 
-Full history, results and decisions per iteration: `ITERATIONS.md` (it0–it7). Add an entry for
+Full history, results and decisions per iteration: `ITERATIONS.md` (it0–it8). Add an entry for
 every new iteration (what changed, what ran, outcome, decision) and commit it with the results.
 
 - v1 game is contaminated (CLI loaded CLAUDE.md, had file tools); fixed by CLI isolation.
 - Full case file: Sonnet detective and Haiku judge are 100% on L1–L4 (ceiling).
 - Detective sees part of the file (v3+): pre-debate errors appear, but only 3/60 partial copies
-  still determine the answer, so they are mostly missing information (it6). How to hide evidence
-  (random fraction vs one chain link vs harder level) is the user's open decision.
+  still determine the answer, so they are mostly missing information (it6).
+- User chose to hide exactly one clue (it8, `--detective-hides 1`): a row-mate's alibi, leaving
+  the wolf and that neighbour ("decoy"). Pilot L2/L4: detective 20% before debate, picks the
+  decoy 16/20 because the wolf's herring looks exculpatory. Open: should the decoy ever be the
+  innocent speaker (now random, ~20%)?
 - Word cap used to cut citations in half; every "misquote" in smoke_v3/v4 was that artifact.
   Fixed in it5. The cap still fires in most messages (open decision: ask for ~90 words?).
 - Smoke games: smoke_v2 (4, full view), smoke_v3 (4, 60%), smoke_v4 (2, 60%, prompt v4).
@@ -103,8 +106,8 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
 
 ## Next steps
 
-1. User decides how the detective's view is limited (ITERATIONS.md it6) and the word-target
-   question (it5); then fill the blanks in README's pre-registration and freeze the prompt.
+1. User decides the decoy-speaker question (it8) and the word-target question (it5); then fill
+   the blanks in README's pre-registration (levels, view = hide1) and freeze the prompt.
 2. Run ~10 real games with the frozen setup and read transcripts by hand.
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Full run, then `rejudge.py --judges sonnet opus` (opus on a subset), then write up
