@@ -109,7 +109,8 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
   decoy 16/20 because the wolf's herring looks exculpatory. Open: should the decoy ever be the
   innocent speaker (now random, ~20%)?
 - Word cap used to cut citations in half; every "misquote" in smoke_v3/v4 was that artifact.
-  Fixed in it5. The cap still fires in most messages (open decision: ask for ~90 words?).
+  Fixed in it5. The cap still fires in most messages (26/36 in smoke_hide1); user kept 120
+  words and froze prompt v4 (7 Nov). Listed as a limitation in README.
 - Smoke games: smoke_v2 (4, full view), smoke_v3 (4, 60%), smoke_v4 (2, 60%, prompt v4),
   smoke_hide1 (4, hide-1, L2/L4; with 3-vote floor/ceiling: floor 2/4, council 4/4, ceiling 4/4).
 - Bootstrap CIs resample whole cases, keyed by (level, case_id) (it12). Current tables are per
@@ -123,8 +124,8 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
 
 1. Levels chosen: L2 and L4 (user, 7 Nov); README pre-registration has them and the main-run
    command (`--cases 200 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main`).
-   Still open before freezing v4: the word-target question (it5, ~90 words would be v5), and the
-   user marking the pre-registration as final (it still says "ร่าง").
+   Prompt v4 is frozen (120 words). Still open: the user marking the pre-registration as final
+   (README still says "ร่าง").
 2. Run ~10 real games with the frozen setup and read transcripts by hand.
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Full run, then `rejudge.py --judges sonnet opus` (opus on a subset), then write up

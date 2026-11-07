@@ -7,6 +7,9 @@
 # v4: every detective message ends with "ACCUSE: <name>", so the accusation the council hears
 #     can be measured (in v3 the detective once accused the wrong suspect out loud for 3 rounds
 #     while its private final answer was right, and the council followed the spoken one).
+# FROZEN for the main run (user, 7 Nov 2026): v4 with a 120-word cap. Any change to a prompt
+# below is a new version (v5) and means rerunning every game. Adding a judge-only prompt for
+# re-judging saved games (like the no-marks ablation) does not change the debate.
 PROMPT_VERSION = "v4"
 MAX_WORDS = 120
 ACCUSE_TAG = "ACCUSE"

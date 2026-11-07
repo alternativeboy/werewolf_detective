@@ -344,3 +344,7 @@ findings. Newest entries at the bottom.
   with the main-run command: `run.py --cases 200 --levels L2 L4 --detective-hides 1 --seed 0
   --out results/main` (`--cases` is the total, alternating levels: 100 per level × 2 modes =
   400 games). Still open: word target (it5) and marking the pre-registration as final.
+- **Decision (7 Nov, user):** freeze prompt v4 with the 120-word cap (no v5 with a ~90-word
+  target). The cap cut 26/36 messages in smoke_hide1 (up to 53 words); this is now listed as a
+  limitation in README. prompts.py carries a FROZEN note. Still open: marking the
+  pre-registration as final.
