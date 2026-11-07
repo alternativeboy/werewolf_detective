@@ -88,7 +88,7 @@ export ANTHROPIC_API_KEY=...
 python run.py --backend api --cases 100 --levels L1 L3
 ```
 
-## แผนการวิเคราะห์ที่ล็อกไว้ก่อน main run (ร่าง: เจ้าของโปรเจกต์ต้องยืนยันก่อน)
+## แผนการวิเคราะห์ที่ล็อกไว้ก่อน main run (ยืนยันโดยเจ้าของโปรเจกต์ 7 พ.ย. 2026)
 
 ส่วนนี้เขียนไว้ก่อนเห็นผล main run เพื่อไม่ให้เลือกตัววัดหรือวิธีตัดเกมตามผลที่ออกมาสวย
 ถ้าต้องแก้หลังเริ่ม main run ให้บันทึกใน ITERATIONS.md ว่าแก้อะไร เมื่อไร เพราะอะไร
@@ -101,7 +101,7 @@ python run.py --backend api --cases 100 --levels L1 L3
 - ผู้บริสุทธิ์ที่ได้พูดสุ่มจากผู้บริสุทธิ์ทุกคน จึงเป็น decoy ได้บางเกม (ประมาณ 20% ที่ L2+)
   ผลหลักใช้ทุกเกมรวมกัน และรายงานแยก "decoy speaks" / "decoy silent" เป็นผลรองเสมอ (`analyze.py` แยกให้เอง)
   ห้ามเปลี่ยนว่ากลุ่มไหนเป็นผลหลักหลังเห็นตัวเลข
-- 100 คดีต่อระดับ × 2 โหมด (honest, win) = 400 เกม · seed 0 (pilot ใช้ seed 1000, smoke ใช้ 2000)
+- 100 คดีต่อระดับ × 2 โหมด (honest, win) = 400 เกม · seed 0 (pilot ใช้ seed 1000, smoke ใช้ 2000) · เกมทดสอบ 10 เกมก่อน main run ใช้ seed 3000 จึงไม่ซ้ำคดีกับ main run หรือ smoke
 - คำสั่ง main run (`--cases` คือจำนวนคดีรวม แบ่งสลับระดับ จึง 200 คดี = 100 ต่อระดับ × 2 โหมด = 400 เกม):
   `python3 run.py --backend cli --cases 200 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main`
 - judge หลัก: haiku · เพิ่ม sonnet ทุกเกม และ opus บางส่วนด้วย `rejudge.py`

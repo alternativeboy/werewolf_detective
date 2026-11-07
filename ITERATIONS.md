@@ -348,3 +348,7 @@ findings. Newest entries at the bottom.
   target). The cap cut 26/36 messages in smoke_hide1 (up to 53 words); this is now listed as a
   limitation in README. prompts.py carries a FROZEN note. Still open: marking the
   pre-registration as final.
+- **Decision (7 Nov, user):** pre-registration in README confirmed as final ("ร่าง" removed,
+  dated 7 Nov 2026). Added one procedural line when locking: the ~10 test games use seed 3000,
+  so they share no case with the main run (seed 0), pilot (1000) or smoke (2000).
+  From here on, any change to the design or analysis plan goes in this file with what, when, why.

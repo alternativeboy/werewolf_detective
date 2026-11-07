@@ -117,16 +117,18 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
   mode, so this only changes tables that pool honest and win games.
 - Speakers stay detective + wolf + 1 innocent (user, 7 Nov: not all suspects; it14).
 - No-marks ablation on smoke_hide1: 12/12 votes right, identical to with marks (it14).
-- README has a draft pre-registration section; levels L2 + L4, view hide-1 (user, 7 Nov).
+- README pre-registration is final (confirmed by the user, 7 Nov): v4 frozen, L2 + L4, hide-1,
+  seed 0 for the main run, seed 3000 for the ~10 test games. Changes after the main run starts
+  must be logged in ITERATIONS.md with what, when and why.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`.
 
 ## Next steps
 
 1. Levels chosen: L2 and L4 (user, 7 Nov); README pre-registration has them and the main-run
    command (`--cases 200 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main`).
-   Prompt v4 is frozen (120 words). Still open: the user marking the pre-registration as final
-   (README still says "ร่าง").
-2. Run ~10 real games with the frozen setup and read transcripts by hand.
+   Prompt v4 is frozen (120 words) and the pre-registration is final (7 Nov).
+2. Run ~10 real games with the frozen setup and read transcripts by hand:
+   `python3 run.py --backend cli --cases 5 --levels L2 L4 --detective-hides 1 --seed 3000 --out results/test10`.
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Full run, then `rejudge.py --judges sonnet opus` (opus on a subset), then write up
    (README or blog, 2–3 pages, with limitations; say Claude helped write the code).
