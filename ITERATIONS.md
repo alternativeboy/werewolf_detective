@@ -430,3 +430,7 @@ findings. Newest entries at the bottom.
   - No fabricated or misquoted citation by anyone (0 bad). The innocent wrote an `ACCUSE:` line
     in round 3 (copying the detective's format); harmless, not parsed for suspects.
 - **Decision:** none yet. The condition is ready; it runs after the main run.
+- **Tooling (10 Nov):** `run.py --max-games N` plays at most N new games, then stops; the same
+  command again continues in the same fixed order (mock check: 4 batches of 3 = one run of 10,
+  same game ids in the same order). The user measured about 1% of Pro usage per game and asked
+  for batches of 70. Each game record now has `seconds` (wall time). No design change.

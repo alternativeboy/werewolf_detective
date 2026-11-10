@@ -10,6 +10,7 @@ Examples:
       # it16 (exploratory): innocent reads the detective's copy. Same seed = same first 15 cases
       # as the main run; innocent speaker and order match the main-run games (paired)
   --wolf-model opus   gives the wolf a different model (not used in any planned run)
+  --max-games 70      stop after 70 new games; the same command again plays the next 70
 
 Pick --levels after running pilot.py. Every case is checked by cases.solve() to have exactly
 one possible answer, so there is no separate validation step.
@@ -18,6 +19,7 @@ one possible answer, so there is no separate validation step.
 import argparse
 import json
 import os
+import time
 
 from backends import make_backend
 from cases import LEVELS, generate
@@ -50,6 +52,9 @@ def main():
     ap.add_argument("--innocent-sees", choices=["full", "copy"], default="full",
                     help="copy = the innocent speaker reads the detective's incomplete copy "
                          "instead of the full file (it16, exploratory; needs --detective-hides)")
+    ap.add_argument("--max-games", type=int, default=None,
+                    help="play at most this many new games, then stop (rerun the same command "
+                         "for the next batch, e.g. to stay inside a plan usage window)")
     ap.add_argument("--out", default="results")
     a = ap.parse_args()
 
@@ -61,6 +66,9 @@ def main():
     # Only a non-default wolf changes the game id, so default-wolf ids stay as before
     wolf = a.wolf_model if a.wolf_model and a.wolf_model != backend.models["wolf"] else None
 
+    # Games in a fixed order (case, then mode), so batches with --max-games always continue
+    # with the next unplayed game and the finished set never depends on how it was split.
+    todo = []
     for case in cases:
         for mode in a.modes:
             base = f"{case['case_id']}-{mode}" + (f"-sees{a.detective_sees:g}"
@@ -68,18 +76,30 @@ def main():
                 f"-hide{a.detective_hides}" if a.detective_hides > 0 else "")
             gid = base + (f"-wolf{wolf}" if wolf else "") + (
                 "-innocopy" if a.innocent_sees == "copy" else "")
-            if gid in done:
-                continue
-            print(f"{gid} ({case['difficulty']})")
-            # draw_seed=base: the innocent speaker and speaking order are drawn from the id
-            # WITHOUT the condition suffixes, so e.g. c0003-honest-hide1 and
-            # c0003-honest-hide1-innocopy have the same innocent speaker and order (paired).
-            rec = play_game(case, backend, mode, gid, n_votes=a.votes,
-                            detective_sees=a.detective_sees, detective_hides=a.detective_hides,
-                            wolf_model=wolf, draw_seed=base, innocent_sees=a.innocent_sees)
-            with open(games_path, "a", encoding="utf-8") as f:
-                f.write(json.dumps(rec, ensure_ascii=False) + "\n")
-    print(f"\nSaved to {games_path}.\nNext: python rejudge.py --games {games_path} --judges ...  "
+            if gid not in done:
+                todo.append((case, mode, base, gid))
+    total = len(cases) * len(a.modes)
+    batch = todo[:a.max_games] if a.max_games is not None else todo
+    print(f"{total - len(todo)}/{total} games already done; playing {len(batch)} now.")
+
+    for k, (case, mode, base, gid) in enumerate(batch, 1):
+        print(f"[{k}/{len(batch)}] {gid} ({case['difficulty']})")
+        t0 = time.time()
+        # draw_seed=base: the innocent speaker and speaking order are drawn from the id
+        # WITHOUT the condition suffixes, so e.g. c0003-honest-hide1 and
+        # c0003-honest-hide1-innocopy have the same innocent speaker and order (paired).
+        rec = play_game(case, backend, mode, gid, n_votes=a.votes,
+                        detective_sees=a.detective_sees, detective_hides=a.detective_hides,
+                        wolf_model=wolf, draw_seed=base, innocent_sees=a.innocent_sees)
+        rec["seconds"] = round(time.time() - t0)
+        with open(games_path, "a", encoding="utf-8") as f:
+            f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        print(f"  ({rec['seconds']} s)")
+
+    left = len(todo) - len(batch)
+    print(f"\n{total - left}/{total} games done, {left} left."
+          + (" Run the same command again for the next batch." if left else ""))
+    print(f"Saved to {games_path}.\nNext: python rejudge.py --games {games_path} --judges ...  "
           f"(optional), then python analyze.py {games_path}")
 
 
