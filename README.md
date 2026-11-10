@@ -101,9 +101,11 @@ python run.py --backend api --cases 100 --levels L1 L3
 - ผู้บริสุทธิ์ที่ได้พูดสุ่มจากผู้บริสุทธิ์ทุกคน จึงเป็น decoy ได้บางเกม (ประมาณ 20% ที่ L2+)
   ผลหลักใช้ทุกเกมรวมกัน และรายงานแยก "decoy speaks" / "decoy silent" เป็นผลรองเสมอ (`analyze.py` แยกให้เอง)
   ห้ามเปลี่ยนว่ากลุ่มไหนเป็นผลหลักหลังเห็นตัวเลข
-- 100 คดีต่อระดับ × 2 โหมด (honest, win) = 400 เกม · seed 0 (pilot ใช้ seed 1000, smoke ใช้ 2000) · เกมทดสอบ 10 เกมก่อน main run ใช้ seed 3000 จึงไม่ซ้ำคดีกับ main run หรือ smoke
-- คำสั่ง main run (`--cases` คือจำนวนคดีรวม แบ่งสลับระดับ จึง 200 คดี = 100 ต่อระดับ × 2 โหมด = 400 เกม):
-  `python3 run.py --backend cli --cases 200 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main`
+- **30 คดี (15 ต่อระดับ) × 2 โหมด (honest, win) = 60 เกม** · seed 0 (pilot ใช้ seed 1000, smoke ใช้ 2000) · เกมทดสอบ 10 เกมก่อน main run ใช้ seed 3000 จึงไม่ซ้ำคดีกับ main run หรือ smoke
+  (แก้ 10 พ.ย. 2026 ก่อนเริ่ม main run จากเดิม 200 คดี = 400 เกม เหตุผลคืองบ: บน Pro เกมละ ~4% ของ session 5 ชั่วโมง 400 เกมจึงไม่ทัน deadline ดู ITERATIONS.md it16)
+- คำสั่ง main run (`--cases` คือจำนวนคดีรวม แบ่งสลับระดับ) รันเป็นรอบละ 20 เกมเพื่อไม่ให้เกินโควตา session รันคำสั่งเดิมซ้ำจนครบ 60/60:
+  `python3 run.py --backend cli --cases 30 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main --max-games 20`
+- **ขนาดตายตัว:** ผลหลักใช้ 30 คดีนี้เท่านั้น ไม่เพิ่มคดีหลังเห็นผล ถ้ามีโควตาเหลือแล้วรันคดีเพิ่ม (c0030 ขึ้นไป, seed 0 เดิม) จะรายงานแยกเป็นชุดเสริม ไม่รวมกับผลหลัก
 - judge หลัก: haiku · เพิ่ม sonnet ทุกเกม และ opus บางส่วนด้วย `rejudge.py`
 
 **ตัววัดหลัก (หนึ่งตัวต่อคำถาม)**

@@ -44,7 +44,8 @@ suspect statements → council votes (debate only) + judge-alone vote.
 `rejudge.py` adds other judge models to saved games without rerunning the debate.
 
 Conditions: detective **honest** vs **win**, two levels (picked after pilot), judge model
-(haiku default; sonnet/opus via rejudge). Planned size: 2 × 2 × 100 = 400 games.
+(haiku default; sonnet/opus via rejudge). Main-run size: 30 cases (15 per level) × 2 modes = 60 games (user, 10 Nov; was 400, cut for
+Pro budget before the main run started).
 
 Hypotheses:
 - H1: detective is right more often after the debate than before.
@@ -101,8 +102,9 @@ Run: `unset ANTHROPIC_API_KEY; python3 pilot.py --backend cli`, then
 
 The user is on **Pro**. Pro has no monthly API credits; `claude -p` draws from plan usage limits.
 One hide-1 game ≈ 21 model calls (12 debate + 9 judge: 3 council, 3 floor, 3 ceiling); each extra
-judge model ≈ 3 × votes calls per game. Pro is fine for ~10 test games; the 400-game run likely needs API credits
-(Message Batches API) or a temporary Max upgrade ($100/month API credit, claimable after 7 days).
+judge model ≈ 3 × votes calls per game. Measured 10 Nov: one game ≈ 2 min 46 s and ≈ 4% of the Pro 5-hour
+session (API-equivalent ≈ $0.28); so run at most ~20 games per session (`--max-games 20`).
+400 games would not fit before the deadline on Pro; that is why the main run is 60 games.
 
 ## Status (7 Nov 2026)
 
@@ -133,11 +135,12 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
 
 ## Next steps
 
-1. Levels chosen: L2 and L4 (user, 7 Nov); README pre-registration has them and the main-run
-   command (`--cases 200 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main`).
-   Prompt v4 is frozen (120 words) and the pre-registration is final (7 Nov).
-2. Done: 10 test games (it15, results/test10). Main-run size is still 200 cases in README; the
-   user worried about Pro budget (API estimate $17–120 with Batches), so confirm the size first.
+1. Levels chosen: L2 and L4 (user, 7 Nov); main run is 30 cases = 60 games (user, 10 Nov), in
+   batches of 20 games (~4% of the Pro 5-hour session per game): `python3 run.py --backend cli
+   --cases 30 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main --max-games 20`,
+   repeated until 60/60. Size is fixed; extra cases (c0030+) would be reported separately.
+   Prompt v4 is frozen (120 words) and the pre-registration is final (7 Nov, size amended 10 Nov).
+2. Done: 10 test games (it15, results/test10) and 2 innocopy test games (it16).
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Full run, then `rejudge.py --no-marks`, then the it16 innocopy run (README command), then
    `rejudge.py --judges sonnet opus` if budget allows, then write up

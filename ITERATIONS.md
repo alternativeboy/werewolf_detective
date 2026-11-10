@@ -447,3 +447,22 @@ findings. Newest entries at the bottom.
     cannot see it, answered "I see no such alibi in the file". 0 bad citations.
   - Two pairs so far: council right 2/2 with the full-file innocent, 1/2 with the copy innocent,
     and both copy games were 2–1 splits instead of 3–0. Anecdote only (n = 2).
+
+## Decision (10 Nov, user): main run = 30 cases × 2 modes = 60 games (was 400)
+
+- **What:** README pre-registration amended before the main run started: 30 cases (15 L2 + 15 L4,
+  seed 0, the first 30 of the same generator) × honest/win = 60 games, run in batches of 20 with
+  `--max-games 20`. Everything else (v4, hide-1, metrics, analysis rules) is unchanged.
+- **Why:** budget and time. Measured on Pro: one game ≈ 4% of the 5-hour session (so ~20 games per
+  session) and an unknown but real share of the weekly limit (32% used, reset Fri 13 Nov 05:00;
+  deadline 22 Nov). 400 games would need ~20 sessions and likely more than the weekly quota left.
+  API was the alternative (≈ $115 at the CLI-reported $0.28 per game, plus APIBackend fixes).
+- **What 30 cases can and cannot show (told to the user before deciding):** H1 and H3 effects in
+  the test games are large (detective ~20% → ~100%; floor ~20–50%, council ~100%), so 30 cases
+  give clear answers. All-correct council → lower bound ≈ 90% (rule of three over cases); zero
+  danger → upper bound ≈ 10%. H2, the no-marks ablation, the decoy split, lie recall and the
+  15-pair innocopy comparison only detect large differences and are reported as such.
+- **Fixed size rule (added to README):** the main result uses exactly these 30 cases. No cases
+  are added after seeing results; any extra cases (c0030+) are reported separately.
+- Not changed: README still plans re-judging every game with Sonnet and a subset with Opus
+  (`rejudge.py`); with 60 games that is ~540 Sonnet calls plus the Opus subset.
