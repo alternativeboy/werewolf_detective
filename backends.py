@@ -65,8 +65,13 @@ class CLIBackend:
                     return proc.stdout
                 for m, u in (out.get("modelUsage") or {}).items():
                     self.cost_usd[m] = self.cost_usd.get(m, 0.0) + (u.get("costUSD") or 0.0)
-                return out.get("result", proc.stdout)
-            err = (proc.stderr or proc.stdout)[-500:]
+                if not out.get("is_error"):
+                    return out.get("result", proc.stdout)
+                # The CLI can exit 0 with is_error set (e.g. a usage-limit message in "result");
+                # never pass that text on as a model answer, or it would be saved as a game.
+                err = str(out.get("result") or proc.stdout)[-500:]
+            else:
+                err = (proc.stderr or proc.stdout)[-500:]
             if "limit" in err.lower():
                 raise RuntimeError(f"Usage limit reached. Wait for the reset, then rerun "
                                    f"(finished games are kept).\n{err}")
