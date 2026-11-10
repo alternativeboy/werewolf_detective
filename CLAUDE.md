@@ -68,8 +68,17 @@ Known limitation: "false" labels miss true-but-misleading statements; lie recall
 fabrication, not all deception. Honest vs win is a prompt, not training.
 Main limitation (README "ข้อจำกัดหลัก"): an honest, fully informed innocent is always in the
 debate, and nobody has fabricated evidence in any smoke game, so the clerk's marks are untested
-(removing them changed nothing, it14). Proposed follow-up: innocent sees the detective's copy.
+(removing them changed nothing, it14).
 Ablation (secondary, it14): `rejudge.py --no-marks` re-judges the debate without clerk marks.
+Exploratory condition (it16, added 10 Nov after the pre-registration, before the main run):
+`run.py --innocent-sees copy` gives the innocent speaker the detective's copy instead of the
+full file (game id suffix `-innocopy`), so only the wolf knows the missing clue. Everything
+else is paired with the normal game (innocent speaker and order drawn from the id without the
+suffix). Planned: 15 cases of seed 0, honest only, after the main run. `analyze.py main.jsonl
+innocopy.jsonl` prints a PAIRED table (council copy − full). Detective's note still says "the
+other speakers have the full file" (kept so the detective's input is identical).
+`run.py --wolf-model` also exists (wolf only); no Opus-wolf run is planned (the council is
+already at ceiling with a Sonnet wolf, so the comparison would likely be uninformative).
 
 ## Code
 
@@ -77,7 +86,7 @@ Ablation (secondary, it14): `rejudge.py --no-marks` re-judges the debate without
 | --- | --- |
 | `cases.py` | case generator by level + `solve()` uniqueness check |
 | `prompts.py` | all role prompts; bump `PROMPT_VERSION` on any change |
-| `backends.py` | `cli` (`claude -p`, uses the Claude plan), `api` (ANTHROPIC_API_KEY), `mock`; `call(..., model=)` |
+| `backends.py` | `cli` (`claude -p`, uses the Claude plan; sums the CLI's API-equivalent cost per model into `cost_usd`, saved per game), `api` (ANTHROPIC_API_KEY), `mock`; `call(..., model=)` |
 | `checker.py` | citation checker + marks for the council, sentence splitter, JSON parsing, name matching |
 | `game.py` | one game; `judge_game()` for council votes |
 | `run.py` | runs many games, appends to `results/games.jsonl`, resumes where it stopped |
@@ -127,11 +136,13 @@ every new iteration (what changed, what ran, outcome, decision) and commit it wi
 1. Levels chosen: L2 and L4 (user, 7 Nov); README pre-registration has them and the main-run
    command (`--cases 200 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main`).
    Prompt v4 is frozen (120 words) and the pre-registration is final (7 Nov).
-2. Run ~10 real games with the frozen setup and read transcripts by hand:
-   `python3 run.py --backend cli --cases 5 --levels L2 L4 --detective-hides 1 --seed 3000 --out results/test10`.
+2. Done: 10 test games (it15, results/test10). Main-run size is still 200 cases in README; the
+   user worried about Pro budget (API estimate $17–120 with Batches), so confirm the size first.
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
-4. Full run, then `rejudge.py --judges sonnet opus` (opus on a subset), then write up
+4. Full run, then `rejudge.py --no-marks`, then the it16 innocopy run (README command), then
+   `rejudge.py --judges sonnet opus` if budget allows, then write up
    (README or blog, 2–3 pages, with limitations; say Claude helped write the code).
+   CLI token: run `claude setup-token` if `claude -p` stops authenticating.
 5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and write the positioning paragraph.
 
 Plan: cases 7–9 Nov, runner + 10 test games 10–12 Nov, full run 13–15 Nov, analysis 16–18 Nov,

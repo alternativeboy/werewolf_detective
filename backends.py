@@ -46,6 +46,9 @@ class CLIBackend:
         self.extra = extra_args if extra_args is not None else shlex.split(
             os.environ.get("CLAUDE_EXTRA_ARGS", ""))
         self.retries = retries
+        # API-equivalent cost the CLI reports per call (total_cost_usd / modelUsage), summed per
+        # model. On a plan this is not billed; it estimates what the same calls cost on the API.
+        self.cost_usd = {}
         if os.environ.get("ANTHROPIC_API_KEY"):
             print("WARNING: ANTHROPIC_API_KEY is set; `claude -p` will bill the API, not your plan.")
 
@@ -57,9 +60,12 @@ class CLIBackend:
                                   cwd=self.workdir)
             if proc.returncode == 0:
                 try:
-                    return json.loads(proc.stdout)["result"]
-                except (json.JSONDecodeError, KeyError):
+                    out = json.loads(proc.stdout)
+                except json.JSONDecodeError:
                     return proc.stdout
+                for m, u in (out.get("modelUsage") or {}).items():
+                    self.cost_usd[m] = self.cost_usd.get(m, 0.0) + (u.get("costUSD") or 0.0)
+                return out.get("result", proc.stdout)
             err = (proc.stderr or proc.stdout)[-500:]
             if "limit" in err.lower():
                 raise RuntimeError(f"Usage limit reached. Wait for the reset, then rerun "

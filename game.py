@@ -18,21 +18,37 @@ N_JUDGE_VOTES = 3
 
 
 def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, detective_sees=1.0,
-              detective_hides=0, log=print):
+              detective_hides=0, wolf_model=None, draw_seed=None, innocent_sees="full", log=print):
     """detective_sees < 1: detective gets a random fraction of the evidence.
     detective_hides = n > 0: detective gets everything except n solution clues (see
-    cases.detective_view_hiding). Use one or the other."""
+    cases.detective_view_hiding). Use one or the other.
+    wolf_model: override the wolf's model only; None = backend default.
+    draw_seed: seed for the innocent-speaker draw and speaking order (default: game_id).
+    innocent_sees: "full" = the innocent speaker reads the full case file (every game before
+    it16); "copy" = it reads the detective's incomplete copy instead (it16, exploratory), to test
+    whether the council is right only because an honest, fully informed speaker is present."""
     if detective_hides > 0 and detective_sees < 1:
         raise ValueError("use either detective_sees or detective_hides, not both")
-    text = render_case(case)                        # full file: wolf, innocent, lie judge
+    text = render_case(case)                        # full file: wolf, lie judge (and innocent)
     det_ids = (detective_view_hiding(case, detective_hides) if detective_hides > 0
                else detective_view(case, detective_sees))
     det_text = render_case(case, only_ids=det_ids)  # detective's copy (maybe partial)
+    if innocent_sees not in ("full", "copy"):
+        raise ValueError(f"innocent_sees must be 'full' or 'copy', not {innocent_sees!r}")
+    if innocent_sees == "copy" and det_ids is None:
+        raise ValueError("innocent_sees='copy' needs a partial detective copy (--detective-hides)")
+    # Same evidence as the detective's copy. The detective's own note says "the other speakers
+    # have the full file"; it is left unchanged so the detective's input is identical in both
+    # conditions (only the innocent's input differs). The innocent gets the neutral note.
+    inno_text = text if innocent_sees == "full" else render_case(
+        case, only_ids=det_ids, note=PARTIAL_NOTE_JUDGE)
     # Suspects still logically possible from the detective's copy (code solver, no model call)
     det_cands = candidates_from(case, det_ids)
     sus = case["suspects"]
     wolf = case["answer"]
-    rng = random.Random(game_id)
+    # Innocent speaker and order: drawn from draw_seed (run.py passes the id without the wolf
+    # suffix) so paired games share them; defaults to game_id as in every game before it16.
+    rng = random.Random(draw_seed or game_id)
     innocent = rng.choice([s for s in sus if s != wolf])
     speakers = [("wolf", wolf), ("innocent", innocent)]
     rng.shuffle(speakers)
@@ -41,13 +57,22 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
            "detective_mode": detective_mode, "answer": wolf, "prompt_version": P.PROMPT_VERSION,
            "case": case, "innocent_speaker": innocent, "speaker_order": [n for _, n in speakers],
            "detective_sees": detective_sees, "detective_hides": detective_hides,
+           "innocent_sees": innocent_sees,
            "detective_evidence_ids": det_ids, "detective_candidates": det_cands,
            # True if the innocent speaker is one of the suspects the detective cannot rule out
            # (with hide-1: the neighbour whose alibi is hidden, who can simply cite it)
            "innocent_is_candidate": innocent in det_cands, "messages": []}
+    # Model per role, as passed to the backend (games before it16 do not have this field;
+    # they used the backend defaults: Sonnet players, Haiku judge)
+    role_model = {r: backend.models[r] for r in ("detective", "wolf", "innocent", "lie_judge", "judge")}
+    if wolf_model:
+        role_model["wolf"] = wolf_model
+    rec["models"] = role_model
+    cost_before = dict(getattr(backend, "cost_usd", {}))
     det_sys = P.DETECTIVE_SYSTEM[detective_mode]
     sys_for = {"wolf": P.WOLF_SYSTEM.format(name=wolf),
                "innocent": P.INNOCENT_SYSTEM.format(name=innocent)}
+    file_for = {"wolf": text, "innocent": inno_text}
 
     # 1. Initial guess (case file only)
     raw = backend.call("detective", det_sys, P.detective_initial(det_text))
@@ -72,7 +97,8 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
         k = 0  # statement counter within the round
         for role, name in speakers:
             w, cut = cap_words(backend.call(role, sys_for[role],
-                                            P.suspect_turn(text, transcript, r)).strip(), P.MAX_WORDS)
+                                            P.suspect_turn(file_for[role], transcript, r),
+                                            model=role_model[role]).strip(), P.MAX_WORDS)
             transcript += f"\n{name} (round {r}): {w}\n"
             marked += f"\n{name} (round {r}): {mark_citations(w, case)}\n"
             sents = {}
@@ -104,6 +130,10 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
     # 5. Council votes with this backend's default judge model
     j = judge_game(rec, backend, n_votes=n_votes)
     rec["judges"] = {j["judge_model"]: j}
+    # API-equivalent cost of this game per model, as reported by the CLI (empty for other backends)
+    cost_after = getattr(backend, "cost_usd", {})
+    rec["cost_usd"] = {m: round(v - cost_before.get(m, 0.0), 5) for m, v in cost_after.items()
+                       if v - cost_before.get(m, 0.0) > 0}
     log(f"  final guess: {rec['detective_final']['suspect']}, "
         f"council (debate only): {j['debate_votes']}, ceiling: {j['file_alone_votes']}, "
         f"floor: {j['file_partial_votes']}, answer: {wolf}")
