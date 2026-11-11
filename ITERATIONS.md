@@ -619,3 +619,26 @@ Not run yet. All three use the first 15 cases of seed 0, hide-1, honest prompts 
 - Decisions (user, 11 Nov, before any it17 game): random2 on all 30 main-run cases (13
   wolf-silent games; 15 cases would give only 5); frame and misled on the first 15 cases;
   clerk kept as in the main run (the swapped alibi shows as verified; reported as a limitation).
+
+## it18: wolf tactics (idea 4, 11 Nov, no model calls)
+
+`tactics.py` labels each wolf message with rule-based tags (regexes plus clue roles), 75 games
+(main + innocopy), 225 wolf messages. Tags: herring (cites a red-herring clue), trail_doubt
+(questions the trail that points at the wolf's row), alibi_doubt (questions a confirmed alibi or
+its witness, against R2), blame_inno (calls the honest speaker suspicious), concede (performs
+honesty: "proves nothing", "I agree"), leak (cites the decoy's hidden alibi).
+- **Label check:** patterns widened after two hand-checked samples (`--sample 20 --seed 0`,
+  `--sample 12 --seed 7`), then measured on an untouched sample (`--sample 12 --seed 11`):
+  0 wrong tags; recall trail_doubt 9/11, blame_inno 6/7, concede 2/2, alibi_doubt 0/1. In all
+  three samples no assigned tag was wrong, so the counts below are lower bounds.
+- **The wolf's playbook (games using it, of 75):** herring 75, trail_doubt 69, blame_inno 51,
+  alibi_doubt 44, leak 34, concede 25. Same mix in honest and win games. Zero fabricated
+  citations: the wolf misleads with true quotes and framing ("toward is not a door", "one priest
+  can't be in three places", "Wan's quick agreement deflects").
+- **Leak backfires:** in 34 games the wolf quoted the decoy's hidden alibi, mostly to attack it;
+  council right in 33/34. More often in innocopy (44% of wolf messages vs 20%), where nobody
+  else can bring the clue.
+- **Effect on the council can't be measured well:** the council's majority was wrong in only 4
+  of 75 games, and some vote missed the wolf in 10. The only hint: games with concede had council
+  right 23/25 vs 48/50 without, mean wolf votes 2.68 vs 2.82; concede appears in 2 of the 4 lost
+  games (c0007 and c0014 innocopy). Tiny n and confounded with innocopy; not a finding.
