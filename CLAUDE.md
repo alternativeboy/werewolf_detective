@@ -68,8 +68,10 @@ Also reported: last spoken accusation correct, and spoken accusation != private 
 Known limitation: "false" labels miss true-but-misleading statements; lie recall measures
 fabrication, not all deception. Honest vs win is a prompt, not training.
 Main limitation (README "ข้อจำกัดหลัก"): an honest, fully informed innocent is always in the
-debate, and nobody has fabricated evidence in any smoke game, so the clerk's marks are untested
-(removing them changed nothing, it14).
+debate (it first cites the hidden clue in 54/60 main-run games), and nobody fabricated evidence
+in the main run, so the marks were never tested against fakes (yet removing them still lowers
+the council in harder settings, see Status). Also: the wolf always speaks (a cue), and the
+clerk cannot catch a one-name swap.
 Ablation (secondary, it14): `rejudge.py --no-marks` re-judges the debate without clerk marks.
 Exploratory condition (it16, added 10 Nov after the pre-registration, before the main run):
 `run.py --innocent-sees copy` gives the innocent speaker the detective's copy instead of the
@@ -94,6 +96,8 @@ already at ceiling with a Sonnet wolf, so the comparison would likely be uninfor
 | `pilot.py` | cheap difficulty calibration (2 calls per case, no debate) |
 | `rejudge.py` | re-judge saved games with other judge models → `results/judgements.jsonl` |
 | `analyze.py` | metrics |
+| `run_batches.sh` | reruns `run.py` (or `SCRIPT=rejudge.py`) until done; waits 5 h on usage limits |
+| `tactics.py` | rule-based wolf tactic tags (it18) |
 
 Run: `unset ANTHROPIC_API_KEY; python3 pilot.py --backend cli`, then
 `python3 run.py --backend cli --cases 4 --levels L1 L3`, then `python3 analyze.py results/games.jsonl`.
@@ -103,53 +107,50 @@ Run: `unset ANTHROPIC_API_KEY; python3 pilot.py --backend cli`, then
 The user is on **Pro**. Pro has no monthly API credits; `claude -p` draws from plan usage limits.
 One hide-1 game ≈ 21 model calls (12 debate + 9 judge: 3 council, 3 floor, 3 ceiling); each extra
 judge model ≈ 3 × votes calls per game. Measured 10 Nov: one game ≈ 2 min 46 s and ≈ 4% of the Pro 5-hour
-session (API-equivalent ≈ $0.28); so run at most ~20 games per session (`--max-games 20`).
+session (API-equivalent ≈ $0.28); so run at most ~20 games per session (`--max-games 20`). Main run (11 Nov): 60 games
+back to back in 3 h 40 min without hitting a limit, so 4% per game overestimates; weekly share unknown.
 400 games would not fit before the deadline on Pro; that is why the main run is 60 games.
 
-## Status (7 Nov 2026)
+## Status (11 Nov 2026)
 
-Full history, results and decisions per iteration: `ITERATIONS.md` (it0–it8). Add an entry for
-every new iteration (what changed, what ran, outcome, decision) and commit it with the results.
+Full history, results and every decision: `ITERATIONS.md` (it0–it18; "Decision index" at the
+top). Add an entry for every new iteration (what changed, what ran, outcome, decision, who
+decided) and commit it with the results. README has the pre-registration, the main results and
+an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 
-- v1 game is contaminated (CLI loaded CLAUDE.md, had file tools); fixed by CLI isolation.
-- Full case file: Sonnet detective and Haiku judge are 100% on L1–L4 (ceiling).
-- Detective sees part of the file (v3+): pre-debate errors appear, but only 3/60 partial copies
-  still determine the answer, so they are mostly missing information (it6).
-- User chose to hide exactly one clue (it8, `--detective-hides 1`): a row-mate's alibi, leaving
-  the wolf and that neighbour ("decoy"). Pilot L2/L4: detective 20% before debate, picks the
-  decoy 16/20 because the wolf's herring looks exculpatory. Open: should the decoy ever be the
-  innocent speaker (now random, ~20%)?
-- Word cap used to cut citations in half; every "misquote" in smoke_v3/v4 was that artifact.
-  Fixed in it5. The cap still fires in most messages (26/36 in smoke_hide1); user kept 120
-  words and froze prompt v4 (7 Nov). Listed as a limitation in README.
-- Smoke games: smoke_v2 (4, full view), smoke_v3 (4, 60%), smoke_v4 (2, 60%, prompt v4),
-  smoke_hide1 (4, hide-1, L2/L4; with 3-vote floor/ceiling: floor 2/4, council 4/4, ceiling 4/4).
-- Bootstrap CIs resample whole cases, keyed by (level, case_id) (it12). Current tables are per
-  mode, so this only changes tables that pool honest and win games.
-- Speakers stay detective + wolf + 1 innocent (user, 7 Nov: not all suspects; it14).
-- No-marks ablation on smoke_hide1: 12/12 votes right, identical to with marks (it14).
-- README pre-registration is final (confirmed by the user, 7 Nov): v4 frozen, L2 + L4, hide-1,
-  seed 0 for the main run, seed 3000 for the ~10 test games. Changes after the main run starts
-  must be logged in ITERATIONS.md with what, when and why.
-- Repo: private GitHub repo `alternativeboy/werewolf_detective`.
+- Main run done (11 Nov, `results/main`, 60 games, Haiku judge; table in README and
+  `results/main/analysis.txt`): H1 detective 50% → 100%; H2 null (0 bad citations in 3,079);
+  H3 council 100% (honest) / 97% (win) vs floor ~35%, ceiling 100%; danger 0%.
+  No-marks ablation: marks help more in harder settings (honest +3, win +13, innocopy +20
+  points; every CI touches 0).
+- Post-hoc checks (not pre-registered): the fully informed innocent first cites the hidden clue
+  in 54/60 games; council follows the detective's last accusation in 59/60.
+- innocopy (it16, `results/innocopy`, 15 pairs): council 100% → 80% (−20 [−40, 0]).
+- Found after the main run, both now README limitations: (1) the wolf always speaks, so "the
+  candidate who speaks" is right ~80% of the time without lie detection; (2) the clerk's 85%
+  fuzzy match marks a one-name swap as (verified).
+- it17 (exploratory, running since 11 Nov 19:01 via `run_batches.sh`): frame and misled
+  detectives (15 cases each, `results/wrongdet`), then random2 speakers (30 cases,
+  `results/rand2`). First frame game: detective accused the decoy in round 1, then switched to
+  the real wolf.
+- it18 wolf tactics (`tactics.py`, `results/tactics_main_innocopy.txt`): rule-based tags,
+  hand-checked (no wrong tags, ~80% recall). Zero fabrication; true-but-misleading framing.
+- Repo: private GitHub repo `alternativeboy/werewolf_detective`. `claude setup-token` if
+  `claude -p` stops authenticating.
 
 ## Next steps
 
-1. Levels chosen: L2 and L4 (user, 7 Nov); main run is 30 cases = 60 games (user, 10 Nov), in
-   batches of 20 games (~4% of the Pro 5-hour session per game): `python3 run.py --backend cli
-   --cases 30 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main --max-games 20`,
-   repeated until 60/60. Size is fixed; extra cases (c0030+) would be reported separately.
-   Prompt v4 is frozen (120 words) and the pre-registration is final (7 Nov, size amended 10 Nov).
-2. Done: 10 test games (it15, results/test10) and 2 innocopy test games (it16).
+1. When it17 finishes: validate games, `python3 analyze.py results/main/games.jsonl
+   results/wrongdet/games.jsonl results/rand2/games.jsonl`, key numbers: council and
+   "voted for detective's target" for frame/misled; detective and council in the rand2
+   wolf-silent group. Log as it17 results; save analysis output under `results/`.
+2. Open decision (user): Sonnet rejudge (Claude recommends Sonnet only, not Opus).
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
-4. Full run, then `rejudge.py --no-marks`, then the it16 innocopy run (README command), then
-   `rejudge.py --judges sonnet opus` if budget allows, then write up
-   (README or blog, 2–3 pages, with limitations; say Claude helped write the code).
-   CLI token: run `claude setup-token` if `claude -p` stops authenticating.
+4. Write-up (README or blog, 2–3 pages, limitations, say Claude helped write the code).
 5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and write the positioning paragraph.
 
-Plan: cases 7–9 Nov, runner + 10 test games 10–12 Nov, full run 13–15 Nov, analysis 16–18 Nov,
-write-up 19–20 Nov, update resume and application 21 Nov, deadline 22 Nov.
+Plan: analysis 16–18 Nov, write-up 19–20 Nov, update resume and application 21 Nov,
+deadline 22 Nov. it17 must finish by ~16 Nov or move to future work.
 
 ## How to help
 

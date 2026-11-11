@@ -2,7 +2,34 @@
 
 One entry per iteration: what changed, why, what was run, what came out, and what was decided.
 Results here are small smoke tests and pilots (n = 2–40). They guide the design; they are not
-findings. Newest entries at the bottom.
+findings. Newest entries at the bottom. The main run (11 Nov) and later entries are the results.
+
+## Decision index (added 11 Nov)
+
+Design and research decisions in one place; details in the entry named. "User" = decided by
+the user; "Claude" = tooling or bug fixes that do not change what is measured.
+
+| Date | Decision | By | Entry |
+| --- | --- | --- | --- |
+| 6 Nov | Isolate every `claude -p` call (no tools, no CLAUDE.md); v1 games discarded | Claude | it0 |
+| 6 Nov | v2: council sees only the marked debate; an honest innocent also speaks; LLM case validator replaced by `cases.solve()` | User | it1 |
+| 6–7 Nov | v3 citable rules [R1]/[R2] and 120-word cap; v4 every detective message ends with `ACCUSE:` | User | it3, it4 |
+| 7 Nov | Word cap no longer cuts citations in half (misquote artifact) | Claude | it5 |
+| 7 Nov | Detective's copy hides exactly one clue (hide-1) | User | it8 |
+| 7 Nov | H3 floor (judge reads the detective's copy); floor, ceiling and council 3 votes each; CIs resample cases | User | it10–it12 |
+| 7 Nov | Speakers stay detective + wolf + 1 innocent; no-marks ablation as secondary analysis | User | it14 |
+| 7 Nov | Levels L2 + L4; v4 and 120 words frozen; pre-registration final (seed 0 main, 3000 tests) | User | it14, README |
+| 10 Nov | Exploratory innocopy condition (innocent reads the detective's copy) | User | it16 |
+| 10 Nov | No Opus-wolf run (Claude advised against; user had only asked) | User | it16 |
+| 10 Nov | Main run 30 cases × 2 modes = 60 games (was 400), fixed size | User | Decision (10 Nov) |
+| 10–11 Nov | Batches of 20 (`--max-games`), then `run_batches.sh` (next batch at once, 5 h wait on limits) | User | Main run started |
+| 11 Nov | Rejudge with Sonnet instead of Opus: recommended by Claude, not yet decided | Open | — |
+| 11 Nov | Exploratory it17: random2 speakers (30 cases), frame and misled detectives (15 cases each); clerk unchanged | User | it17 code |
+| 11 Nov | Wolf-tactics analysis with rule-based tags, hand-checked | User | it18 |
+
+Found after the main run, reported as limitations: the "wolf always speaks" cue (innocopy
+analysis entry; tested by it17 random2) and the clerk's 85% fuzzy match, which lets a one-name
+swap pass as (verified) (it17 code).
 
 ---
 
