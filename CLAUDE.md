@@ -98,6 +98,7 @@ already at ceiling with a Sonnet wolf, so the comparison would likely be uninfor
 | `analyze.py` | metrics |
 | `run_batches.sh` | reruns `run.py` (or `SCRIPT=rejudge.py`) until done; waits 5 h on usage limits |
 | `tactics.py` | rule-based wolf tactic tags (it18) |
+| `it17_checks.py` | it17 paired differences, who cites the clue, clerk labels on the swapped clue |
 
 Run: `unset ANTHROPIC_API_KEY; python3 pilot.py --backend cli`, then
 `python3 run.py --backend cli --cases 4 --levels L1 L3`, then `python3 analyze.py results/games.jsonl`.
@@ -111,7 +112,7 @@ session (API-equivalent ≈ $0.28); so run at most ~20 games per session (`--max
 back to back in 3 h 40 min without hitting a limit, so 4% per game overestimates; weekly share unknown.
 400 games would not fit before the deadline on Pro; that is why the main run is 60 games.
 
-## Status (11 Nov 2026)
+## Status (12 Nov 2026)
 
 Full history, results and every decision: `ITERATIONS.md` (it0–it18; "Decision index" at the
 top). Add an entry for every new iteration (what changed, what ran, outcome, decision, who
@@ -129,10 +130,14 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 - Found after the main run, both now README limitations: (1) the wolf always speaks, so "the
   candidate who speaks" is right ~80% of the time without lie detection; (2) the clerk's 85%
   fuzzy match marks a one-name swap as (verified).
-- it17 (exploratory, running since 11 Nov 19:01 via `run_batches.sh`): frame and misled
-  detectives (15 cases each, `results/wrongdet`), then random2 speakers (30 cases,
-  `results/rand2`). First frame game: detective accused the decoy in round 1, then switched to
-  the real wolf.
+- it17 done (12 Nov, exploratory; `results/wrongdet`, `results/rand2`; ITERATIONS "it17
+  results"): frame detective (secretly told to frame the decoy) knows the truth privately 15/15
+  but frames out loud in all rounds in 10/15; council 60% (−40 vs paired honest [−67, −20]).
+  misled detective (swapped copy) wrong 15/15; council 40% (−60 [−87, −33]); the clerk marked
+  all 45 swapped-name quotes (verified). random2: wolf silent 13 games, council 13/13 (29/30
+  overall), but the hidden clue was cited in 30/30 games. One paraphrase marked MISQUOTED
+  (c0001-frame), still no fabrication. Fixed 12 Nov: `ci()` NaN sort (main numbers unchanged),
+  pooled floor only honest + win.
 - it18 wolf tactics (`tactics.py`, `results/tactics_main_innocopy.txt`): rule-based tags,
   hand-checked (no wrong tags, ~80% recall). Zero fabrication; true-but-misleading framing.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`. `claude setup-token` if
@@ -140,10 +145,8 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 
 ## Next steps
 
-1. When it17 finishes: validate games, `python3 analyze.py results/main/games.jsonl
-   results/wrongdet/games.jsonl results/rand2/games.jsonl`, key numbers: council and
-   "voted for detective's target" for frame/misled; detective and council in the rand2
-   wolf-silent group. Log as it17 results; save analysis output under `results/`.
+1. Open decision (user): how to report it17 in the write-up (Claude's reading is in
+   ITERATIONS "it17 results"; the user decides the wording).
 2. Open decision (user): Sonnet rejudge (Claude recommends Sonnet only, not Opus).
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Write-up (README or blog, 2–3 pages, limitations, say Claude helped write the code).

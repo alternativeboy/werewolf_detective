@@ -174,8 +174,10 @@ def ci(rows, fn, n_boot=2000, seed=0):
     if len(clusters) < 2:
         return (float("nan"), float("nan"))
     rng = random.Random(seed)
-    vals = sorted(fn([r for _ in clusters for r in rng.choice(clusters)]) for _ in range(n_boot))
-    vals = [v for v in vals if v == v]
+    # Drop NaN (resamples where a ratio has no denominator) BEFORE sorting: NaN breaks the sort
+    # order, which gave intervals like [67%, 50%] (fixed 12 Nov, it17 analysis)
+    vals = [fn([r for _ in clusters for r in rng.choice(clusters)]) for _ in range(n_boot)]
+    vals = sorted(v for v in vals if v == v)
     if not vals:
         return (float("nan"), float("nan"))
     return vals[int(0.025 * len(vals))], vals[int(0.975 * len(vals)) - 1]
@@ -371,9 +373,11 @@ def report(games, judgements, per_game=False):
     # pool honest and win games for a tighter estimate. The two games of a case share the same
     # input (repeat votes, not new cases); ci() resamples by case, so the CI reflects cases.
     # No decoy split here: it depends on who spoke, which floor and ceiling never see.
+    # Only honest and win: a frame game's floor repeats its honest pair's input, and a misled
+    # game's floor reads a different (swapped) copy, so neither belongs in this pool (it17)
     pooled = defaultdict(list)
     for (model, mode, lv), rows in council.items():
-        if "|" not in lv:
+        if "|" not in lv and mode in ("honest", "win"):
             pooled[(model, lv)] += rows
     print("\n######## FLOOR / CEILING, BOTH DETECTIVE MODES POOLED ########")
     print("(the council is not pooled: it depends on the detective mode; see the tables above)")

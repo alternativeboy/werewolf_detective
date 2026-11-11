@@ -65,6 +65,11 @@ def tags_of(msg, g, hidden):
     return t
 
 
+def cond_of(g):
+    return g["detective_mode"] + (" innocopy" if g.get("innocent_sees") == "copy" else "") + (
+        " rand2" if g.get("speakers_mode") == "random2" else "")
+
+
 def load(paths):
     return [json.loads(l) for p in paths for l in open(p, encoding="utf-8") if l.strip()]
 
@@ -81,6 +86,9 @@ def main():
     for g in games:
         ids = {e["id"] for e in g["case"]["evidence"]}
         hidden = ids - set(g["detective_evidence_ids"]) if g.get("detective_evidence_ids") else set()
+        if g.get("detective_case"):  # misled (it17): the decoy's alibi is swapped, not hidden
+            dc = {e["id"]: e["text"] for e in g["detective_case"]["evidence"]}
+            hidden = {e["id"] for e in g["case"]["evidence"] if dc.get(e["id"]) != e["text"]}
         j = next(iter(g["judges"].values()))
         votes = j["debate_votes"]
         per_msg = []
@@ -91,9 +99,7 @@ def main():
                 msgs.append((g, m, t))
         used = set().union(*per_msg) if per_msg else set()
         rows.append({"g": g, "used": used, "wolf_votes": votes.count(g["answer"]),
-                     "council_right": majority(votes) == g["answer"],
-                     "cond": g["detective_mode"] + (" innocopy" if g.get("innocent_sees") == "copy"
-                                                     else "")})
+                     "council_right": majority(votes) == g["answer"], "cond": cond_of(g)})
 
     if a.sample:
         random.seed(a.seed)
@@ -117,7 +123,7 @@ def main():
     print("\nShare of wolf messages with each tag, by condition:")
     by = defaultdict(list)
     for g, _, t in msgs:
-        by[g["detective_mode"] + (" innocopy" if g.get("innocent_sees") == "copy" else "")].append(t)
+        by[cond_of(g)].append(t)
     for cond, ts in sorted(by.items()):
         print(f"  {cond:16} n={len(ts):3} " + "  ".join(
             f"{t} {sum(t in x for x in ts) / len(ts):.0%}" for t in tags))
