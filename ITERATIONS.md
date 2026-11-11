@@ -616,3 +616,6 @@ Not run yet. All three use the first 15 cases of seed 0, hide-1, honest prompts 
   longest match covers 85% of it, so the swapped alibi ("Rin was at the tavern ...", real text
   "Gade was at the tavern ...") is marked (verified). The clerk cannot catch a one-name swap.
   This also applies to the main run (nobody tried it there). Clerk left unchanged for now.
+- Decisions (user, 11 Nov, before any it17 game): random2 on all 30 main-run cases (13
+  wolf-silent games; 15 cases would give only 5); frame and misled on the first 15 cases;
+  clerk kept as in the main run (the swapped alibi shows as verified; reported as a limitation).
