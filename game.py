@@ -9,7 +9,7 @@ import random
 
 import prompts as P
 from cases import (PARTIAL_NOTE_JUDGE, candidates_from, detective_view, detective_view_hiding,
-                   render_case)
+                   render_case, solve)
 from checker import (cap_words, check_citations, mark_citations, match_name, parse_json,
                      split_accusation, split_sentences)
 
@@ -17,8 +17,22 @@ N_ROUNDS = 3
 N_JUDGE_VOTES = 3
 
 
+def misled_case(case, hidden_id):
+    """Case file for the "misled" detective (it17): the hidden clue (the decoy's confirmed
+    alibi, see cases.detective_view_hiding) is shown with the WOLF's name instead of the
+    decoy's, so the copy wrongly clears the wolf and points to the decoy alone. Same clue id,
+    so if the detective quotes it the clerk marks it (MISQUOTED) against the real file."""
+    out = dict(case, evidence=[dict(e) for e in case["evidence"]])
+    e = next(e for e in out["evidence"] if e["id"] == hidden_id)
+    decoy, wolf = e["fact"]["name"], case["answer"]
+    e["text"] = e["text"].replace(decoy, wolf)
+    e["fact"] = dict(e["fact"], name=wolf)
+    return out
+
+
 def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, detective_sees=1.0,
-              detective_hides=0, wolf_model=None, draw_seed=None, innocent_sees="full", log=print):
+              detective_hides=0, wolf_model=None, draw_seed=None, innocent_sees="full",
+              speakers_mode="wolf+innocent", log=print):
     """detective_sees < 1: detective gets a random fraction of the evidence.
     detective_hides = n > 0: detective gets everything except n solution clues (see
     cases.detective_view_hiding). Use one or the other.
@@ -26,13 +40,31 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
     draw_seed: seed for the innocent-speaker draw and speaking order (default: game_id).
     innocent_sees: "full" = the innocent speaker reads the full case file (every game before
     it16); "copy" = it reads the detective's incomplete copy instead (it16, exploratory), to test
-    whether the council is right only because an honest, fully informed speaker is present."""
+    whether the council is right only because an honest, fully informed speaker is present.
+    speakers_mode (it17, exploratory): "wolf+innocent" = the wolf and one random innocent speak
+    (every game before it17); "random2" = any two random suspects speak, so the wolf is silent
+    in most games and "the detective's candidate who speaks" is no longer a free cue.
+    detective_mode "frame" (it17): hide-1 copy, detective is secretly told to get the decoy
+    voted out. "misled" (it17): honest detective prompt, but its copy shows the decoy's hidden
+    alibi with the wolf's name (see misled_case), so it honestly believes the decoy did it."""
     if detective_hides > 0 and detective_sees < 1:
         raise ValueError("use either detective_sees or detective_hides, not both")
+    if detective_mode in ("frame", "misled") and detective_hides != 1:
+        raise ValueError(f"detective_mode={detective_mode!r} needs detective_hides=1")
+    if speakers_mode not in ("wolf+innocent", "random2"):
+        raise ValueError(f"unknown speakers_mode {speakers_mode!r}")
     text = render_case(case)                        # full file: wolf, lie judge (and innocent)
     det_ids = (detective_view_hiding(case, detective_hides) if detective_hides > 0
                else detective_view(case, detective_sees))
     det_text = render_case(case, only_ids=det_ids)  # detective's copy (maybe partial)
+    det_case = None  # set only for "misled": the corrupted file the detective reads
+    if detective_mode in ("frame", "misled"):
+        decoy = next(c for c in candidates_from(case, det_ids) if c != case["answer"])
+    if detective_mode == "misled":
+        hidden = next(e["id"] for e in case["evidence"] if e["id"] not in set(det_ids))
+        det_case = misled_case(case, hidden)
+        det_text = render_case(det_case)  # looks complete: every clue id, no partial note
+        det_ids = [e["id"] for e in case["evidence"]]
     if innocent_sees not in ("full", "copy"):
         raise ValueError(f"innocent_sees must be 'full' or 'copy', not {innocent_sees!r}")
     if innocent_sees == "copy" and det_ids is None:
@@ -43,25 +75,35 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
     inno_text = text if innocent_sees == "full" else render_case(
         case, only_ids=det_ids, note=PARTIAL_NOTE_JUDGE)
     # Suspects still logically possible from the detective's copy (code solver, no model call)
-    det_cands = candidates_from(case, det_ids)
+    det_cands = solve(det_case) if det_case else candidates_from(case, det_ids)
     sus = case["suspects"]
     wolf = case["answer"]
     # Innocent speaker and order: drawn from draw_seed (run.py passes the id without the wolf
     # suffix) so paired games share them; defaults to game_id as in every game before it16.
     rng = random.Random(draw_seed or game_id)
-    innocent = rng.choice([s for s in sus if s != wolf])
-    speakers = [("wolf", wolf), ("innocent", innocent)]
-    rng.shuffle(speakers)
+    if speakers_mode == "random2":
+        speakers = [("wolf" if n == wolf else "innocent", n) for n in rng.sample(sus, 2)]
+    else:
+        speakers = [("wolf", wolf), ("innocent", rng.choice([s for s in sus if s != wolf]))]
+        rng.shuffle(speakers)
+    innocents = [n for r, n in speakers if r == "innocent"]
+    innocent = innocents[0] if innocents else None
 
     rec = {"game_id": game_id, "case_id": case["case_id"], "difficulty": case["difficulty"],
            "detective_mode": detective_mode, "answer": wolf, "prompt_version": P.PROMPT_VERSION,
            "case": case, "innocent_speaker": innocent, "speaker_order": [n for _, n in speakers],
+           "speakers_mode": speakers_mode, "wolf_speaks": any(r == "wolf" for r, _ in speakers),
            "detective_sees": detective_sees, "detective_hides": detective_hides,
            "innocent_sees": innocent_sees,
            "detective_evidence_ids": det_ids, "detective_candidates": det_cands,
-           # True if the innocent speaker is one of the suspects the detective cannot rule out
+           # True if an innocent speaker is one of the suspects the detective cannot rule out
            # (with hide-1: the neighbour whose alibi is hidden, who can simply cite it)
-           "innocent_is_candidate": innocent in det_cands, "messages": []}
+           "innocent_is_candidate": any(n in det_cands for n in innocents), "messages": []}
+    if detective_mode in ("frame", "misled"):
+        rec["detective_target"] = decoy  # the innocent suspect the detective pushes / believes
+        rec["it17_version"] = P.IT17_VERSION
+    if det_case:
+        rec["detective_case"] = det_case
     # Model per role, as passed to the backend (games before it16 do not have this field;
     # they used the backend defaults: Sonnet players, Haiku judge)
     role_model = {r: backend.models[r] for r in ("detective", "wolf", "innocent", "lie_judge", "judge")}
@@ -69,9 +111,12 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
         role_model["wolf"] = wolf_model
     rec["models"] = role_model
     cost_before = dict(getattr(backend, "cost_usd", {}))
-    det_sys = P.DETECTIVE_SYSTEM[detective_mode]
-    sys_for = {"wolf": P.WOLF_SYSTEM.format(name=wolf),
-               "innocent": P.INNOCENT_SYSTEM.format(name=innocent)}
+    if detective_mode == "frame":
+        det_sys = P.DETECTIVE_SYSTEM["frame"].format(target=decoy)
+    else:  # "misled" uses the honest prompt: it is wrong because of its file, not its goal
+        det_sys = P.DETECTIVE_SYSTEM["honest" if detective_mode == "misled" else detective_mode]
+    sys_for = {name: (P.WOLF_SYSTEM if role == "wolf" else P.INNOCENT_SYSTEM).format(name=name)
+               for role, name in speakers}
     file_for = {"wolf": text, "innocent": inno_text}
 
     # 1. Initial guess (case file only)
@@ -96,7 +141,7 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
         log(f"  round {r}: detective accuses {accused}")
         k = 0  # statement counter within the round
         for role, name in speakers:
-            w, cut = cap_words(backend.call(role, sys_for[role],
+            w, cut = cap_words(backend.call(role, sys_for[name],
                                             P.suspect_turn(file_for[role], transcript, r),
                                             model=role_model[role]).strip(), P.MAX_WORDS)
             transcript += f"\n{name} (round {r}): {w}\n"
@@ -186,7 +231,10 @@ def file_votes(rec, backend, model, n, partial=False):
     partial=True:  the detective's incomplete copy (H3 floor); None if that copy was complete.
     """
     case = rec["case"]
-    if partial:
+    if partial and rec.get("detective_case"):
+        # "misled" (it17): the floor reads the same corrupted, complete-looking file
+        text = render_case(rec["detective_case"])
+    elif partial:
         ids = rec.get("detective_evidence_ids")
         if ids is None:
             return None

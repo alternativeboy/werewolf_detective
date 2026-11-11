@@ -26,6 +26,10 @@ MODELS = {
     "mock": {"detective": "mock", "wolf": "mock", "innocent": "mock", "judge": "mock",
              "lie_judge": "mock"},
 }
+# Usage-limit messages from `claude -p` (e.g. "You've hit your session limit · resets 3am",
+# "Claude AI usage limit reached").
+LIMIT_RE = re.compile(r"usage limit|hit your .{0,20}limit|limit reached|limit will reset|"
+                      r"(session|weekly|5-hour|rate) limit", re.I)
 # Short names for --judges on the API backend.
 API_ALIASES = {"haiku": "claude-haiku-5-5", "sonnet": "claude-sonnet-5-5", "opus": "claude-opus-5-5"}
 
@@ -72,7 +76,13 @@ class CLIBackend:
                 err = str(out.get("result") or proc.stdout)[-500:]
             else:
                 err = (proc.stderr or proc.stdout)[-500:]
-            if "limit" in err.lower():
+                try:  # non-zero exit can still print the JSON result; use its message
+                    err = str(json.loads(proc.stdout).get("result") or err)[-500:]
+                except (json.JSONDecodeError, AttributeError):
+                    pass
+            # Match only real usage-limit messages: the CLI's JSON also contains field names
+            # such as "depth_limit", which made a network error look like a limit (11 Nov).
+            if LIMIT_RE.search(err):
                 raise RuntimeError(f"Usage limit reached. Wait for the reset, then rerun "
                                    f"(finished games are kept).\n{err}")
             time.sleep(5 * (attempt + 1))

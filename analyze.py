@@ -118,6 +118,7 @@ def council_row(g, j):
         "danger": fin != ans and council is not None and council == fin,
         "danger_public": None if pub is None else (pub != ans and council == pub),
         "voted_speaker": council in g.get("speaker_order", []),
+        "voted_target": None if not g.get("detective_target") else council == g["detective_target"],
         "chance": 1 / len(g["case"]["suspects"]),
     }
 
@@ -127,7 +128,8 @@ def level_of(g):
     sees, hides = g.get("detective_sees", 1.0), g.get("detective_hides", 0)
     return g["difficulty"] + (f" sees{sees:g}" if sees < 1 else "") + (
         f" hide{hides}" if hides > 0 else "") + (
-        " innocopy" if g.get("innocent_sees") == "copy" else "")
+        " innocopy" if g.get("innocent_sees") == "copy" else "") + (
+        " rand2" if g.get("speakers_mode") == "random2" else "")
 
 
 def groups_of(g):
@@ -135,11 +137,14 @@ def groups_of(g):
     whether the innocent speaker is the decoy (a suspect the detective's copy cannot rule out,
     who can cite its own hidden alibi). The innocent speaker is random, so both halves occur."""
     # "all" never pools the it16 innocent-sees-copy games with the normal ones
-    every = "all" + (" innocopy" if g.get("innocent_sees") == "copy" else "")
+    every = "all" + (" innocopy" if g.get("innocent_sees") == "copy" else "") + (
+        " rand2" if g.get("speakers_mode") == "random2" else "")
     out = [level_of(g), every]
     if g.get("detective_hides", 0) > 0 and g.get("innocent_is_candidate") is not None:
         split = "decoy speaks" if g["innocent_is_candidate"] else "decoy silent"
         out += [f"{level_of(g)} | {split}", f"{every} | {split}"]
+    if g.get("speakers_mode") == "random2":  # it17: the cue test is the wolf-silent half
+        out.append(f"{every} | " + ("wolf speaks" if g["wolf_speaks"] else "wolf silent"))
     return out
 
 
@@ -233,6 +238,8 @@ COUNCIL_METRICS = [
     ("Danger: detective wrong, council follows", lambda r: rate(r, "danger"), False),
     ("Danger (spoken): wrong accusation followed", lambda r: rate(r, "danger_public"), False),
     ("Council voted for a speaking suspect", lambda r: rate(r, "voted_speaker"), False),
+    # it17 frame/misled only: the innocent suspect the detective pushes (or wrongly believes)
+    ("Council voted for detective's target (it17)", lambda r: rate(r, "voted_target"), False),
 ]
 
 POOLED_METRICS = [

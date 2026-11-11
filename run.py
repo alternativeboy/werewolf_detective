@@ -9,6 +9,13 @@ Examples:
       --modes honest --innocent-sees copy --out results/innocopy
       # it16 (exploratory): innocent reads the detective's copy. Same seed = same first 15 cases
       # as the main run; innocent speaker and order match the main-run games (paired)
+  python run.py --backend cli  --cases 15 --levels L2 L4 --detective-hides 1 --seed 0 \
+      --modes honest --speakers random2 --out results/rand2
+      # it17 (exploratory): any two random suspects speak, so the wolf is usually silent
+  python run.py --backend cli  --cases 15 --levels L2 L4 --detective-hides 1 --seed 0 \
+      --modes frame misled --out results/wrongdet
+      # it17 (exploratory): detective secretly pushes the decoy / honestly reads a file that
+      # points to the decoy; paired with the main-run honest games (same speakers and order)
   --wolf-model opus   gives the wolf a different model (not used in any planned run)
   --max-games 70      stop after 70 new games; the same command again plays the next 70
 
@@ -39,7 +46,13 @@ def main():
     ap.add_argument("--cases", type=int, default=1, help="number of case files")
     ap.add_argument("--levels", nargs="+", default=["L1", "L3"], choices=LEVELS,
                     help="difficulty levels, assigned to cases in turn")
-    ap.add_argument("--modes", nargs="+", default=["honest", "win"])
+    ap.add_argument("--modes", nargs="+", default=["honest", "win"],
+                    choices=["honest", "win", "frame", "misled"],
+                    help="frame/misled (it17, exploratory, need --detective-hides 1): detective "
+                         "secretly pushes the decoy / honestly reads a file that points to it")
+    ap.add_argument("--speakers", choices=["wolf+innocent", "random2"], default="wolf+innocent",
+                    help="random2 = any two random suspects speak, so the wolf is usually silent "
+                         "(it17, exploratory)")
     ap.add_argument("--votes", type=int, default=N_JUDGE_VOTES, help="council votes per game")
     ap.add_argument("--detective-sees", type=float, default=1.0,
                     help="fraction of evidence in the detective's copy of the case file (0-1]")
@@ -75,7 +88,8 @@ def main():
                                                     if a.detective_sees < 1 else "") + (
                 f"-hide{a.detective_hides}" if a.detective_hides > 0 else "")
             gid = base + (f"-wolf{wolf}" if wolf else "") + (
-                "-innocopy" if a.innocent_sees == "copy" else "")
+                "-innocopy" if a.innocent_sees == "copy" else "") + (
+                "-rand2" if a.speakers == "random2" else "")
             if gid not in done:
                 todo.append((case, mode, base, gid))
     total = len(cases) * len(a.modes)
@@ -88,9 +102,13 @@ def main():
         # draw_seed=base: the innocent speaker and speaking order are drawn from the id
         # WITHOUT the condition suffixes, so e.g. c0003-honest-hide1 and
         # c0003-honest-hide1-innocopy have the same innocent speaker and order (paired).
+        # frame/misled games draw speakers like the HONEST game of the same case, so each pairs
+        # with a main-run honest game (same innocent speaker and order)
+        seed = base.replace(f"-{mode}", "-honest", 1) if mode in ("frame", "misled") else base
         rec = play_game(case, backend, mode, gid, n_votes=a.votes,
                         detective_sees=a.detective_sees, detective_hides=a.detective_hides,
-                        wolf_model=wolf, draw_seed=base, innocent_sees=a.innocent_sees)
+                        wolf_model=wolf, draw_seed=seed, innocent_sees=a.innocent_sees,
+                        speakers_mode=a.speakers)
         rec["seconds"] = round(time.time() - t0)
         with open(games_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
