@@ -145,8 +145,8 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 
 ## Next steps
 
-1. Open decision (user): how to report it17 in the write-up (Claude's reading is in
-   ITERATIONS "it17 results"; the user decides the wording).
+1. Open decision (user): how to report it17 in the write-up. Claude's draft is in
+   `WRITEUP_DRAFT.md`; the user edits and decides the wording.
 2. Open decision (user): Sonnet rejudge (Claude recommends Sonnet only, not Opus).
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Write-up (README or blog, 2–3 pages, limitations, say Claude helped write the code).

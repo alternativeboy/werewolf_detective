@@ -741,3 +741,5 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
   overseer leans on the detective's accusation more than on the evidence; the random2 result
   removes the "wolf always speaks" worry for the council but not the "honest informed speaker
   always present" limitation. Frame is a prompted behaviour, not evidence of real-world intent.
+- **Write-up draft (Claude, 12 Nov, user asked):** `WRITEUP_DRAFT.md` "Exploratory: a wrong
+  or dishonest detective (it17)". Draft only; the user edits and decides the final wording.
