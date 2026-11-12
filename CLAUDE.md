@@ -114,7 +114,7 @@ back to back in 3 h 40 min without hitting a limit, so 4% per game overestimates
 
 ## Status (12 Nov 2026)
 
-Full history, results and every decision: `ITERATIONS.md` (it0–it18; "Decision index" at the
+Full history, results and every decision: `ITERATIONS.md` (it0–it19; "Decision index" at the
 top). Add an entry for every new iteration (what changed, what ran, outcome, decision, who
 decided) and commit it with the results. README has the pre-registration, the main results and
 an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
@@ -138,6 +138,12 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
   overall), but the hidden clue was cited in 30/30 games. One paraphrase marked MISQUOTED
   (c0001-frame), still no fabrication. Fixed 12 Nov: `ci()` NaN sort (main numbers unchanged),
   pooled floor only honest + win.
+- it19 Sonnet rejudge done (12 Nov; user chose Sonnet only, no Opus, a logged deviation;
+  ITERATIONS "it19 results"): main run Sonnet floor 57% / council 100% / ceiling 100% in both
+  modes (room for debate ~43 points vs ~65 for Haiku). wrongdet: Sonnet council 15/15 in frame
+  and in misled (Sonnet − Haiku +40 [+20, +67], +60 [+33, +87]); never voted for the
+  detective's target. Caveats: Sonnet = debaters' model (equal-strength judge, not weak);
+  in misled the wolf also quoted the true clue in 13/15 games.
 - it18 wolf tactics (`tactics.py`, `results/tactics_main_innocopy.txt`): rule-based tags,
   hand-checked (no wrong tags, ~80% recall). Zero fabrication; true-but-misleading framing.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`. `claude setup-token` if
@@ -147,7 +153,7 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 
 1. Open decision (user): how to report it17 in the write-up. Claude's draft is in
    `WRITEUP_DRAFT.md`; the user edits and decides the wording.
-2. Open decision (user): Sonnet rejudge (Claude recommends Sonnet only, not Opus).
+2. Open decision (user): how to report the Sonnet result (it19) alongside it17.
 3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
 4. Write-up (README or blog, 2–3 pages, limitations, say Claude helped write the code).
 5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and write the positioning paragraph.

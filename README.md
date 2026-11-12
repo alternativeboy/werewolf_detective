@@ -157,6 +157,7 @@ Haiku เป็น judge, 30 คดี (L2 15 + L4 15) × 2 โหมด = 60 �
 
 - H1 สนับสนุน, H2 เป็นผลว่าง (ไม่มีใครแต่ง citation เลยใน 3,079 รายการ), H3 council ปิดช่องว่างได้เกือบหมด
 - council พลาดเกมเดียว (c0007-win): หมาป่าใช้แต่หลักฐานจริง แต่ตั้งข้อสงสัยกับพยานและยกหลักฐานล่อ
+- **Sonnet เป็น judge (ตามแผน, `rejudge.py` 12 พ.ย., บทถกเถียงเดิม):** พื้น / council / เพดาน = 57% / 100% / 100% ทั้ง honest และ win, ช่องว่างที่ปิดได้ 100% ทั้งสองโหมด พื้นของ Sonnet สูงกว่า Haiku (57% [40, 77] เทียบ ~35%) ช่องว่างให้ debate ช่วยจึงเหลือ ~43 จุดแทน ~65 Sonnet ถูกในเกม c0007-win ที่ Haiku พลาด (ไม่ใช้ Opus: เบี่ยงจากแผน ดูบรรทัด judge หลักด้านบนและ ITERATIONS it19)
 
 ## เพิ่มหลัง main run (exploratory ทั้งหมด, ไม่ใช่ผลหลัก)
 
@@ -173,16 +174,18 @@ Haiku เป็น judge, 30 คดี (L2 15 + L4 15) × 2 โหมด = 60 �
   | คำกล่าวหาสุดท้ายที่พูดออกมาถูก | 15/15 | 4/15 | 0/15 |
   | council (debate อย่างเดียว) | 100% | 60% [33, 80] | 40% [13, 67] |
   | council − คู่ honest | | −40 จุด [−67, −20] | −60 จุด [−87, −33] |
+  | council ถ้า judge เป็น Sonnet (it19) | 100% | 100% | 100% |
 
   - frame: detective รู้คำตอบจริงทุกเกม แต่ใส่ร้าย decoy ครบ 3 รอบใน 10/15 เกม council ถูก 4/10 ในเกมเหล่านี้ และ 5/5 เมื่อ detective เปลี่ยนมากล่าวหาหมาป่าออกเสียง ทั้งที่ผู้บริสุทธิ์ยก alibi ที่ถูกซ่อนใน 15/15 เกม
   - misled: detective ยก alibi ที่ถูกสลับชื่อทุกเกม clerk ให้ (verified) ทั้ง 45 ครั้ง (ช่องโหว่สลับชื่อเกิดขึ้นจริง) ผู้บริสุทธิ์ยกฉบับจริงซึ่งก็ (verified) เช่นกัน council จึงเห็น quote ขัดกันสองฉบับที่ "verified" ทั้งคู่ และ detective ติดป้าย "false" ให้คำพูดของผู้บริสุทธิ์ 49.5% (main honest 0.2%)
   - random2: หมาป่าเงียบ 13 เกม council ถูก 13/13 (โหวตคนที่ไม่ได้พูดทุกครั้ง) รวม 29/30 แต่ alibi ที่ถูกซ่อนถูกยกโดยใครสักคนครบ 30/30 เกม
   - มี citation ไม่ผ่านครั้งแรกของโปรเจกต์ (c0001-frame, MISQUOTED) แต่เป็นการถอดความที่ความหมายเดิม ไม่ใช่การแต่ง หมาป่ายังไม่แต่งหลักฐานเลย
-  ตาราง: `results/it17_analysis.txt`, `results/it17_checks.txt`, `results/tactics_it17.txt` · รายละเอียด: ITERATIONS.md "it17 results"
+  - Sonnet เป็น judge (it19, rejudge บทถกเถียงเดิม): council ถูก 15/15 ทั้ง frame และ misled (Sonnet − Haiku +40 [+20, +67] และ +60 [+33, +87]) ไม่เคยโหวตตามเป้าของ detective ช่องโหว่นี้จึงเกิดกับ judge ที่อ่อนกว่า (Haiku) ไม่ใช่กับ judge ที่เก่งเท่าผู้ถกเถียง แต่ Sonnet คือโมเดลเดียวกับผู้ถกเถียง จึงไม่ใช่กรณี weak judge และใน misled หมาป่าก็ยก alibi ฉบับจริงด้วย 13/15 เกม (สองเสียงต่อหนึ่ง อาจอธิบายได้บางส่วน)
+  ตาราง: `results/it17_analysis.txt`, `results/it17_checks.txt`, `results/tactics_it17.txt` · รายละเอียด: ITERATIONS.md "it17 results", "it19 results"
   `python3 run.py --backend cli --cases 15 --levels L2 L4 --detective-hides 1 --seed 0 --modes frame misled --out results/wrongdet`
   `python3 run.py --backend cli --cases 30 --levels L2 L4 --detective-hides 1 --seed 0 --modes honest --speakers random2 --out results/rand2`
 - **กลยุทธ์ของหมาป่า (it18):** `tactics.py` ติดป้ายด้วยกฎ ตรวจด้วยมือ 3 ชุด (ไม่มีป้ายผิด, จับได้ ~80%) หมาป่าใช้หลักฐานล่อ 75/75 เกม, ตั้งข้อสงสัยกับรอยเท้า 69, โจมตีผู้บริสุทธิ์ 51, โจมตี alibi ที่ยืนยันแล้ว 44, เผย clue ที่ถูกซ่อนเอง 34 (council ถูก 33/34), แสดงความซื่อสัตย์ 25 ผลต่อ council วัดไม่ได้ดีเพราะ council แพ้แค่ 4/75 เกม ตาราง: `results/tactics_main_innocopy.txt`
-- **ยังไม่ได้ทำ:** rejudge ด้วย Sonnet (กำลังรัน it19), ตรวจ lie judge ด้วยมือ ~50 ประโยค
+- **ยังไม่ได้ทำ:** ตรวจ lie judge ด้วยมือ ~50 ประโยค
 
 ## ข้อจำกัดหลัก
 

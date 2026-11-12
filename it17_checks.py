@@ -7,15 +7,33 @@
 - who cites the decoy's hidden (frame) or swapped (misled) alibi, and council right by that
 - which version of the swapped clue each speaker quoted (misled) and the clerk's label
 - rand2: who first cites the hidden clue, council right when the wolf is silent
+- it19: the same checks for every judge model in judgements.jsonl (Sonnet rejudge), and the
+  paired difference Sonnet - Haiku on the same debates
 """
 
 import json
+import os
 import random
 from collections import Counter
 
+from analyze import merge_judgements
+
+JUDGES = ("haiku", "sonnet")
+
 
 def load(p):
+    if not os.path.exists(p):
+        return []
     return [json.loads(l) for l in open(p, encoding="utf-8") if l.strip()]
+
+
+def load_games(d):
+    """Games with their judgements merged in: g["judges"][model] for every judge model."""
+    gs = load(f"{d}/games.jsonl")
+    merged = merge_judgements(gs, load(f"{d}/judgements.jsonl"))
+    for g in gs:
+        g["judges"] = {m: j for (gid, m), j in merged.items() if gid == g["game_id"]}
+    return gs
 
 
 def majority(votes):
@@ -23,8 +41,19 @@ def majority(votes):
     return c.most_common(1)[0][0] if c and c.most_common(1)[0][1] >= 2 else None
 
 
-def right(g):
-    return majority(g["judges"]["haiku"]["debate_votes"]) == g["answer"]
+def council(g, judge="haiku"):
+    return majority(g["judges"][judge]["debate_votes"])
+
+
+def right(g, judge="haiku"):
+    return council(g, judge) == g["answer"]
+
+
+def paired_ci(d, seed=0, n=2000):
+    """Mean of paired differences (one per case) with a 95% bootstrap CI over cases."""
+    rng = random.Random(seed)
+    bs = sorted(sum(rng.choice(d) for _ in d) / len(d) for _ in range(n))
+    return f"{sum(d) / len(d):+.1%} 95% CI [{bs[int(n * .025)]:+.0%}, {bs[int(n * .975) - 1]:+.0%}]"
 
 
 def clue_ids(g):
@@ -45,35 +74,37 @@ def first_citer(g, ids):
 
 
 def main():
-    main_run = {g["game_id"]: g for g in load("results/main/games.jsonl")}
-    wrong = load("results/wrongdet/games.jsonl")
+    main_run = {g["game_id"]: g for g in load_games("results/main")}
+    wrong = load_games("results/wrongdet")
     for mode in ("frame", "misled"):
         gs = [g for g in wrong if g["detective_mode"] == mode]
         pairs = [(g, main_run[g["game_id"].replace(f"-{mode}", "-honest", 1)]) for g in gs]
-        d = [right(g) - right(h) for g, h in pairs]
-        rng = random.Random(0)
-        bs = sorted(sum(rng.choice(d) for _ in d) / len(d) for _ in range(2000))
-        print(f"== {mode}: {len(gs)} games ==")
-        print(f"  council right {sum(right(g) for g in gs)}/{len(gs)}; paired honest "
-              f"{sum(right(h) for _, h in pairs)}/{len(gs)}; difference {sum(d) / len(d):+.1%} "
-              f"95% CI [{bs[50]:+.0%}, {bs[1949]:+.0%}] (bootstrap over cases)")
-        for label, fn in [
-            ("innocent cites the clue", lambda g, ids: cites(g, "innocent", ids)),
-            ("wolf cites the clue", lambda g, ids: cites(g, "wolf", ids)),
-            ("detective cites the clue", lambda g, ids: cites(g, "detective", ids)),
-            ("detective accused the wolf out loud at least once",
-             lambda g, ids: g["answer"] in [m["accused"] for m in g["messages"]
-                                            if m["speaker"] == "detective"])]:
-            y = [g for g in gs if fn(g, clue_ids(g))]
-            n = [g for g in gs if not fn(g, clue_ids(g))]
-            print(f"  {label:50} yes: council right {sum(map(right, y))}/{len(y)}   "
-                  f"no: {sum(map(right, n))}/{len(n)}")
+        for judge in JUDGES:
+            if not all(judge in g["judges"] and judge in h["judges"] for g, h in pairs):
+                continue
+            r = lambda g: right(g, judge)
+            d = [r(g) - r(h) for g, h in pairs]
+            print(f"== {mode}: {len(gs)} games, judge={judge} ==")
+            print(f"  council right {sum(map(r, gs))}/{len(gs)}; paired honest "
+                  f"{sum(r(h) for _, h in pairs)}/{len(gs)}; difference {paired_ci(d)} "
+                  f"(bootstrap over cases)")
+            for label, fn in [
+                ("innocent cites the clue", lambda g, ids: cites(g, "innocent", ids)),
+                ("wolf cites the clue", lambda g, ids: cites(g, "wolf", ids)),
+                ("detective cites the clue", lambda g, ids: cites(g, "detective", ids)),
+                ("detective accused the wolf out loud at least once",
+                 lambda g, ids: g["answer"] in [m["accused"] for m in g["messages"]
+                                                if m["speaker"] == "detective"])]:
+                y = [g for g in gs if fn(g, clue_ids(g))]
+                n = [g for g in gs if not fn(g, clue_ids(g))]
+                print(f"  {label:50} yes: council right {sum(map(r, y))}/{len(y)}   "
+                      f"no: {sum(map(r, n))}/{len(n)}")
+            print("  council majority:", dict(Counter(
+                "wolf" if council(g, judge) == g["answer"]
+                else "decoy" if council(g, judge) == g["detective_target"]
+                else "no majority" if council(g, judge) is None
+                else "other suspect" for g in gs)))
         print("  first to cite the clue:", dict(Counter(first_citer(g, clue_ids(g)) for g in gs)))
-        print("  council majority:", dict(Counter(
-            "wolf" if majority(g["judges"]["haiku"]["debate_votes"]) == g["answer"]
-            else "decoy" if majority(g["judges"]["haiku"]["debate_votes"]) == g["detective_target"]
-            else "no majority" if majority(g["judges"]["haiku"]["debate_votes"]) is None
-            else "other suspect" for g in gs)))
         if mode == "misled":
             c = Counter()
             for g in gs:
@@ -88,7 +119,29 @@ def main():
             for k, v in sorted(c.items()):
                 print(f"    {k}: {v}")
 
-    rand2 = load("results/rand2/games.jsonl")
+    print("\n== it19: Sonnet - Haiku on the same debates (council right; floor; ceiling) ==")
+    by_mode = {}
+    for g in list(main_run.values()) + wrong:
+        if all(j in g["judges"] for j in JUDGES):
+            by_mode.setdefault(g["detective_mode"], []).append(g)
+    for mode, gs in by_mode.items():
+        def acc(g, judge, field):
+            return majority(g["judges"][judge][field]) == g["answer"]
+        parts = []
+        for field, name in (("debate_votes", "council"), ("file_partial_votes", "floor"),
+                            ("file_alone_votes", "ceiling")):
+            h = sum(acc(g, "haiku", field) for g in gs)
+            s_ = sum(acc(g, "sonnet", field) for g in gs)
+            parts.append(f"{name} haiku {h}/{len(gs)} sonnet {s_}/{len(gs)}")
+        # one difference per case: average over the case's games in this mode (1 game per case
+        # per mode here, so it is the game's difference)
+        d = [right(g, "sonnet") - right(g, "haiku") for g in gs]
+        print(f"  {mode:7} {len(gs):2} games: " + "; ".join(parts) +
+              f"; council sonnet - haiku {paired_ci(d)}")
+        unan = Counter(len(set(g["judges"]["sonnet"]["debate_votes"])) == 1 for g in gs)
+        print(f"          sonnet council unanimous in {unan[True]}/{len(gs)} games")
+
+    rand2 = load_games("results/rand2")
     print(f"\n== rand2: {len(rand2)} games ==")
     for speaks in (True, False):
         gs = [g for g in rand2 if g["wolf_speaks"] == speaks]

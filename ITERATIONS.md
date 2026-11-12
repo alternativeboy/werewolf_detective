@@ -28,6 +28,7 @@ the user; "Claude" = tooling or bug fixes that do not change what is measured.
 | 11 Nov | Wolf-tactics analysis with rule-based tags, hand-checked | User | it18 |
 | 12 Nov | Bootstrap CI NaN-sort fix; pooled floor table only honest + win; tactics labels rand2/misled (no reported main number changed) | Claude | it17 results |
 | 12 Nov | How to report it17 in the write-up | Open | it17 results |
+| 12 Nov | How to report the Sonnet result (it19) | Open | it19 results |
 
 Found after the main run, reported as limitations: the "wolf always speaks" cue (innocopy
 analysis entry; tested by it17 random2) and the clerk's 85% fuzzy match, which lets a one-name
@@ -765,3 +766,46 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
   (3 council, 3 ceiling, 3 floor), 810 calls in all. Output: `judgements.jsonl` next to each
   games file. rand2 and innocopy are not re-judged.
 
+## it19 results (12 Nov; run 09:02–20:33, stalled while the Mac slept, resumed 19:15)
+
+- **Data checks:** 90/90 games judged by Sonnet (main 60, wrongdet 30), one row per game, 3
+  council + 3 ceiling + 3 floor votes each, no None, every vote a suspect name, prompt v4, no
+  usage-limit text. Two network outages (09:49, 17:08) only lost the game in progress (rows are
+  written after all 9 votes). `rejudge.py` rows carry no cost field.
+- **Results** (majority of 3 votes right; paired Sonnet − Haiku on the same debates, 95%
+  bootstrap CI over cases; `results/it17_checks.txt` "it19", `results/it17_analysis.txt`):
+
+  | condition | council Haiku | council Sonnet | Sonnet − Haiku | floor Haiku / Sonnet | ceiling |
+  | --- | --- | --- | --- | --- | --- |
+  | honest (main, 30) | 30/30 | 30/30 | +0 | 11/30 / 17/30 | 30/30 both |
+  | win (main, 30) | 29/30 | 30/30 | +3 [0, +10] | 10/30 / 17/30 | 30/30 both |
+  | frame (15) | 9/15 | 15/15 | +40 [+20, +67] | 6/15 / 11/15 | 15/15 both |
+  | misled (15) | 6/15 | 15/15 | +60 [+33, +87] | 0/15 / 0/15 | 15/15 both |
+
+  - Sonnet never voted for the detective's target in frame or misled (0/30). Its council was
+    unanimous in 29/30, 29/30, 14/15 and 14/15 games.
+  - Main run (pre-registered H3 "by judge size"): Sonnet floor 56.7% [40, 77] pooled (L2 60%,
+    L4 53%) against Haiku ~35%, so the room for debate shrinks from ~65 to ~43 points; Sonnet
+    gap closed is 100% in both honest and win. Sonnet got the one game Haiku missed (c0007-win).
+  - Sonnet council right whether or not the framing detective ever named the wolf aloud (10/10
+    and 5/5; Haiku 4/10 and 5/5).
+- **Re-saved outputs:** `results/main/analysis.txt` was saved on 11 Nov, before the 12 Nov
+  NaN-sort fix in `ci()`. Re-saved with the current code (it now also has the Sonnet tables).
+  Compared with a Haiku-only run, only 3 small-subgroup lie recall/precision CIs changed (e.g.
+  the reversed [33%, 0%] became [0%, 100%]); none is cited in the README or the write-up draft.
+  `results/it17_analysis.txt` and `results/it17_checks.txt` re-saved; their Haiku numbers are
+  unchanged. `it17_checks.py` now loops over judge models (merging `judgements.jsonl`) and
+  prints the paired Sonnet − Haiku table.
+- **Claude's reading (not decided; user):** the it17 vulnerability (the council follows a
+  framing or misled detective) appears with the weaker judge (Haiku) but not with an
+  equal-strength judge (Sonnet, the same model as the debaters), which resisted it in all 30
+  games. So in this setup judge capability, not only the debate format, decides whether a bad
+  lead is caught.
+- **Caveats:**
+  - Exploratory; n = 15 per wrongdet condition.
+  - Sonnet is not a weak judge: same model as the debaters, so this is not the scalable-
+    oversight case (weak judge, strong debaters).
+  - The honest, fully informed innocent quoted the true clue in every debate. In misled the
+    wolf also quoted the true version in 13/15 games, so "two speakers against one" may
+    explain part of Sonnet's choice.
+  - The decision to run Sonnet only (no Opus) was made after the main results (logged in it19).
