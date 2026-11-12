@@ -109,7 +109,7 @@ python run.py --backend api --cases 100 --levels L1 L3
 - คำสั่ง main run (`--cases` คือจำนวนคดีรวม แบ่งสลับระดับ) รันเป็นรอบละ 20 เกมเพื่อไม่ให้เกินโควตา session รันคำสั่งเดิมซ้ำจนครบ 60/60:
   `python3 run.py --backend cli --cases 30 --levels L2 L4 --detective-hides 1 --seed 0 --out results/main --max-games 20`
 - **ขนาดตายตัว:** ผลหลักใช้ 30 คดีนี้เท่านั้น ไม่เพิ่มคดีหลังเห็นผล ถ้ามีโควตาเหลือแล้วรันคดีเพิ่ม (c0030 ขึ้นไป, seed 0 เดิม) จะรายงานแยกเป็นชุดเสริม ไม่รวมกับผลหลัก
-- judge หลัก: haiku · เพิ่ม sonnet ทุกเกม และ opus บางส่วนด้วย `rejudge.py` (สถานะ 11 พ.ย.: ยังไม่ได้รัน Claude แนะนำ sonnet อย่างเดียว ยังไม่ตัดสินใจ)
+- judge หลัก: haiku · เพิ่ม sonnet ทุกเกม และ opus บางส่วนด้วย `rejudge.py` (12 พ.ย. ผู้ใช้ตัดสินใจ: sonnet อย่างเดียว ไม่ใช้ opus — เบี่ยงจากแผน เพราะ opus เก่งกว่าผู้ถกเถียง ทำลายสมมติฐาน judge อ่อนกว่า; ตัดสินใจหลังเห็นผลหลัก รัน main run + wrongdet ดู ITERATIONS it19)
 
 **ตัววัดหลัก (หนึ่งตัวต่อคำถาม)**
 
@@ -182,7 +182,7 @@ Haiku เป็น judge, 30 คดี (L2 15 + L4 15) × 2 โหมด = 60 �
   `python3 run.py --backend cli --cases 15 --levels L2 L4 --detective-hides 1 --seed 0 --modes frame misled --out results/wrongdet`
   `python3 run.py --backend cli --cases 30 --levels L2 L4 --detective-hides 1 --seed 0 --modes honest --speakers random2 --out results/rand2`
 - **กลยุทธ์ของหมาป่า (it18):** `tactics.py` ติดป้ายด้วยกฎ ตรวจด้วยมือ 3 ชุด (ไม่มีป้ายผิด, จับได้ ~80%) หมาป่าใช้หลักฐานล่อ 75/75 เกม, ตั้งข้อสงสัยกับรอยเท้า 69, โจมตีผู้บริสุทธิ์ 51, โจมตี alibi ที่ยืนยันแล้ว 44, เผย clue ที่ถูกซ่อนเอง 34 (council ถูก 33/34), แสดงความซื่อสัตย์ 25 ผลต่อ council วัดไม่ได้ดีเพราะ council แพ้แค่ 4/75 เกม ตาราง: `results/tactics_main_innocopy.txt`
-- **ยังไม่ได้ทำ:** rejudge ด้วย Sonnet (แนะนำแทน Opus เพราะ Opus เก่งกว่าผู้ถกเถียง ยังไม่ตัดสินใจ), ตรวจ lie judge ด้วยมือ ~50 ประโยค
+- **ยังไม่ได้ทำ:** rejudge ด้วย Sonnet (กำลังรัน it19), ตรวจ lie judge ด้วยมือ ~50 ประโยค
 
 ## ข้อจำกัดหลัก
 

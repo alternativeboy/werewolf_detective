@@ -23,7 +23,7 @@ the user; "Claude" = tooling or bug fixes that do not change what is measured.
 | 10 Nov | No Opus-wolf run (Claude advised against; user had only asked) | User | it16 |
 | 10 Nov | Main run 30 cases × 2 modes = 60 games (was 400), fixed size | User | Decision (10 Nov) |
 | 10–11 Nov | Batches of 20 (`--max-games`), then `run_batches.sh` (next batch at once, 5 h wait on limits) | User | Main run started |
-| 11 Nov | Rejudge with Sonnet instead of Opus: recommended by Claude, not yet decided | Open | — |
+| 12 Nov | Rejudge with Sonnet only (no Opus; deviation from the pre-registration), on the main run and wrongdet | User | it19 |
 | 11 Nov | Exploratory it17: random2 speakers (30 cases), frame and misled detectives (15 cases each); clerk unchanged | User | it17 code |
 | 11 Nov | Wolf-tactics analysis with rule-based tags, hand-checked | User | it18 |
 | 12 Nov | Bootstrap CI NaN-sort fix; pooled floor table only honest + win; tactics labels rand2/misled (no reported main number changed) | Claude | it17 results |
@@ -743,3 +743,25 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
   always present" limitation. Frame is a prompted behaviour, not evidence of real-world intent.
 - **Write-up draft (Claude, 12 Nov, user asked):** `WRITEUP_DRAFT.md` "Exploratory: a wrong
   or dishonest detective (it17)". Draft only; the user edits and decides the final wording.
+
+## it19: Sonnet rejudge (12 Nov; decided by the user before running)
+
+- **Decision (user, 12 Nov):** re-judge with Sonnet only, on the main run (60 games) and on
+  it17 wrongdet (30 games: frame 15, misled 15). No Opus.
+- **Deviation from the pre-registration:** the README planned "sonnet on every game and opus on
+  part". Opus is dropped because it is stronger than the Sonnet debaters, which breaks the
+  weak-judge premise of the oversight test, and the Haiku ceiling is already 100%. This was
+  decided after the main results were known; it is reported as a deviation.
+- **Why each set:**
+  - Main run: completes the pre-registered Sonnet judge. Expected to change little (Haiku
+    council already 100% / 97%); the Sonnet floor may rise, which shrinks the room for debate.
+  - wrongdet (exploratory): does a judge as strong as the debaters still follow a framing or
+    misled detective? Haiku council was 60% (frame) and 40% (misled).
+- **Framing for the write-up:** Sonnet is the same model as the debaters, so it is an
+  "equal-strength judge", not a weak judge. n = 15 per wrongdet condition; only differences of
+  ~30 points or more will be distinguishable.
+- **Run:** `SCRIPT=rejudge.py ./run_batches.sh --backend cli --games results/main/games.jsonl
+  --judges sonnet`, then the same with `results/wrongdet/games.jsonl`. 9 Sonnet calls per game
+  (3 council, 3 ceiling, 3 floor), 810 calls in all. Output: `judgements.jsonl` next to each
+  games file. rand2 and innocopy are not re-judged.
+
