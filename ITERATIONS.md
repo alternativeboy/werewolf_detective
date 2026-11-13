@@ -809,3 +809,24 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
     wolf also quoted the true version in 13/15 games, so "two speakers against one" may
     explain part of Sonnet's choice.
   - The decision to run Sonnet only (no Opus) was made after the main results (logged in it19).
+
+## it19 follow-up and lie-judge hand-check tool (13 Nov, no model calls)
+
+- **Misled: does "two speakers against one" explain the council?** (`it17_checks.py`, misled
+  block.) The innocent quoted the true decoy alibi in 15/15 misled games; the wolf did too in
+  13/15. Council right when the wolf also quoted it (2 true quotes vs the detective's swapped
+  one): Haiku 5/13, Sonnet 13/13. When the wolf did not (1 vs 1; c0005, c0014): Haiku 1/2,
+  Sonnet 2/2. So the head count does not explain Haiku's failures (2 vs 1 was not enough), and
+  Sonnet was right in both 1-vs-1 games, though n = 2 says little.
+- **Lie-judge hand check, tool ready (user asked; the labelling is the user's):** `lie_check.py`.
+  - `make` draws a blind sample of 50 suspect sentences from the main run, stratified by the
+    lie judge's label because "false" is rare (62 of 2,560): 20 false, 15 true, 15 opinion,
+    seed 0. Writes `results/lie_check/sample.jsonl` (has the judge's labels: do not open it
+    before labelling) and `results/lie_check/sheet.html` (blind: no judge label, no role).
+  - The sheet shows the sentence, its whole message and the full case file the judge saw, with
+    the judge's own three-label instructions, plus "unsure". Answers stay in the browser and
+    download as `answers.json`.
+  - `score` prints the confusion table, agreement within each judge label (Wilson CI), overall
+    agreement weighted by label frequency in the main run, "false" precision and a rough
+    estimated recall, and lists every disagreement.
+  - Tested with a mock answers file (not saved). Not run on real answers yet.

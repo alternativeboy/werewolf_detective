@@ -118,6 +118,19 @@ def main():
             print("  quotes of the swapped clue (speaker, version, clerk label):")
             for k, v in sorted(c.items()):
                 print(f"    {k}: {v}")
+            # it19 check: is "two speakers (innocent + wolf) quote the true clue against the
+            # detective's one" enough to explain the council? Split by whether the wolf quoted it.
+            def wolf_true(g):
+                return any(x["id"] in clue_ids(g) and g["detective_target"] in x["quoted"]
+                           for m in g["messages"] if m["speaker"] == "wolf" for x in m["citations"])
+            print("  council right by whether the wolf quoted the TRUE clue (innocent always did):")
+            for judge in JUDGES:
+                if all(judge in g["judges"] for g in gs):
+                    y = [g for g in gs if wolf_true(g)]
+                    n = [g for g in gs if not wolf_true(g)]
+                    print(f"    judge={judge}: wolf quoted it {sum(right(g, judge) for g in y)}/"
+                          f"{len(y)}   wolf did not {sum(right(g, judge) for g in n)}/{len(n)}"
+                          f" ({', '.join(g['game_id'] for g in n)})")
 
     print("\n== it19: Sonnet - Haiku on the same debates (council right; floor; ceiling) ==")
     by_mode = {}

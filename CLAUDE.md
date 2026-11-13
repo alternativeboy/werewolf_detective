@@ -98,7 +98,8 @@ already at ceiling with a Sonnet wolf, so the comparison would likely be uninfor
 | `analyze.py` | metrics |
 | `run_batches.sh` | reruns `run.py` (or `SCRIPT=rejudge.py`) until done; waits 5 h on usage limits |
 | `tactics.py` | rule-based wolf tactic tags (it18) |
-| `it17_checks.py` | it17 paired differences, who cites the clue, clerk labels on the swapped clue |
+| `it17_checks.py` | it17 paired differences, who cites the clue, clerk labels on the swapped clue, Sonnet − Haiku |
+| `lie_check.py` | lie-judge hand check: blind 50-sentence sheet (`make`), agreement (`score`) |
 
 Run: `unset ANTHROPIC_API_KEY; python3 pilot.py --backend cli`, then
 `python3 run.py --backend cli --cases 4 --levels L1 L3`, then `python3 analyze.py results/games.jsonl`.
@@ -154,7 +155,8 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 1. Open decision (user): how to report it17 in the write-up. Claude's draft is in
    `WRITEUP_DRAFT.md`; the user edits and decides the wording.
 2. Open decision (user): how to report the Sonnet result (it19) alongside it17.
-3. Check the lie judge's labels on ~50 sentences by hand; report its accuracy.
+3. User labels `results/lie_check/sheet.html` (50 sentences, blind), saves `answers.json` to
+   `results/lie_check/`, then `python3 lie_check.py score`; report the agreement.
 4. Write-up (README or blog, 2–3 pages, limitations, say Claude helped write the code).
 5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and write the positioning paragraph.
 

@@ -39,7 +39,8 @@ L3 + alibi ที่จบก่อนเวลาตาย, L4 + เส้น�
 | `analyze.py` | ตัววัดทั้งหมด พร้อม 95% bootstrap CI |
 | `run_batches.sh` | รัน `run.py` (หรือ `rejudge.py` ด้วย `SCRIPT=rejudge.py`) ซ้ำจนครบ รอ 5 ชม. เมื่อชน usage limit |
 | `tactics.py` | ติดป้ายกลยุทธ์ของหมาป่าด้วยกฎ (it18, ไม่เรียกโมเดล) |
-| `it17_checks.py` | ตัวเลขเสริมของ it17: ผลต่างแบบจับคู่, ใครยก clue, quote แบบไหนผ่าน clerk (ไม่เรียกโมเดล) |
+| `it17_checks.py` | ตัวเลขเสริมของ it17: ผลต่างแบบจับคู่, ใครยก clue, quote แบบไหนผ่าน clerk, Sonnet − Haiku (ไม่เรียกโมเดล) |
+| `lie_check.py` | ตรวจ lie judge ด้วยมือ: สุ่ม 50 ประโยคแบบ blind → `results/lie_check/sheet.html` → คิดความตรงกัน (ไม่เรียกโมเดล) |
 
 ## วิธีรัน
 
