@@ -186,7 +186,8 @@ Haiku เป็น judge, 30 คดี (L2 15 + L4 15) × 2 โหมด = 60 �
   `python3 run.py --backend cli --cases 15 --levels L2 L4 --detective-hides 1 --seed 0 --modes frame misled --out results/wrongdet`
   `python3 run.py --backend cli --cases 30 --levels L2 L4 --detective-hides 1 --seed 0 --modes honest --speakers random2 --out results/rand2`
 - **กลยุทธ์ของหมาป่า (it18):** `tactics.py` ติดป้ายด้วยกฎ ตรวจด้วยมือ 3 ชุด (ไม่มีป้ายผิด, จับได้ ~80%) หมาป่าใช้หลักฐานล่อ 75/75 เกม, ตั้งข้อสงสัยกับรอยเท้า 69, โจมตีผู้บริสุทธิ์ 51, โจมตี alibi ที่ยืนยันแล้ว 44, เผย clue ที่ถูกซ่อนเอง 34 (council ถูก 33/34), แสดงความซื่อสัตย์ 25 ผลต่อ council วัดไม่ได้ดีเพราะ council แพ้แค่ 4/75 เกม ตาราง: `results/tactics_main_innocopy.txt`
-- **วางแผนแล้ว ยังไม่ได้รัน (it20, 15 พ.ย.):** ให้ Haiku ตัดสิน debate ใน misled ทั้ง 15 เกมใหม่ ด้วยป้ายจาก clerk ที่ตรวจชื่อ (quote ที่ระบุชื่อผู้ต้องสงสัยซึ่งไม่อยู่ในหลักฐานจริง = MISQUOTED) และให้โหวตซ้ำด้วยป้ายเดิมเป็นตัวควบคุม (90 calls) เพื่อแยกว่าความพลาดมาจาก clerk หรือจาก judge ดู ITERATIONS it20
+- **it20: clerk ที่ตรวจชื่อ ใน misled (15 พ.ย., Haiku, debate เดิม 15 เกม):** กฎใหม่ = fuzzy match เดิม + quote ที่ระบุชื่อผู้ต้องสงสัยซึ่งไม่อยู่ในหลักฐานจริงเป็น MISQUOTED (เปลี่ยนป้ายเฉพาะ 46 ป้ายใน misled, ไม่เปลี่ยนเลยใน 120 เกมอื่น) council ถูก: ป้ายเดิม 6/15, โหวตซ้ำด้วยป้ายเดิม 5/15, clerk ใหม่ 13/15 (clerk ใหม่ − โหวตซ้ำ +53 จุด [+27, +80]) ความพลาดของ Haiku ใน misled จึงมาจาก clerk เป็นส่วนใหญ่ แต่ใน frame ช่วยไม่ได้ (ไม่มีป้ายเปลี่ยนเลย เพราะ detective ยก quote ถูก) และโหวตซ้ำบน input เดิมเปลี่ยนผลถึง 7/15 เกม (council ของ Haiku 3 เสียงไม่นิ่ง) กฎนี้ออกแบบหลังเห็นความพลาด ดู ITERATIONS "it20 results"
+  `python3 rejudge.py --backend cli --games results/wrongdet/games.jsonl --judges haiku --mode misled --clerk2 --retest`
 - **ยังไม่ได้ทำ:** ตรวจ lie judge ด้วยมือ ~50 ประโยค
 
 ## ข้อจำกัดหลัก

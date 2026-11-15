@@ -38,6 +38,11 @@
   council right by whether the wolf quoted the TRUE clue (innocent always did):
     judge=haiku: wolf quoted it 5/13   wolf did not 1/2 (c0005-misled-hide1, c0014-misled-hide1)
     judge=sonnet: wolf quoted it 13/13   wolf did not 2/2 (c0005-misled-hide1, c0014-misled-hide1)
+  it20 judge=haiku: council right, original marks 6/15; retest, original marks 5/15; name-aware clerk 13/15
+    debate_votes_clerk2 - debate_votes_retest: +53.3% 95% CI [+27%, +80%]
+    debate_votes_clerk2 - debate_votes: +46.7% 95% CI [+13%, +73%]
+    debate_votes_retest - debate_votes: -6.7% 95% CI [-40%, +27%]
+    name-aware clerk council majority: {'wolf': 13, 'no majority': 1, 'decoy': 1}
 
 == it19: Sonnet - Haiku on the same debates (council right; floor; ceiling) ==
   honest  30 games: council haiku 30/30 sonnet 30/30; floor haiku 11/30 sonnet 17/30; ceiling haiku 30/30 sonnet 30/30; council sonnet - haiku +0.0% 95% CI [+0%, +0%]

@@ -115,7 +115,7 @@ back to back in 3 h 40 min without hitting a limit, so 4% per game overestimates
 
 ## Status (12 Nov 2026)
 
-Full history, results and every decision: `ITERATIONS.md` (it0–it19; "Decision index" at the
+Full history, results and every decision: `ITERATIONS.md` (it0–it20; "Decision index" at the
 top). Add an entry for every new iteration (what changed, what ran, outcome, decision, who
 decided) and commit it with the results. README has the pre-registration, the main results and
 an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
@@ -145,6 +145,10 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
   and in misled (Sonnet − Haiku +40 [+20, +67], +60 [+33, +87]); never voted for the
   detective's target. Caveats: Sonnet = debaters' model (equal-strength judge, not weak);
   in misled the wolf also quoted the true clue in 13/15 games.
+- it20 name-aware clerk done (15 Nov, user decided before running; ITERATIONS "it20 results"):
+  misled, Haiku, same debates: original marks 6/15, retest 5/15, name-aware clerk 13/15
+  (+53 [+27, +80] vs retest). Most of the misled failure was the clerk; frame cannot be fixed
+  this way (0 labels change). Retest flipped 7/15 games: Haiku's 3-vote council is noisy.
 - it18 wolf tactics (`tactics.py`, `results/tactics_main_innocopy.txt`): rule-based tags,
   hand-checked (no wrong tags, ~80% recall). Zero fabrication; true-but-misleading framing.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`. `claude setup-token` if
@@ -152,12 +156,10 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 
 ## Next steps
 
-0. it20 (user decided 15 Nov, not run yet): `python3 rejudge.py --backend cli --games
-   results/wrongdet/games.jsonl --judges haiku --mode misled --clerk2 --retest` (90 Haiku calls),
-   then `python3 it17_checks.py > results/it17_checks.txt` and log "it20 results".
 1. Open decision (user): how to report it17 in the write-up. Claude's draft is in
    `WRITEUP_DRAFT.md`; the user edits and decides the wording.
-2. Open decision (user): how to report the Sonnet result (it19) alongside it17.
+2. Open decision (user): how to report the Sonnet result (it19) and the name-aware clerk (it20)
+   alongside it17; then add it20 to `WRITEUP_DRAFT.md`.
 3. User labels `results/lie_check/sheet.html` (50 sentences, blind), saves `answers.json` to
    `results/lie_check/`, then `python3 lie_check.py score`; report the agreement.
 4. Write-up (README or blog, 2–3 pages, limitations, say Claude helped write the code).
