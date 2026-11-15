@@ -61,7 +61,7 @@ rounds, privately answered Tawan (right), and the council voted Ek — "danger" 
 Also reported: last spoken accusation correct, and spoken accusation != private final.
 Known limitation: "false" labels miss true-but-misleading statements; lie recall measures
 fabrication, not all deception. Honest vs win is a prompt, not training.
-Main limitation (README "ข้อจำกัดหลัก"): an honest, fully informed innocent is always in the
+Main limitation (README "Main limitations"): an honest, fully informed innocent is always in the
 debate (it first cites the hidden clue in 54/60 main-run games), and nobody fabricated evidence
 in the main run, so the marks were never tested against fakes (yet removing them still lowers
 the council in harder settings, see Status). Also: the wolf always speaks (a cue), and the
