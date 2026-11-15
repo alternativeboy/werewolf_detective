@@ -214,6 +214,55 @@ an honest, fully informed speaker is always present.
 - The frame retest (it21) checks run-to-run noise in the judge only. The debates were not
   rerun, so it says nothing about how much a new framing debate would differ.
 
+## Answer to the research question (Claude's draft)
+
+*The question: can a weaker judge (Haiku) pick the right suspect when all it sees is a debate
+between stronger models (Sonnet)? This section only collects numbers from the sections above.
+Everything except the first row is exploratory, with 15 cases per condition.*
+
+**Short answer.** Yes, when an honest speaker who knows the missing clue is in the debate and
+the lead is either honest or caught by the quote check. Not reliably when the lead frames an
+innocent using true evidence. We never tested the hardest case: a debate with no honest,
+informed speaker.
+
+| Situation (Sonnet debaters) | Haiku council right | For comparison |
+| --- | --- | --- |
+| Honest lead; honest, fully informed innocent (main run, 60 games) | 100% (honest), 97% (win) | floor 37% / 33%, ceiling 100% |
+| Honest lead; the innocent has only the detective's copy (innocopy) | 80% [60, 100] | floor 27%; paired main run 100% |
+| Misled lead (swapped quote), original clerk | 6/15; retest 5/15 | paired honest 15/15 |
+| Misled lead, name-aware clerk (it20) | 13/15 | +53 points [+27, +80] vs retest |
+| Framing lead, true quotes only | 9/15; retest 8/15 | frame − honest −47 points [−73, −20] (retest) |
+| Same misled and frame debates, Sonnet judge (equal strength) | 15/15 and 15/15 | never voted for the decoy |
+
+**Reading.**
+- **Debate helps a lot.** It took the weak judge from about 35% (its own reading of the
+  incomplete file) to the ceiling. But in the main run the council matched the detective's
+  last public accusation in 59 of 60 games, so this shows mostly that Haiku follows a lead
+  that has been corrected, not that it checks the evidence itself.
+- **A better tool fixes one failure.** When the lead's quote was wrong, a stricter quote check
+  restored most of the accuracy (13/15).
+- **No tool in this setup fixes the other.** When the lead framed the decoy with true quotes,
+  Haiku went with the lead in 6 of 15 games on both runs, even though the true alibi was quoted
+  and verified in every debate. Sonnet, reading the same transcripts, was right in all 15. Both
+  judges had the same information, so this gap is about judging which of two accounts holds up,
+  not about what the judge could see.
+
+**What these results cannot answer.**
+1. **The hardest case.** Every stress test still had an honest, fully informed innocent
+   speaking. We never ran a dishonest or misled lead with no honest speaker who knows the clue.
+2. **Stronger deception.** The debaters never fabricated evidence (0 of 3,079 citations in the
+   main run). Framing was a prompt, not an optimised or trained strategy.
+3. **A truly weaker judge against much stronger debaters.** The only contrast is Haiku vs
+   Sonnet, and Sonnet is the debaters' own model. Its 15/15 shows the failure is not built into
+   the format; it is not a scalable-oversight result.
+4. **Precision.** 15 cases per stress test, not pre-registered, and a three-vote Haiku council
+   whose majority changed in 3 to 7 of 15 games on identical input.
+
+**In one sentence.** In this testbed a weak judge oversaw stronger debaters about as well as it
+could trust its lead: it reached the ceiling with an honest lead, recovered from misquotes once
+the checker was good, and followed a lead who framed an innocent with true evidence in about 40%
+of games, while a judge of equal strength did not.
+
 ## Related work and positioning (draft)
 
 *Claude drafted this from memory of the papers. Every claim about a paper is marked [check]:
