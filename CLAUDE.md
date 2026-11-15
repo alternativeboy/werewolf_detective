@@ -159,7 +159,7 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
   Claude; found 15 Nov); ask before making any writable, and relock after.
 - it18 wolf tactics (`tactics.py`, `results/tactics_main_innocopy.txt`): rule-based tags,
   hand-checked (no wrong tags, ~80% recall). Zero fabrication; true-but-misleading framing.
-- Repo: private GitHub repo `alternativeboy/werewolf_detective`. `claude setup-token` if
+- Repo: public GitHub repo `alternativeboy/werewolf_detective` (public since 15 Nov). `claude setup-token` if
   `claude -p` stops authenticating.
 
 ## Next steps
@@ -171,7 +171,7 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 3. User labels `results/lie_check/sheet.html` (50 sentences, blind), saves `answers.json` to
    `results/lie_check/`, then `python3 lie_check.py score`; report the agreement.
 4. Write-up: `WRITEUP.md` assembled from `WRITEUP_DRAFT.md` (15 Nov, headline D, ~3 pages);
-   user edits it, fills [YOUR NAME] / [REPO LINK], removes [check] marks after reading the papers.
+   user edits it, fills [YOUR NAME], removes [check] marks after reading the papers.
 5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and check every [check] mark in the
    positioning draft (`WRITEUP_DRAFT.md` "Related work and positioning").
 

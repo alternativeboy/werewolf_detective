@@ -1,10 +1,9 @@
 # Werewolf Detective: a small debate testbed for scalable oversight
 
 <!-- Draft assembled by Claude from WRITEUP_DRAFT.md on 15 Nov. The author edits and decides the
-final wording. Before sharing: verify and remove every [check] mark, and fill [YOUR NAME] and
-[REPO LINK]. -->
+final wording. Before sharing: verify and remove every [check] mark, and fill [YOUR NAME]. -->
 
-*[YOUR NAME] · November 2026 · code and every logged decision: [REPO LINK]*
+*[YOUR NAME] · November 2026 · code and every logged decision: https://github.com/alternativeboy/werewolf_detective*
 
 **I built a debate testbed, then spent most of the project trying to break it. It held up only
 while someone in the debate told the truth.**
