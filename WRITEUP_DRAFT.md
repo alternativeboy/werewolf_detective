@@ -3,6 +3,15 @@
 Draft sections for the final write-up. Claude drafted them; the user edits and decides the
 final wording. Numbers come from `results/it17_analysis.txt` and `results/it17_checks.txt`.
 
+## Headline (option C, chosen by the user on 15 Nov)
+
+**We built a debate testbed, then spent most of the project trying to break it. Two failures
+survived.**
+
+A lax quote checker let a one-name swap pass as verified. That one is fixable: a name-aware
+check took the council from 5/15 to 13/15. A framing lead with true quotes misled the weak
+judge in 6 of 15 games, on two runs. That one is not fixable by checking quotes.
+
 ## Exploratory: a wrong or dishonest detective (it17, it19, it20, it21)
 
 *Added after the main run and not pre-registered. Each condition has 15 cases, so the
