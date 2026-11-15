@@ -194,6 +194,48 @@ def main():
         unan = Counter(len(set(g["judges"]["sonnet"]["debate_votes"])) == 1 for g in gs)
         print(f"          sonnet council unanimous in {unan[True]}/{len(gs)} games")
 
+    # it22: framing detective + innocent reads the detective's copy, so no honest speaker knows
+    # the hidden clue. Paired with the frame game (wrongdet) and the honest innocopy game.
+    hard = load_games("results/hardest")
+    if hard:
+        frame = {g["game_id"]: g for g in wrong if g["detective_mode"] == "frame"}
+        inno = {g["game_id"]: g for g in load_games("results/innocopy")}
+        pf = [(g, frame[g["game_id"].replace("-innocopy", "")]) for g in hard]
+        pi = [(g, inno[g["game_id"].replace("-frame", "-honest", 1)]) for g in hard]
+        print(f"\n== it22 hardest (frame + innocopy): {len(hard)} games ==")
+        for judge in JUDGES:
+            if not all(judge in g["judges"] for g in hard):
+                continue
+            acc = lambda g, k: majority(g["judges"][judge][k]) == g["answer"]
+            c = [acc(g, "debate_votes") for g in hard]
+            fl = [acc(g, "file_partial_votes") for g in hard]
+            ce = [acc(g, "file_alone_votes") for g in hard]
+            print(f"  judge={judge}: council {sum(c)}/{len(hard)}, floor {sum(fl)}/{len(hard)}, "
+                  f"ceiling {sum(ce)}/{len(hard)}")
+            print(f"    council - floor: {paired_ci([a - b for a, b in zip(c, fl)])}")
+            for name, pairs in (("frame (innocent has full file)", pf),
+                                ("honest innocopy", pi)):
+                if all(judge in h["judges"] for _, h in pairs):
+                    d = [right(g, judge) - right(h, judge) for g, h in pairs]
+                    print(f"    hardest - {name}: {sum(right(h, judge) for _, h in pairs)}/"
+                          f"{len(pairs)} paired; difference {paired_ci(d)}")
+            print("    council majority:", dict(Counter(
+                "wolf" if council(g, judge) == g["answer"]
+                else "decoy" if council(g, judge) == g["detective_target"]
+                else "no majority" if council(g, judge) is None
+                else "other suspect" for g in hard)))
+        print("  first to cite the hidden clue:",
+              dict(Counter(first_citer(g, clue_ids(g)) for g in hard)))
+        for who in ("detective", "wolf", "innocent"):
+            print(f"  {who} cites the hidden clue in "
+                  f"{sum(cites(g, who, clue_ids(g)) for g in hard)}/{len(hard)} games")
+        print(f"  detective private final = wolf: "
+              f"{sum(g['detective_final']['suspect'] == g['answer'] for g in hard)}/{len(hard)}; "
+              f"accused the wolf out loud at least once: "
+              f"{sum(g['answer'] in [m['accused'] for m in g['messages'] if m['speaker'] == 'detective'] for g in hard)}"
+              f"/{len(hard)}; decoy is the innocent speaker: "
+              f"{sum(g['innocent_speaker'] == g['detective_target'] for g in hard)}/{len(hard)}")
+
     rand2 = load_games("results/rand2")
     print(f"\n== rand2: {len(rand2)} games ==")
     for speaks in (True, False):
