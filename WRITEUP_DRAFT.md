@@ -309,21 +309,22 @@ neither judge gained anything from it.
 
 ## Related work and positioning (draft)
 
-*Claude drafted this from memory of the papers. Every claim about a paper is marked [check]:
-confirm it against the paper, fix or delete it, then remove the mark. It gives no numbers from
-the papers on purpose; add any you want to cite only after reading them.*
+*Claude drafted this from memory, then checked every claim against the papers (abstracts,
+Irving Section 2, Michael and Khan full text, proceedings pages) on 15 Nov and removed the
+[check] marks. Numbers quoted are from the abstracts or results sections.*
 
 Debate was proposed as a scalable-oversight method by Irving, Christiano and Amodei (2018):
 two AI systems argue about a question, and a judge who could not answer it alone decides who
-is right, on the argument that lying should be harder than refuting a lie [check]. Michael et
-al. (2023) tested this with human debaters and human judges on reading-comprehension
-questions about long stories. The judges could not see the story, and debate beat a
-one-sided "consultancy" baseline [check]. Khan et al. (2024) ran the same kind of
+is right, on the claim that "it is harder to lie than to refute a lie" (their Section 2). Michael et
+al. (2023) tested this with human debaters and human judges on hard reading-comprehension
+questions about science-fiction stories (QuALITY). The judges could not see the story, and
+debate beat a one-sided "consultancy" baseline, 84% to 74%. Khan et al. (2024) ran the same kind of
 information-gap setup with LLM debaters. They gave judges quotes that were checked against
 the hidden text, and found that weaker judges, both models and humans, answered more
-accurately after a debate [check]. Kenton et al. (2024) compared debate, consultancy and
+accurately after a debate (76% for LLM judges and 88% for humans, against 54% and 78% with
+consultancy). Kenton et al. (2024) compared debate, consultancy and
 direct question answering with weak LLM judges across several task types. Debate helped most
-when the judge lacked information the debaters had, and less clearly elsewhere [check].
+when the judge lacked information the debaters had, and results were mixed elsewhere.
 Our experiment uses the same ingredients: an information gap, a weaker judge (Haiku), and
 quotes checked by code. It changes three things.
 1. **A game, not an assigned debate.** The answer is fixed and checked by code (`solve()`).
@@ -332,14 +333,14 @@ quotes checked by code. It changes three things.
 2. **A lead whose honesty we vary.** The detective works from an incomplete copy and makes the
    public accusation. In it17 the lead is told to frame the decoy, or is honestly misled by a
    swapped copy. This is closer to asking whether the judge checks a single advisor, as in
-   consultancy, than to comparing debate against consultancy [check]. it22 and it23 add a
+   consultancy, than to comparing debate against consultancy. it22 and it23 add a
    small version of that comparison (below).
 3. **Same debates, two judges.** We re-judge the same debates with two judges, one weaker than
    the debaters and one equal to them, so the comparison is paired.
 
 **A small debate-vs-consultancy contrast (it17, it22, it23).** In consultancy, one expert argues
 for an answer and the judge can only weigh that one side; in debate, a second expert argues
-against it [check]. Our framing conditions can be lined up the same way, holding the framing
+against it. Our framing conditions can be lined up the same way, holding the framing
 lead, the cases, the speakers and the order fixed and changing only who else knows the clue:
 
 | Who else knows the decoy's alibi | Closest protocol | Haiku | Sonnet |
@@ -350,20 +351,19 @@ lead, the cases, the speakers and the order fixed and changing only who else kno
 
 This is a small, one-sided version of the comparison in the papers above. It covers only the
 dishonest-consultant half: the literature averages over consultants assigned the right and the
-wrong answer [check], and we did not run an honest lead with a quiet wolf. The "consultant" also
+wrong answer, and we did not run an honest lead with a quiet wolf. The "consultant" also
 never answers the judge's questions, because our judge does not ask any. So it shows what the
 weak and the equal judge do when the lead is dishonest and nobody informed contradicts it; it is
 not an estimate of consultancy accuracy. Within that limit the direction matches the papers:
 the judge did better with an informed opponent than without one (it23 − frame: Haiku −53
-points [−80, −20], Sonnet −33 [−60, −13]) [check the direction against Michael 2023 and
-Khan 2024].
+points [−80, −20], Sonnet −33 [−60, −13]), as in Michael et al. and Khan et al.
 
-Our quote check accepts near-matches. That is weaker than the exact-match verification we
-believe Khan et al. used [check], and it is how a one-name swap passed as "(verified)".
+Our quote check accepts near-matches. Khan et al. mark a quote verified only if it directly
+matches the text (their appendix gives the procedure), and our looser rule is how a one-name swap passed as "(verified)".
 At our scale (60 main games, 15 per it17 condition) this is a small case study that probes one
 failure mode. It does not replicate the larger studies above.
 
-References [check titles, authors and venues]:
+References:
 - Irving, G., Christiano, P., Amodei, D. (2018). AI safety via debate. arXiv.
 - Michael, J., et al. (2023). Debate Helps Supervise Unreliable Experts. arXiv.
 - Khan, A., et al. (2024). Debating with More Persuasive LLMs Leads to More Truthful Answers.

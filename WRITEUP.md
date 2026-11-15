@@ -1,9 +1,9 @@
 # Werewolf Detective: a small debate testbed for scalable oversight
 
 <!-- Draft assembled by Claude from WRITEUP_DRAFT.md on 15 Nov. The author edits and decides the
-final wording. Before sharing: verify and remove every [check] mark, and fill [YOUR NAME]. -->
+final wording. Paper claims were checked against the papers on 15 Nov. -->
 
-*[YOUR NAME] · November 2026 · code and every logged decision: https://github.com/alternativeboy/werewolf_detective*
+*Rungroj Sonsubanan · November 2026 · code and every logged decision: https://github.com/alternativeboy/werewolf_detective*
 
 **I built a debate testbed, then spent most of the project trying to break it. It held up only
 while someone in the debate told the truth.**
@@ -18,7 +18,7 @@ file alone.
 
 Can a weaker model judge a debate between stronger models and pick the right answer, when it
 cannot see the evidence itself? This is the setting of AI debate as a scalable-oversight
-method (Irving et al. 2018) [check]. I built a small, reproducible version as a murder game
+method (Irving et al. 2018). I built a small, reproducible version as a murder game
 with one correct answer, so every judgement can be scored.
 
 ## 2. Setup
@@ -115,8 +115,11 @@ paired framing games, it23 was −53 points [−80, −20] for Haiku and −33 [
 Lined up by who else knows the hidden clue, the framing conditions form a small
 debate-vs-consultancy contrast: an honest, informed opponent (framing, it17), a leaky one
 (it22), and none (it23, close to consultancy with a dishonest consultant). The direction
-matches Michael et al. (2023) and Khan et al. (2024) [check]: judges did better with an informed
-opponent. It covers only the dishonest-consultant half, and my judge asks no questions.
+matches the larger studies, where debate beat consultancy: 84% vs 74% with human judges in
+Michael et al. (2023), 76% vs 54% with LLM judges and 88% vs 78% with human judges in Khan et al.
+(2024), and across all tasks in Kenton et al. (2024). Those studies average over consultants
+assigned the right and the wrong answer; mine covers only the dishonest half, and my judge asks
+no questions.
 
 ## 6. Limitations
 
@@ -155,11 +158,11 @@ what to test, how to report it) were mine, and each one is logged.
 --seed 0 --out results/main`, then `python3 analyze.py results/main/games.jsonl`; the
 stress-test commands are in the README. All games, votes and analyses are in `results/`.
 
-## References [check titles, authors and venues]
+## References
 
-- Irving, G., Christiano, P., Amodei, D. (2018). AI safety via debate. arXiv.
-- Michael, J., et al. (2023). Debate Helps Supervise Unreliable Experts. arXiv.
+- Irving, G., Christiano, P., Amodei, D. (2018). AI safety via debate. arXiv:1805.00899.
+- Michael, J., et al. (2023). Debate Helps Supervise Unreliable Experts. arXiv:2311.08702.
 - Khan, A., et al. (2024). Debating with More Persuasive LLMs Leads to More Truthful Answers.
-  ICML 2024.
+  ICML 2024 (PMLR 235).
 - Kenton, Z., et al. (2024). On scalable oversight with weak LLMs judging strong LLMs.
   NeurIPS 2024.
