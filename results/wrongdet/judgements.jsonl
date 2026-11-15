@@ -43,3 +43,18 @@
 {"game_id": "c0012-misled-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Mali", "Kanya", "Mali"], "debate_votes_clerk2": ["Mali", "Mali", "Mali"], "clerk2_version": "names1"}
 {"game_id": "c0013-misled-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Rin", "Ek", "Ek"], "debate_votes_clerk2": ["Rin", "Rin", "Rin"], "clerk2_version": "names1"}
 {"game_id": "c0014-misled-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Kanya", "Kanya", "Kanya"], "debate_votes_clerk2": ["Anan", "Anan", "Anan"], "clerk2_version": "names1"}
+{"game_id": "c0000-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Rin", "Rin", "Rin"]}
+{"game_id": "c0001-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Chai", "Chai", "Chai"]}
+{"game_id": "c0002-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Mali", "Mali", "Mali"]}
+{"game_id": "c0003-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Fon", "Fon", "Fon"]}
+{"game_id": "c0004-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Chai", "Chai", "Chai"]}
+{"game_id": "c0005-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Dao", "Dao", "Dao"]}
+{"game_id": "c0006-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Lek", "Lek", "Lek"]}
+{"game_id": "c0007-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Bua", "Ploy", "Ploy"]}
+{"game_id": "c0008-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Tawan", "Tawan", "Tawan"]}
+{"game_id": "c0009-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Gade", "Ploy", "Gade"]}
+{"game_id": "c0010-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Gade", "Gade", "Gade"]}
+{"game_id": "c0011-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Ek", "Ek", "Dao"]}
+{"game_id": "c0012-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Mali", "Mali", "Mali"]}
+{"game_id": "c0013-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Bua", "Rin", "Bua"]}
+{"game_id": "c0014-frame-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Anan", "Anan", "Anan"]}

@@ -118,3 +118,18 @@
 {"game_id": "c0028-win-hide1", "judge_model": "sonnet", "prompt_version": "v4", "debate_votes": ["Rin", "Rin", "Rin"], "file_alone_votes": ["Rin", "Rin", "Rin"], "file_partial_votes": ["Rin", "Rin", "Rin"]}
 {"game_id": "c0029-honest-hide1", "judge_model": "sonnet", "prompt_version": "v4", "debate_votes": ["Fon", "Fon", "Fon"], "file_alone_votes": ["Fon", "Fon", "Fon"], "file_partial_votes": ["Fon", "Fon", "Fon"]}
 {"game_id": "c0029-win-hide1", "judge_model": "sonnet", "prompt_version": "v4", "debate_votes": ["Fon", "Fon", "Fon"], "file_alone_votes": ["Fon", "Fon", "Fon"], "file_partial_votes": ["Fon", "Fon", "Fon"]}
+{"game_id": "c0000-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Rin", "Rin", "Rin"]}
+{"game_id": "c0001-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Kanya", "Kanya", "Kanya"]}
+{"game_id": "c0002-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Wan", "Wan", "Wan"]}
+{"game_id": "c0003-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Fon", "Fon", "Fon"]}
+{"game_id": "c0004-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Nok", "Nok", "Nok"]}
+{"game_id": "c0005-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Dao", "Dao", "Dao"]}
+{"game_id": "c0006-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Fon", "Fon", "Fon"]}
+{"game_id": "c0007-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Ploy", "Ploy", "Ploy"]}
+{"game_id": "c0008-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Tawan", "Tawan", "Tawan"]}
+{"game_id": "c0009-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Ploy", "Ploy", "Ploy"]}
+{"game_id": "c0010-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Dao", "Dao", "Dao"]}
+{"game_id": "c0011-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Ek", "Ek", "Ek"]}
+{"game_id": "c0012-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Mali", "Mali", "Mali"]}
+{"game_id": "c0013-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Rin", "Rin", "Rin"]}
+{"game_id": "c0014-honest-hide1", "judge_model": "haiku", "prompt_version": "v4", "debate_votes_retest": ["Anan", "Anan", "Anan"]}

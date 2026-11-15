@@ -938,3 +938,26 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
 - **Run:**
   `python3 rejudge.py --backend cli --games results/wrongdet/games.jsonl --judges haiku --mode frame --retest`
   `python3 rejudge.py --backend cli --games results/main/games.jsonl --judges haiku --mode honest --case-limit 15 --retest`
+
+## it21 results (15 Nov; 90 Haiku calls, `results/it21_rejudge.log`)
+
+- **Data checks:** 15 frame + 15 paired honest games re-voted, 3 votes each, no None, every
+  vote a suspect name, no errors in the log.
+- **Results** (Haiku council right, majority of 3; same debates, original marks; paired with a
+  95% bootstrap CI over cases; `results/it17_checks.txt` "it21"):
+
+  | | original run | retest |
+  | --- | --- | --- |
+  | frame | 9/15 | 8/15 |
+  | paired honest | 15/15 | 15/15 |
+  | frame − honest | −40 [−67, −20] | −47 [−73, −20] |
+  | misled − honest (misled retest from it20) | −60 [−87, −33] | −67 [−87, −47] |
+
+  - Right/wrong changed between runs in 3/15 frame games (misled 7/15, honest 0/15).
+  - Frame retest majority: wolf 8, decoy 6, other suspect 1 (original: wolf 9, decoy 6).
+- **Verdict by the rule written before running:** stable. Frame − honest on the retest has a
+  95% CI that excludes 0 ([−73, −20]). The frame result can be reported as a finding (still
+  exploratory, n = 15).
+- **Claude's reading (user decides the wording):** the framing failure is the more robust of
+  the two it17 failures. It moved less between runs than misled (3 vs 7 flipped games), and the
+  decoy got the majority in 6 games on both runs.

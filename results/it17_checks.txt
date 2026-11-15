@@ -13,6 +13,11 @@
   detective accused the wolf out loud at least once  yes: council right 5/5   no: 10/10
   council majority: {'wolf': 15}
   first to cite the clue: {'innocent': 10, 'wolf': 5}
+  it21 judge=haiku retest: frame council right, original 9/15, retest 8/15; paired honest original 15/15, retest 15/15
+    frame - honest, debate_votes: -40.0% 95% CI [-67%, -20%]
+    frame - honest, debate_votes_retest: -46.7% 95% CI [-73%, -20%]
+    majority right/wrong changed between runs: frame 3/15, honest 0/15
+    frame retest council majority: {'wolf': 8, 'decoy': 6, 'other suspect': 1}
 == misled: 15 games, judge=haiku ==
   council right 6/15; paired honest 15/15; difference -60.0% 95% CI [-87%, -33%] (bootstrap over cases)
   innocent cites the clue                            yes: council right 6/15   no: 0/0
@@ -28,6 +33,11 @@
   detective accused the wolf out loud at least once  yes: council right 0/0   no: 15/15
   council majority: {'wolf': 15}
   first to cite the clue: {'detective': 15}
+  it21 judge=haiku retest: misled council right, original 6/15, retest 5/15; paired honest original 15/15, retest 15/15
+    misled - honest, debate_votes: -60.0% 95% CI [-87%, -33%]
+    misled - honest, debate_votes_retest: -66.7% 95% CI [-87%, -47%]
+    majority right/wrong changed between runs: misled 7/15, honest 0/15
+    misled retest council majority: {'other suspect': 5, 'decoy': 5, 'wolf': 5}
   quotes of the swapped clue (speaker, version, clerk label):
     ('detective', 'swapped (names wolf)', 'valid'): 45
     ('innocent', 'neither', 'valid'): 1
