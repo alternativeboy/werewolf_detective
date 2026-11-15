@@ -1,5 +1,7 @@
 # Werewolf Detective: AI Debate & Lie Detection
 
+**Visual overview (interactive presentation):** https://claude.ai/artifact/69Sinbu6uAAgWPaTSvmM7L
+
 A small, reproducible testbed for AI debate as a scalable-oversight method: can a weaker judge
 model (Haiku) pick the werewolf from a debate between stronger models (Sonnet) when it cannot see
 the case file? Short answer: *it held up only while someone in the debate told the truth.* The
