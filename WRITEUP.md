@@ -5,6 +5,8 @@ final wording. Paper claims were checked against the papers on 15 Nov. -->
 
 *Rungroj Sonsubanan · November 2026 · code and every logged decision: https://github.com/alternativeboy/werewolf_detective*
 
+*Interactive replay of one case through every fix and stress test: https://claude.ai/artifact/E1S35jQ3U2av46Xe3xfJk3*
+
 **I built a debate testbed, then spent most of the project trying to break it. It held up only
 while someone in the debate told the truth.**
 
