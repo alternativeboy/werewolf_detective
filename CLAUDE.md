@@ -158,7 +158,8 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 3. User labels `results/lie_check/sheet.html` (50 sentences, blind), saves `answers.json` to
    `results/lie_check/`, then `python3 lie_check.py score`; report the agreement.
 4. Write-up (README or blog, 2–3 pages, limitations, say Claude helped write the code).
-5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and write the positioning paragraph.
+5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and check every [check] mark in the
+   positioning draft (`WRITEUP_DRAFT.md` "Related work and positioning").
 
 Plan: analysis 16–18 Nov, write-up 19–20 Nov, update resume and application 21 Nov,
 deadline 22 Nov. it17 must finish by ~16 Nov or move to future work.

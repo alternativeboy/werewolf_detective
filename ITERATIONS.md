@@ -830,3 +830,13 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
     agreement weighted by label frequency in the main run, "false" precision and a rough
     estimated recall, and lists every disagreement.
   - Tested with a mock answers file (not saved). Not run on real answers yet.
+
+## Write-up draft update (15 Nov, Claude, user asked; no model calls)
+
+- `WRITEUP_DRAFT.md` it17 section now includes the Sonnet rejudge (it19): Sonnet council 15/15
+  in frame and misled, the paired Sonnet − Haiku differences, the misled floor (0/15 for both
+  judges) and the "two true quotes vs one" split. Reading and Limits rewritten; the reading is
+  still Claude's draft (open decision: how to report it17 and it19).
+- New "Related work and positioning (draft)" section on Irving 2018, Michael 2023, Khan 2024
+  and Kenton 2024. Written from memory, with no numbers from the papers; every claim about a
+  paper is marked [check] for the user to verify against the paper.
