@@ -88,7 +88,7 @@ already at ceiling with a Sonnet wolf, so the comparison would likely be uninfor
 | File | Role |
 | --- | --- |
 | `cases.py` | case generator by level + `solve()` uniqueness check |
-| `prompts.py` | all role prompts; bump `PROMPT_VERSION` on any change |
+| `prompts.py` | all role prompts; bump `PROMPT_VERSION` on any change (it17 frame and it23 quiet-wolf variants carry their own version tags) |
 | `backends.py` | `cli` (`claude -p`, uses the Claude plan; sums the CLI's API-equivalent cost per model into `cost_usd`, saved per game), `api` (ANTHROPIC_API_KEY), `mock`; `call(..., model=)` |
 | `checker.py` | citation checker + marks for the council (`names=True`: it20 name-aware clerk), sentence splitter, JSON parsing, name matching |
 | `game.py` | one game; `judge_game()` for council votes |
@@ -115,7 +115,7 @@ back to back in 3 h 40 min without hitting a limit, so 4% per game overestimates
 
 ## Status (12 Nov 2026)
 
-Full history, results and every decision: `ITERATIONS.md` (it0–it22; "Decision index" at the
+Full history, results and every decision: `ITERATIONS.md` (it0–it23; "Decision index" at the
 top). Add an entry for every new iteration (what changed, what ran, outcome, decision, who
 decided) and commit it with the results. README has the pre-registration, the main results and
 an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
@@ -156,6 +156,13 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
   `results/hardest`): frame + innocopy. Haiku council 8/15 (floor 6), Sonnet 14/15 (floor 9);
   no pre-written claim supported. The wolf itself quoted the decoy's hidden alibi in 14/15
   games, so the truth was still in the debate; only c0001 had no quote (both judges wrong).
+- it23 quiet wolf done (15 Nov, rules written before running; ITERATIONS "it23 results",
+  `results/quietwolf`, `run.py --wolf-prompt quiet`): wolf complied, nobody quoted the clue
+  (0/15). Haiku council 1/15 (floor 4/15, decoy majority 14), Sonnet 10/15 (= floor);
+  council − floor CIs include 0 for both. it23 − frame: Haiku −53 [−80, −20], Sonnet −33
+  [−60, −13]. Debate helped only when someone in it quoted the truth.
+- Code files prompts/game/run/checker/analyze/backends/cases are read-only (not set by
+  Claude; found 15 Nov); ask before making any writable, and relock after.
 - it18 wolf tactics (`tactics.py`, `results/tactics_main_innocopy.txt`): rule-based tags,
   hand-checked (no wrong tags, ~80% recall). Zero fabrication; true-but-misleading framing.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`. `claude setup-token` if

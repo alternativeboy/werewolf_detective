@@ -99,7 +99,7 @@ The labels miss statements that are true but misleading, which is how the wolf a
 so these numbers measure fabrication, not deception. A blind hand check of 50 labels is ready
 (`lie_check.py`) but not done yet.
 
-## Exploratory: a wrong or dishonest detective (it17, it19, it20, it21, it22)
+## Exploratory: a wrong or dishonest detective (it17, it19, it20, it21, it22, it23)
 
 *Added after the main run and not pre-registered. Each condition has 15 cases, so the
 intervals are wide.*
@@ -197,6 +197,25 @@ add one point. With a framing lead, Haiku did about as well with or without the 
 informed innocent (8/15 vs 9/15), which fits a judge that follows its lead. A true test of the
 hardest case needs a deceiver that does not quote evidence that clears others.
 
+**A wolf that stays quiet (it23).** So we reran it22 with one added line in the wolf's prompt:
+never quote, paraphrase or mention evidence that clears another suspect. The wolf complied.
+Nobody quoted the decoy's alibi in any of the 15 debates, and nobody fabricated or misquoted
+anything. Rules were again written before running.
+- **Haiku:** right in 1/15, against a floor of 4/15. The decoy got the majority in 14 games.
+- **Sonnet:** right in 10/15, exactly its floor (10/15).
+- **Primary comparison:** council − floor was −20 points [−47, +7] for Haiku and 0 [−27, +27]
+  for Sonnet. So we cannot say that debate hurt either judge, only that it added nothing.
+- **Putting a truthful quote back helps both judges.** Against the paired frame games, where
+  the honest innocent knows and quotes the alibi, it23 was −53 points [−80, −20] for Haiku and
+  −33 [−60, −13] for Sonnet. Against it22, where the wolf leaked the alibi, it was −47
+  [−73, −20] for Haiku and −27 [−53, 0] for Sonnet.
+
+With a framing lead and nobody who quotes the truth, the debate gave neither judge more than
+the incomplete file did, and the weak judge almost always followed the lead. In every
+condition we ran, debate helped the judge only when someone in it quoted the decisive truth.
+That is the premise debate relies on, so this supports its conditions rather than refuting
+debate. But it also shows how little the weak judge does on its own when that premise fails.
+
 **Reading** (Claude's draft; the user decides how to report it).
 - The weaker judge (Haiku) leans on the detective's public accusation more than on the
   evidence, even when the correct evidence is quoted and verified in front of it.
@@ -240,8 +259,8 @@ Everything except the first row is exploratory, with 15 cases per condition.*
 
 **Short answer.** Yes, when an honest speaker who knows the missing clue is in the debate and
 the lead is either honest or caught by the quote check. Not reliably when the lead frames an
-innocent using true evidence. We never tested the hardest case: a debate with no honest,
-informed speaker.
+innocent using true evidence. And when nobody in the debate quoted the truth (it23, one small
+run), debate added nothing beyond the judge's own reading of the incomplete file.
 
 | Situation (Sonnet debaters) | Haiku council right | For comparison |
 | --- | --- | --- |
@@ -252,6 +271,7 @@ informed speaker.
 | Framing lead, true quotes only | 9/15; retest 8/15 | frame − honest −47 points [−73, −20] (retest) |
 | Same misled and frame debates, Sonnet judge (equal strength) | 15/15 and 15/15 | never voted for the decoy |
 | Framing lead, innocent has only the detective's copy (it22) | Haiku 8/15, Sonnet 14/15 | floor 6/15 and 9/15; the wolf quoted the hidden clue in 14/15 |
+| Same, wolf told never to bring up clearing evidence (it23): nobody quotes the truth | Haiku 1/15, Sonnet 10/15 | floor 4/15 and 10/15; council − floor −20 [−47, +7] and 0 [−27, +27] |
 
 **Reading.**
 - **Debate helps a lot.** It took the weak judge from about 35% (its own reading of the
@@ -267,9 +287,10 @@ informed speaker.
   not about what the judge could see.
 
 **What these results cannot answer.**
-1. **The hardest case.** In it22 no honest speaker knew the clue, but the wolf quoted it
-   itself in 14 of 15 debates. So no debate in this project lacked the true clue; the one that
-   did (c0001) fooled both judges, and n = 1 says nothing.
+1. **The hardest case, only once and small.** it23 is the one condition where nobody quoted the
+   truth (15 debates). Debate then added nothing for either judge, but the intervals are wide,
+   the wolf's silence was a prompt, and the lead was always dishonest: we did not run an honest
+   lead against a quiet wolf.
 2. **Stronger deception.** The debaters never fabricated evidence (0 of 3,079 citations in the
    main run). Framing was a prompt, not an optimised or trained strategy.
 3. **A truly weaker judge against much stronger debaters.** The only contrast is Haiku vs
@@ -281,7 +302,8 @@ informed speaker.
 **In one sentence.** In this testbed a weak judge oversaw stronger debaters about as well as it
 could trust its lead: it reached the ceiling with an honest lead, recovered from misquotes once
 the checker was good, and followed a lead who framed an innocent with true evidence in about 40%
-of games, while a judge of equal strength did not.
+of games, while a judge of equal strength did not; with no truthful quote in the debate at all,
+neither judge gained anything from it.
 
 ## Related work and positioning (draft)
 
@@ -308,9 +330,31 @@ quotes checked by code. It changes three things.
 2. **A lead whose honesty we vary.** The detective works from an incomplete copy and makes the
    public accusation. In it17 the lead is told to frame the decoy, or is honestly misled by a
    swapped copy. This is closer to asking whether the judge checks a single advisor, as in
-   consultancy, than to comparing debate against consultancy [check].
+   consultancy, than to comparing debate against consultancy [check]. it22 and it23 add a
+   small version of that comparison (below).
 3. **Same debates, two judges.** We re-judge the same debates with two judges, one weaker than
    the debaters and one equal to them, so the comparison is paired.
+
+**A small debate-vs-consultancy contrast (it17, it22, it23).** In consultancy, one expert argues
+for an answer and the judge can only weigh that one side; in debate, a second expert argues
+against it [check]. Our framing conditions can be lined up the same way, holding the framing
+lead, the cases, the speakers and the order fixed and changing only who else knows the clue:
+
+| Who else knows the decoy's alibi | Closest protocol | Haiku | Sonnet |
+| --- | --- | --- | --- |
+| An honest innocent (frame, it17) | debate: an honest, informed opponent | 9/15 (retest 8/15) | 15/15 |
+| Only the wolf, not told to hide it (it22) | debate with a leaky opponent: the wolf quoted the clue in 14/15 | 8/15 | 14/15 |
+| Only the wolf, told never to bring it up (it23) | consultancy with a dishonest consultant | 1/15 (floor 4/15) | 10/15 (floor 10/15) |
+
+This is a small, one-sided version of the comparison in the papers above. It covers only the
+dishonest-consultant half: the literature averages over consultants assigned the right and the
+wrong answer [check], and we did not run an honest lead with a quiet wolf. The "consultant" also
+never answers the judge's questions, because our judge does not ask any. So it shows what the
+weak and the equal judge do when the lead is dishonest and nobody informed contradicts it; it is
+not an estimate of consultancy accuracy. Within that limit the direction matches the papers:
+the judge did better with an informed opponent than without one (it23 − frame: Haiku −53
+points [−80, −20], Sonnet −33 [−60, −13]) [check the direction against Michael 2023 and
+Khan 2024].
 
 Our quote check accepts near-matches. That is weaker than the exact-match verification we
 believe Khan et al. used [check], and it is how a one-name swap passed as "(verified)".

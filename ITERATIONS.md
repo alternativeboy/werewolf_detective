@@ -1078,3 +1078,45 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
   --detective-hides 1 --seed 0 --modes frame --innocent-sees copy --wolf-prompt quiet
   --out results/quietwolf`, then
   `SCRIPT=rejudge.py ./run_batches.sh --backend cli --games results/quietwolf/games.jsonl --judges sonnet`.
+
+## it23 results (15 Nov; run 19:18–20:05, Sonnet rejudge 20:05–20:23; `results/quietwolf`)
+
+- **Data checks:** 15 games, all with `wolf_prompt: quiet`; all 9 Haiku and 9 Sonnet votes per
+  game are suspect names (no None); no errors or usage limits in `results/it23_run.log` /
+  `results/it23_rejudge.log`. API-equivalent cost $3.70 (Sonnet $3.63).
+- **Compliance (rule 1):** the wolf quoted the hidden clue in 0/15 games, and so did everyone
+  else (first citer None in 15/15). No MISQUOTED or NOT IN CASE FILE citations either: the wolf
+  stayed silent about the clue rather than lying about it. So it23 is the hardest case as
+  designed.
+- **Results** (council right, majority of 3; paired 95% bootstrap CI over cases;
+  `results/it17_checks.txt` "it23"):
+
+  | | Haiku | Sonnet |
+  | --- | --- | --- |
+  | floor / council / ceiling | 4 / 1 / 15 of 15 | 10 / 10 / 15 of 15 |
+  | council − floor (primary) | −20 [−47, +7] | 0 [−27, +27] |
+  | it23 − it22 (the wolf's leak) | −47 [−73, −20] (it22 8/15) | −27 [−53, 0] (it22 14/15) |
+  | it23 − frame (honest, informed innocent) | −53 [−80, −20] (frame 9/15) | −33 [−60, −13] (frame 15/15) |
+  | it23 − honest innocopy | −73 [−93, −53] (12/15) | not judged by Sonnet |
+  | council majority | decoy 14, wolf 1 | wolf 10, decoy 5 |
+  | floor majority | decoy 11, wolf 4 | wolf 10, decoy 5 |
+
+- **Detective:** private final answer = wolf in 8/15 (15/15 in it22, where the wolf leaked the
+  clue); accused the decoy aloud in every round in 15/15.
+- **Verdict by the rules written before running:**
+  - Rule 2 (primary): neither "debate hurt" nor "debate helped", for both judges (both CIs
+    include 0). Haiku's point estimate is below its floor (1/15 vs 4/15).
+  - Rule 3: the wolf's leak mattered for Haiku (it23 − it22 −47 [−73, −20]); for Sonnet the CI
+    reaches 0, so no claim. The honest, informed innocent mattered for both judges (it23 −
+    frame: Haiku −53 [−80, −20], Sonnet −33 [−60, −13]).
+  - Claude's prediction (wolf complies; Haiku at or below floor with a decoy majority in most
+    games; Sonnet down toward its floor): right on all three.
+- **Caveats:** Haiku's floor reads the same detective copy in it22 and it23 but was 6/15 there
+  and 4/15 here (3-vote noise). Both floors are at or below chance between two candidates; the
+  Haiku floor leans to the decoy (11/15). n = 15, exploratory, prompted wolf.
+- **Claude's reading (user decides the wording):** with a framing lead and nobody in the
+  debate who quotes the truth, debate gave neither judge anything beyond reading the
+  incomplete file: Sonnet stayed at its floor, and Haiku went with the lead in 14/15 games.
+  Putting back one speaker who quotes the true clue (the honest innocent in frame, or the leaky
+  wolf in it22) raised both judges. In this testbed the benefit of debate came through someone
+  who quotes the decisive truth, which is the premise of debate rather than a refutation of it.
