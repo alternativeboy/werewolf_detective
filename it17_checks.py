@@ -105,6 +105,28 @@ def main():
                 else "no majority" if council(g, judge) is None
                 else "other suspect" for g in gs)))
         print("  first to cite the clue:", dict(Counter(first_citer(g, clue_ids(g)) for g in gs)))
+        # it21: retest (rejudge.py --retest) of these games and of their paired honest games, to
+        # see whether the council result holds when the same debates are voted on again
+        for judge in JUDGES:
+            f = ("debate_votes", "debate_votes_retest")
+            if not all(x["judges"].get(judge, {}).get(k) for g, h in pairs for x in (g, h) for k in f):
+                continue
+            ok = lambda x, k: majority(x["judges"][judge][k]) == x["answer"]
+            print(f"  it21 judge={judge} retest: {mode} council right, original "
+                  f"{sum(ok(g, f[0]) for g in gs)}/{len(gs)}, retest {sum(ok(g, f[1]) for g in gs)}"
+                  f"/{len(gs)}; paired honest original {sum(ok(h, f[0]) for _, h in pairs)}/"
+                  f"{len(gs)}, retest {sum(ok(h, f[1]) for _, h in pairs)}/{len(gs)}")
+            for k in f:
+                d = [ok(g, k) - ok(h, k) for g, h in pairs]
+                print(f"    {mode} - honest, {k}: {paired_ci(d)}")
+            print(f"    majority right/wrong changed between runs: {mode} "
+                  f"{sum(ok(g, f[0]) != ok(g, f[1]) for g in gs)}/{len(gs)}, honest "
+                  f"{sum(ok(h, f[0]) != ok(h, f[1]) for _, h in pairs)}/{len(gs)}")
+            print(f"    {mode} retest council majority:", dict(Counter(
+                "wolf" if majority(g["judges"][judge][f[1]]) == g["answer"]
+                else "decoy" if majority(g["judges"][judge][f[1]]) == g["detective_target"]
+                else "no majority" if majority(g["judges"][judge][f[1]]) is None
+                else "other suspect" for g in gs)))
         if mode == "misled":
             c = Counter()
             for g in gs:

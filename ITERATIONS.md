@@ -29,6 +29,7 @@ the user; "Claude" = tooling or bug fixes that do not change what is measured.
 | 12 Nov | Bootstrap CI NaN-sort fix; pooled floor table only honest + win; tactics labels rand2/misled (no reported main number changed) | Claude | it17 results |
 | 12 Nov | How to report it17 in the write-up | Open | it17 results |
 | 12 Nov | How to report the Sonnet result (it19) and the name-aware clerk (it20) | Open | it19, it20 results |
+| 15 Nov | it21: Haiku retest of the 15 frame debates and their 15 paired honest debates (logged before running) | User | it21 |
 | 15 Nov | it20: re-judge the 15 misled debates with Haiku under a name-aware clerk, plus a retest on the original marks (logged before running) | User | it20 |
 
 Found after the main run, reported as limitations: the "wolf always speaks" cue (innocopy
@@ -912,3 +913,28 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
     real deception that avoids misquoting (as in frame) would not trigger it.
   - Run-to-run noise is large (7/15 games flipped between original and retest), so compare
     against the retest, and expect wide intervals.
+
+## it21: retest of the frame result (15 Nov; decided by the user before running)
+
+- **Why:** the frame result (Haiku council right 9/15 against 15/15 in the paired honest games,
+  −40 [−67, −20]) is now the main "not fixable by quote checks" finding. it20 showed that a
+  3-vote Haiku council changed right/wrong in 7 of 15 misled games when re-voted on identical
+  input. So we check whether the frame result holds on a second run before writing it up.
+- **Design (Claude proposed, user approved 15 Nov):** Haiku votes again (3 votes, same council
+  prompt, original clerk marks, nothing rerun) on the 15 frame debates and on their 15 paired
+  honest main-run debates (cases c0000–c0014). `rejudge.py --retest`, new `--case-limit 15`
+  to pick the paired honest games. Rows go to `results/wrongdet/judgements.jsonl` and
+  `results/main/judgements.jsonl` (`debate_votes_retest`).
+- **Calls:** (15 + 15) x 3 = 90 Haiku judge calls.
+- **Code (Claude):** `rejudge.py --case-limit`; `it17_checks.py` prints, per condition, original
+  and retest council accuracy, frame − honest on each run (bootstrap over cases), how many
+  games changed right/wrong between runs, and the retest majority (wolf / decoy / other). With
+  the honest retest in place it also prints the same for misled. Mock-tested on a scratch copy;
+  the real output is unchanged.
+- **How to read it (written before running):** report both runs side by side; do not pool or
+  pick one. The frame finding is called stable if frame − honest on the retest also has a 95%
+  CI that excludes 0. If it does not, the write-up reports the frame result as unstable and
+  drops it as a headline.
+- **Run:**
+  `python3 rejudge.py --backend cli --games results/wrongdet/games.jsonl --judges haiku --mode frame --retest`
+  `python3 rejudge.py --backend cli --games results/main/games.jsonl --judges haiku --mode honest --case-limit 15 --retest`

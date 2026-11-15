@@ -84,11 +84,18 @@ def main():
     ap.add_argument("--retest", action="store_true",
                     help="it20: council votes again on the original marked debate")
     ap.add_argument("--mode", default=None, help="only games with this detective_mode")
+    ap.add_argument("--case-limit", type=int, default=None,
+                    help="only games of the first N cases in the file (case id = game_id up to "
+                         "the first '-'), e.g. the 15 main-run cases paired with wrongdet")
     a = ap.parse_args()
 
     out = os.path.join(os.path.dirname(a.games) or ".", "judgements.jsonl")
     games = [g for g in load_jsonl(a.games) if "transcript_marked" in g
-             and (a.mode is None or g.get("detective_mode") == a.mode)][:a.limit]
+             and (a.mode is None or g.get("detective_mode") == a.mode)]
+    if a.case_limit is not None:
+        cases = list(dict.fromkeys(g["game_id"].split("-")[0] for g in games))[:a.case_limit]
+        games = [g for g in games if g["game_id"].split("-")[0] in cases]
+    games = games[:a.limit]
     backend = make_backend(a.backend)
     merged = merge_judgements(games, load_jsonl(out))
 

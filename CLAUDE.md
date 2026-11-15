@@ -156,6 +156,8 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 
 ## Next steps
 
+0. it21 (user decided 15 Nov): Haiku retest of the frame debates + paired honest (90 calls),
+   then `python3 it17_checks.py > results/it17_checks.txt` and log "it21 results".
 1. Open decision (user): how to report it17 in the write-up. Claude's draft is in
    `WRITEUP_DRAFT.md`; the user edits and decides the wording.
 2. Open decision (user): how to report the Sonnet result (it19) and the name-aware clerk (it20)
