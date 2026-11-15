@@ -20,6 +20,14 @@ judged before it11, which have one floor/ceiling vote instead of three:
 (verified)/(MISQUOTED)/(NOT IN CASE FILE) marks removed, to see how much the council relies on
 them. The debate is not rerun, so the speakers behave exactly as in the marked condition:
   python rejudge.py --backend cli --games results/smoke_hide1/games.jsonl --judges haiku --no-marks
+
+--clerk2 (it20) adds --votes council votes on the same debate re-marked by the name-aware clerk
+(checker.CLERK2_VERSION: a quote that names a suspect the real evidence line does not name is
+MISQUOTED). --retest adds --votes council votes on the ORIGINAL marked debate, to measure how
+much the majority moves between runs. Both can be given together; --mode keeps only games of
+one detective mode:
+  python rejudge.py --backend cli --games results/wrongdet/games.jsonl --judges haiku \\
+      --mode misled --clerk2 --retest
 """
 
 import argparse
@@ -28,7 +36,9 @@ import os
 
 from analyze import file_votes_of, merge_judgements
 from backends import make_backend
-from game import N_JUDGE_VOTES, file_votes, judge_game, nomarks_votes
+from checker import CLERK2_VERSION
+from game import (N_JUDGE_VOTES, debate_votes, file_votes, judge_game, marked_transcript,
+                  nomarks_votes)
 from prompts import NOMARKS_VERSION, PROMPT_VERSION
 
 
@@ -69,12 +79,41 @@ def main():
                     help="only top up floor and ceiling votes to --votes each (no debate votes)")
     ap.add_argument("--no-marks", action="store_true",
                     help="ablation: council votes on the debate with the clerk's marks removed")
+    ap.add_argument("--clerk2", action="store_true",
+                    help="it20: council votes on the debate re-marked by the name-aware clerk")
+    ap.add_argument("--retest", action="store_true",
+                    help="it20: council votes again on the original marked debate")
+    ap.add_argument("--mode", default=None, help="only games with this detective_mode")
     a = ap.parse_args()
 
     out = os.path.join(os.path.dirname(a.games) or ".", "judgements.jsonl")
-    games = [g for g in load_jsonl(a.games) if "transcript_marked" in g][:a.limit]
+    games = [g for g in load_jsonl(a.games) if "transcript_marked" in g
+             and (a.mode is None or g.get("detective_mode") == a.mode)][:a.limit]
     backend = make_backend(a.backend)
     merged = merge_judgements(games, load_jsonl(out))
+
+    if a.clerk2 or a.retest:
+        for g in games:
+            # the rebuild must reproduce what the council saw, or the comparison is not paired
+            assert marked_transcript(g) == g["transcript_marked"], g["game_id"]
+            for m in a.judges:
+                j = merged.get((g["game_id"], m), {})
+                row = {}
+                if a.retest and j.get("debate_votes_retest") is None:
+                    row["debate_votes_retest"] = debate_votes(g, backend, m, a.votes)
+                if a.clerk2 and j.get("debate_votes_clerk2") is None:
+                    row["debate_votes_clerk2"] = debate_votes(
+                        g, backend, m, a.votes, transcript=marked_transcript(g, names=True))
+                    row["clerk2_version"] = CLERK2_VERSION
+                if not row:
+                    continue
+                print(f"{g['game_id']} judge={m}: original {j.get('debate_votes')}, retest "
+                      f"{row.get('debate_votes_retest')}, clerk2 {row.get('debate_votes_clerk2')}, "
+                      f"answer {g['answer']}")
+                append(out, {"game_id": g["game_id"], "judge_model": m,
+                             "prompt_version": PROMPT_VERSION, **row})
+        print(f"\nSaved to {out}. Next: python it17_checks.py")
+        return
 
     if a.no_marks:
         for g in games:

@@ -29,6 +29,7 @@ the user; "Claude" = tooling or bug fixes that do not change what is measured.
 | 12 Nov | Bootstrap CI NaN-sort fix; pooled floor table only honest + win; tactics labels rand2/misled (no reported main number changed) | Claude | it17 results |
 | 12 Nov | How to report it17 in the write-up | Open | it17 results |
 | 12 Nov | How to report the Sonnet result (it19) | Open | it19 results |
+| 15 Nov | it20: re-judge the 15 misled debates with Haiku under a name-aware clerk, plus a retest on the original marks (logged before running) | User | it20 |
 
 Found after the main run, reported as limitations: the "wolf always speaks" cue (innocopy
 analysis entry; tested by it17 random2) and the clerk's 85% fuzzy match, which lets a one-name
@@ -840,3 +841,41 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
 - New "Related work and positioning (draft)" section on Irving 2018, Michael 2023, Khan 2024
   and Kenton 2024. Written from memory, with no numbers from the papers; every claim about a
   paper is marked [check] for the user to verify against the paper.
+
+## it20: name-aware clerk on the misled debates (15 Nov; decided by the user before running)
+
+- **Question:** in it17 misled, Haiku's council was right in only 6/15 games, while the clerk
+  marked all 45 of the detective's swapped-name quotes "(verified)". Is the failure mainly the
+  lax clerk (two contradictory "verified" versions of one clue), or the weak judge following
+  the detective? Sonnet (it19) cannot answer this: it was right 15/15 with the lax marks.
+- **Design (user chose both options on 15 Nov, from Claude's offline counts):**
+  - New clerk rule (`checker.CLERK2_VERSION = "names1"`): the old 85% fuzzy match, plus a
+    quote is MISQUOTED if it names a suspect that the real evidence line does not name.
+    Chosen over strict substring matching, which would also have flagged 2 honest main-run
+    quotes that drop "the murder," from [R1].
+  - Retest control: Haiku votes again on the original marked debates, to measure how much the
+    3-vote majority moves between runs.
+  - Same debates (nothing rerun), Haiku, 3 votes each, same council prompt; only the marks
+    differ. Floor and ceiling do not depend on the marks and are not rerun.
+- **Offline counts (no model calls):** across all 135 saved games (main, wrongdet, innocopy,
+  rand2) the new rule changes labels only in the 15 misled games: 46 labels, all "(verified)"
+  to "(MISQUOTED)". 45 are the detective's swapped-name quotes (3 per game). The 46th is in
+  c0001-misled, where the innocent repeats the detective's swapped version in order to refute
+  it, so the clerk now marks that repetition MISQUOTED too. Frame: 0 labels change (the framing
+  detective quoted correctly), so the new clerk cannot help in frame, and it is not run there.
+  The rebuilt marked transcript with the old rule matches the saved `transcript_marked`
+  exactly in 135/135 games, so the comparison is paired.
+- **Calls:** 15 games x 3 votes x 2 (clerk2, retest) = 90 Haiku judge calls, no Sonnet calls.
+- **Code (Claude):** `checker.check_citations/mark_citations(names=True)`;
+  `game.debate_votes()` (the council loop, moved out of `judge_game`, behaviour unchanged) and
+  `game.marked_transcript()`; `rejudge.py --clerk2 --retest --mode misled` writes
+  `debate_votes_clerk2` / `debate_votes_retest` rows to `results/wrongdet/judgements.jsonl`
+  (resumes; asserts the rebuild matches before voting); `it17_checks.py` prints original,
+  retest and name-aware council accuracy with paired differences (bootstrap over cases).
+  Tested with the mock backend on a scratch copy; the real `it17_checks.py` output is unchanged.
+- **How to read it (written before running):** the main comparison is name-aware clerk minus
+  retest. If it is large and positive, the it17 misled failure was mostly the clerk. If it is
+  near zero, Haiku follows the detective even when the detective's quotes are marked
+  MISQUOTED. Exploratory, n = 15, not pre-registered.
+- **Run:**
+  `python3 rejudge.py --backend cli --games results/wrongdet/games.jsonl --judges haiku --mode misled --clerk2 --retest`

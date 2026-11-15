@@ -90,11 +90,11 @@ already at ceiling with a Sonnet wolf, so the comparison would likely be uninfor
 | `cases.py` | case generator by level + `solve()` uniqueness check |
 | `prompts.py` | all role prompts; bump `PROMPT_VERSION` on any change |
 | `backends.py` | `cli` (`claude -p`, uses the Claude plan; sums the CLI's API-equivalent cost per model into `cost_usd`, saved per game), `api` (ANTHROPIC_API_KEY), `mock`; `call(..., model=)` |
-| `checker.py` | citation checker + marks for the council, sentence splitter, JSON parsing, name matching |
+| `checker.py` | citation checker + marks for the council (`names=True`: it20 name-aware clerk), sentence splitter, JSON parsing, name matching |
 | `game.py` | one game; `judge_game()` for council votes |
 | `run.py` | runs many games, appends to `results/games.jsonl`, resumes where it stopped |
 | `pilot.py` | cheap difficulty calibration (2 calls per case, no debate) |
-| `rejudge.py` | re-judge saved games with other judge models → `results/judgements.jsonl` |
+| `rejudge.py` | re-judge saved games with other judge models → `results/judgements.jsonl`; `--no-marks`, `--clerk2`, `--retest` |
 | `analyze.py` | metrics |
 | `run_batches.sh` | reruns `run.py` (or `SCRIPT=rejudge.py`) until done; waits 5 h on usage limits |
 | `tactics.py` | rule-based wolf tactic tags (it18) |
@@ -152,6 +152,9 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 
 ## Next steps
 
+0. it20 (user decided 15 Nov, not run yet): `python3 rejudge.py --backend cli --games
+   results/wrongdet/games.jsonl --judges haiku --mode misled --clerk2 --retest` (90 Haiku calls),
+   then `python3 it17_checks.py > results/it17_checks.txt` and log "it20 results".
 1. Open decision (user): how to report it17 in the write-up. Claude's draft is in
    `WRITEUP_DRAFT.md`; the user edits and decides the wording.
 2. Open decision (user): how to report the Sonnet result (it19) alongside it17.

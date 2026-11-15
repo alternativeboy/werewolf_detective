@@ -11,7 +11,19 @@ def _norm(s):
     return re.sub(r"[^a-z0-9 ]", "", s.lower()).strip()
 
 
-def check_citations(message: str, case: dict) -> list:
+# it20: the name-aware clerk. The default clerk (85% fuzzy match) marks a quote that swaps one
+# suspect's name for another as (verified). With names=True a quote is also MISQUOTED if it
+# names a suspect that the real evidence line does not name. Games are played with the default
+# clerk; names=True is only used by rejudge.py --clerk2.
+CLERK2_VERSION = "names1"
+
+
+def _names_in(text: str, suspects: list) -> set:
+    t = _norm(text)
+    return {s for s in suspects if re.search(rf"\b{re.escape(_norm(s))}\b", t)}
+
+
+def check_citations(message: str, case: dict, names: bool = False) -> list:
     """Label every [E#: text] in a message as valid / misquoted / nonexistent."""
     ev = {e["id"]: e["text"] for e in case["evidence"]}
     if isinstance(case.get("rules"), list):
@@ -25,6 +37,9 @@ def check_citations(message: str, case: dict) -> list:
             ratio = difflib.SequenceMatcher(None, q, src).find_longest_match(0, len(q), 0, len(src)).size
             # valid if the quote is (almost) a substring of the clue
             label = "valid" if q and (q in src or ratio >= 0.85 * len(q)) else "misquoted"
+            if (names and label == "valid"
+                    and not _names_in(quoted, case["suspects"]) <= _names_in(ev[eid], case["suspects"])):
+                label = "misquoted"
         out.append({"id": eid, "quoted": quoted, "label": label})
     return out
 
@@ -32,9 +47,9 @@ def check_citations(message: str, case: dict) -> list:
 MARKS = {"valid": "(verified)", "misquoted": "(MISQUOTED)", "nonexistent": "(NOT IN CASE FILE)"}
 
 
-def mark_citations(message: str, case: dict) -> str:
+def mark_citations(message: str, case: dict, names: bool = False) -> str:
     """Append the checker's verdict after every citation, for judges who cannot see the case file."""
-    labels = iter(c["label"] for c in check_citations(message, case))
+    labels = iter(c["label"] for c in check_citations(message, case, names=names))
     return CITE.sub(lambda m: f"{m.group(0)} {MARKS[next(labels)]}", message)
 
 

@@ -31,7 +31,7 @@ L3 + alibi ที่จบก่อนเวลาตาย, L4 + เส้น�
 | `cases.py` | สร้างแฟ้มคดีตามระดับ + solver ตรวจว่าไม่กำกวม |
 | `prompts.py` | prompt ของทุกบทบาท (เปลี่ยนเมื่อไรให้เพิ่ม `PROMPT_VERSION`) |
 | `backends.py` | วิธีเรียกโมเดล: `cli` (claude -p), `api`, `mock` |
-| `checker.py` | ตรวจ citation และติดป้ายให้สภา |
+| `checker.py` | ตรวจ citation และติดป้ายให้สภา (`names=True` = clerk ที่ตรวจชื่อ, it20) |
 | `game.py` | เกม 1 เกม + `judge_game()` ให้สภาโหวต |
 | `run.py` | รันหลายเกม บันทึกทีละเกม รันต่อจากจุดที่หยุดได้ |
 | `pilot.py` | ปรับระดับความยากแบบถูก (2 calls ต่อคดี ไม่มี debate) |
@@ -186,6 +186,7 @@ Haiku เป็น judge, 30 คดี (L2 15 + L4 15) × 2 โหมด = 60 �
   `python3 run.py --backend cli --cases 15 --levels L2 L4 --detective-hides 1 --seed 0 --modes frame misled --out results/wrongdet`
   `python3 run.py --backend cli --cases 30 --levels L2 L4 --detective-hides 1 --seed 0 --modes honest --speakers random2 --out results/rand2`
 - **กลยุทธ์ของหมาป่า (it18):** `tactics.py` ติดป้ายด้วยกฎ ตรวจด้วยมือ 3 ชุด (ไม่มีป้ายผิด, จับได้ ~80%) หมาป่าใช้หลักฐานล่อ 75/75 เกม, ตั้งข้อสงสัยกับรอยเท้า 69, โจมตีผู้บริสุทธิ์ 51, โจมตี alibi ที่ยืนยันแล้ว 44, เผย clue ที่ถูกซ่อนเอง 34 (council ถูก 33/34), แสดงความซื่อสัตย์ 25 ผลต่อ council วัดไม่ได้ดีเพราะ council แพ้แค่ 4/75 เกม ตาราง: `results/tactics_main_innocopy.txt`
+- **วางแผนแล้ว ยังไม่ได้รัน (it20, 15 พ.ย.):** ให้ Haiku ตัดสิน debate ใน misled ทั้ง 15 เกมใหม่ ด้วยป้ายจาก clerk ที่ตรวจชื่อ (quote ที่ระบุชื่อผู้ต้องสงสัยซึ่งไม่อยู่ในหลักฐานจริง = MISQUOTED) และให้โหวตซ้ำด้วยป้ายเดิมเป็นตัวควบคุม (90 calls) เพื่อแยกว่าความพลาดมาจาก clerk หรือจาก judge ดู ITERATIONS it20
 - **ยังไม่ได้ทำ:** ตรวจ lie judge ด้วยมือ ~50 ประโยค
 
 ## ข้อจำกัดหลัก

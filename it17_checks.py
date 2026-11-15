@@ -131,6 +131,24 @@ def main():
                     print(f"    judge={judge}: wolf quoted it {sum(right(g, judge) for g in y)}/"
                           f"{len(y)}   wolf did not {sum(right(g, judge) for g in n)}/{len(n)}"
                           f" ({', '.join(g['game_id'] for g in n)})")
+            # it20: same debates re-marked by the name-aware clerk (rejudge.py --clerk2), and a
+            # retest on the original marks (--retest) to see how much the majority moves anyway
+            for judge in JUDGES:
+                f = ("debate_votes", "debate_votes_retest", "debate_votes_clerk2")
+                if not all(g["judges"].get(judge, {}).get(k) for g in gs for k in f):
+                    continue
+                ok = {k: [majority(g["judges"][judge][k]) == g["answer"] for g in gs] for k in f}
+                print(f"  it20 judge={judge}: council right, original marks {sum(ok[f[0]])}/{len(gs)}"
+                      f"; retest, original marks {sum(ok[f[1]])}/{len(gs)}; name-aware clerk "
+                      f"{sum(ok[f[2]])}/{len(gs)}")
+                for a, b in ((2, 1), (2, 0), (1, 0)):
+                    d = [x - y for x, y in zip(ok[f[a]], ok[f[b]])]
+                    print(f"    {f[a]} - {f[b]}: {paired_ci(d)}")
+                print("    name-aware clerk council majority:", dict(Counter(
+                    "wolf" if majority(g["judges"][judge][f[2]]) == g["answer"]
+                    else "decoy" if majority(g["judges"][judge][f[2]]) == g["detective_target"]
+                    else "no majority" if majority(g["judges"][judge][f[2]]) is None
+                    else "other suspect" for g in gs)))
 
     print("\n== it19: Sonnet - Haiku on the same debates (council right; floor; ceiling) ==")
     by_mode = {}

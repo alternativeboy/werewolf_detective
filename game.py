@@ -198,17 +198,35 @@ def judge_game(rec, backend, model=None, n_votes=N_JUDGE_VOTES):
     Games judged before it11 have a single ceiling vote in `file_alone_vote` (and a single floor
     vote in `file_partial_vote`); analyze.py reads both shapes.
     """
-    case = rec["case"]
-    sus = case["suspects"]
     model = model or backend.models["judge"]
-    votes = []
-    for _ in range(n_votes):
-        raw = backend.call("judge", P.JUDGE_DEBATE_SYSTEM,
-                           P.judge_debate_vote(sus, rec["transcript_marked"]), model=model)
-        votes.append(match_name(parse_json(raw).get("vote"), sus))
-    return {"judge_model": model, "prompt_version": P.PROMPT_VERSION, "debate_votes": votes,
+    return {"judge_model": model, "prompt_version": P.PROMPT_VERSION,
+            "debate_votes": debate_votes(rec, backend, model, n_votes),
             "file_alone_votes": file_votes(rec, backend, model, n_votes),
             "file_partial_votes": file_votes(rec, backend, model, n_votes, partial=True)}
+
+
+def debate_votes(rec, backend, model, n, transcript=None):
+    """n council votes on the marked debate (default: the transcript the council saw in play)."""
+    sus = rec["case"]["suspects"]
+    text = rec["transcript_marked"] if transcript is None else transcript
+    out = []
+    for _ in range(n):
+        raw = backend.call("judge", P.JUDGE_DEBATE_SYSTEM, P.judge_debate_vote(sus, text),
+                           model=model)
+        out.append(match_name(parse_json(raw).get("vote"), sus))
+    return out
+
+
+def marked_transcript(rec, names=False):
+    """Rebuild the council's transcript from rec["messages"], in the same layout as play_game.
+
+    names=False reproduces rec["transcript_marked"] exactly (checked for all main-run and
+    wrongdet games); names=True uses the it20 name-aware clerk (checker.CLERK2_VERSION)."""
+    out = ""
+    for m in rec["messages"]:
+        who = "Detective" if m["speaker"] == "detective" else m["name"]
+        out += f"\n{who} (round {m['round']}): {mark_citations(m['text'], rec['case'], names=names)}\n"
+    return out
 
 
 def nomarks_votes(rec, backend, model, n):
