@@ -2,18 +2,12 @@
 
 Reply to the user in Thai. Code, comments and prompts stay in English.
 
-## Why this project exists
+## Purpose
 
-The user is applying to the **Anthropic Residency** (deadline **22 Nov 2026**, apply via the US posting,
-3- or 6-month placement because visas are sponsored for 3+ months; the user is based in Thailand).
-The Residency looks for people who have led ambitious technical work, are motivated by AI safety,
-and can implement ideas quickly. This project is a small, reproducible experiment to attach to the
-application and to talk about in interviews. Target research area: **scalable oversight / AI debate**.
-
-The user ranks ~#1,700 of 186,000+ members on Gambit (a skill-based, non-gambling poker site).
-That goes on the resume as a minor line, not the main selling point.
-
-Design doc (Claude Doc): https://claude.ai/artifact/M6DcFTQvC53PZ6e1wFUTH1
+A small, reproducible experiment on scalable oversight / AI debate: can a weaker judge model
+pick the right answer from a debate between stronger models when it cannot see the evidence?
+Personal context (why the user is doing this, deadlines, plans) lives in Claude's private
+project memory, not in this repo, so the repo can be public.
 
 ## The experiment
 
@@ -181,13 +175,11 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and check every [check] mark in the
    positioning draft (`WRITEUP_DRAFT.md` "Related work and positioning").
 
-Plan: analysis 16–18 Nov, write-up 19–20 Nov, update resume and application 21 Nov,
-deadline 22 Nov. it17 must finish by ~16 Nov or move to future work.
 
 ## How to help
 
-- The user must understand and own every design decision; explain choices so they can defend them
-  in an interview, and let them make the research calls (difficulty, interpretation, what to report).
+- The user must understand and own every design decision; explain choices so they can defend them,
+  and let them make the research calls (difficulty, interpretation, what to report).
 - Report results honestly, including null results. Don't overclaim: bluffing in a game is a legal
   strategy, not evidence of real-world malicious intent.
 - The write-up should say Claude helped write the code.
