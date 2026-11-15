@@ -3,7 +3,7 @@
 Draft sections for the final write-up. Claude drafted them; the user edits and decides the
 final wording. Numbers come from `results/it17_analysis.txt` and `results/it17_checks.txt`.
 
-## Exploratory: a wrong or dishonest detective (it17, it19, it20)
+## Exploratory: a wrong or dishonest detective (it17, it19, it20, it21)
 
 *Added after the main run and not pre-registered. Each condition has 15 cases, so the
 intervals are wide.*
@@ -63,6 +63,19 @@ fix cannot help in frame: the framing detective quoted the file correctly, so no
 The retest also showed how noisy a three-vote Haiku council is. On identical input, whether the
 majority was right changed in 7 of 15 games.
 
+**Does the frame result hold on a rerun? (it21, Haiku, same frame debates.)** After it20, the
+frame result rested on a single three-vote run. So Haiku voted again, with the original marks,
+on the 15 frame debates and on their 15 paired honest debates. Before running, we wrote down
+the rule: the result counts as stable only if the retest's frame − honest difference also has a
+95% interval that excludes 0.
+- **Frame:** right in 8/15 on the retest, against 9/15 in the first run.
+- **Paired honest games:** 15/15 in both runs.
+- **Frame − honest:** −47 points [−73, −20] on the retest (first run −40 [−67, −20]).
+
+By that rule the frame result is stable. It also moved less than misled did: right/wrong
+changed in 3 of 15 frame games (misled 7 of 15; honest 0 of 15), and the decoy won the
+majority in 6 games on both runs.
+
 A third variant, random2, tested a cue we found after the main run: the wolf always spoke.
 With two random speakers out of six (30 cases), the wolf was silent in 13 games. The council
 was still right in all 13, each time voting for someone who never spoke (29/30 overall). So
@@ -79,8 +92,11 @@ an honest, fully informed speaker is always present.
   - **Misled lead with misquoted evidence.** A citation check that accepts near-matches
     certified a one-name swap. With a name-aware check, Haiku recovered (13/15).
   - **Framing lead who quotes truthfully.** The evidence is correct, but the lead points it at
-    the wrong person. No quote check can flag this, and Haiku followed the lead in 6 of 15
-    games. Sonnet did not.
+    the wrong person. No quote check can flag this. Haiku followed the lead to the decoy in 6
+    of 15 games, on both runs (it21); Sonnet did not.
+- Of the two, the framing failure is the more robust finding. It survived a rerun by a rule
+  written beforehand, and no tool in this setup fixes it. The misled failure is larger but
+  noisier, and it is mostly an artifact of our own lax clerk.
 - A trustworthy lead makes debate very effective for both judges (main run). With the weak
   judge, a lead who frames with true evidence cancels much of that benefit.
 
@@ -97,7 +113,10 @@ an honest, fully informed speaker is always present.
 - The variants were chosen after seeing the main results. The name-aware clerk was designed
   after seeing the misled failure, so it fixes exactly the swap that it17 introduced.
 - A three-vote Haiku council is noisy: on identical input its majority changed in 7 of 15
-  misled games. Compare against the retest, and read the intervals as wide.
+  misled games and 3 of 15 frame games. Compare against the retest, and read the intervals as
+  wide.
+- The frame retest (it21) checks run-to-run noise in the judge only. The debates were not
+  rerun, so it says nothing about how much a new framing debate would differ.
 
 ## Related work and positioning (draft)
 
