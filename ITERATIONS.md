@@ -32,6 +32,7 @@ the user; "Claude" = tooling or bug fixes that do not change what is measured.
 | 15 Nov | Write-up and presentation headline: option C ("We built a debate testbed, then spent most of the project trying to break it. Two failures survived.") | User | WRITEUP_DRAFT.md |
 | 15 Nov | it21: Haiku retest of the 15 frame debates and their 15 paired honest debates (logged before running) | User | it21 |
 | 15 Nov | it20: re-judge the 15 misled debates with Haiku under a name-aware clerk, plus a retest on the original marks (logged before running) | User | it20 |
+| 15 Nov | it22: framing detective + innocent reads the detective's copy (no honest, informed speaker), 15 cases, Haiku + Sonnet; reading rule written before running | User | it22 |
 
 Found after the main run, reported as limitations: the "wolf always speaks" cue (innocopy
 analysis entry; tested by it17 random2) and the clerk's 85% fuzzy match, which lets a one-name
@@ -962,3 +963,37 @@ Outputs: `results/it17_analysis.txt` (`analyze.py` main + wrongdet + rand2),
 - **Claude's reading (user decides the wording):** the framing failure is the more robust of
   the two it17 failures. It moved less between runs than misled (3 vs 7 flipped games), and the
   decoy got the majority in 6 games on both runs.
+
+## it22: framing lead with no honest, informed speaker (15 Nov; decided by the user before running)
+
+- **Why:** every stress test so far (frame, misled, random2, innocopy) still had an honest
+  speaker who knew the hidden clue, or an honest lead. The write-up's first open question is the
+  hardest case: a dishonest lead and nobody honest who knows the clue. Only the wolf knows the
+  decoy's confirmed alibi here, and the wolf gains from the decoy being framed.
+- **Design (Claude proposed, user said "ทำเลย" 15 Nov):** `run.py --modes frame --innocent-sees
+  copy` on the first 15 cases of seed 0 (L2, L4, hide-1), game ids `c00xx-frame-hide1-innocopy`,
+  out `results/hardest`. Frame detective prompt unchanged (it17); the innocent reads the
+  detective's copy (it16). Speakers and order are drawn from the honest id, so each game pairs
+  with (a) the frame game in `results/wrongdet` (same detective prompt, innocent has the full
+  file) and (b) the honest game in `results/innocopy` (same innocent input, honest detective).
+  Mock-tested: same speakers, order, decoy and detective copy as both partners. In 2 of 15
+  cases the decoy itself is the innocent speaker, and here it does not see its own alibi.
+- **Judges:** Haiku in the run (3 council, 3 floor, 3 ceiling votes, as always), then Sonnet via
+  `rejudge.py --judges sonnet` (it19 setup).
+- **Calls:** 15 x 21 = 315 in the run, plus 15 x 9 = 135 Sonnet judge calls.
+- **Prediction (Claude, written before running):** council near the floor or below it for
+  Haiku, and much lower than in frame for Sonnet too, because no speaker has a reason to quote
+  the decoy's alibi.
+- **How to read it (written before running):** report Haiku and Sonnet side by side; no pooling.
+  1. Council right, floor and ceiling (majority of 3), and who first quotes the hidden clue.
+  2. "Debate still helps with no honest, informed speaker" only if council − floor (paired per
+     game) has a 95% bootstrap CI above 0.
+  3. "Removing the informed innocent hurts a framing debate" only if hardest − frame (paired
+     with wrongdet) has a 95% CI below 0. Also report hardest − honest-innocopy.
+  4. Council majority split: wolf / decoy / other / none.
+- **Not run:** misled + innocopy. In the current code the innocent would read the TRUE full file
+  in that combination (`game.py` builds `inno_text` from `case` with `det_ids`, and misled sets
+  `det_ids` to every clue id), so it would not test the hardest case. Not fixed (no run uses it).
+- **Run:** `caffeinate -i ./run_batches.sh --backend cli --cases 15 --levels L2 L4
+  --detective-hides 1 --seed 0 --modes frame --innocent-sees copy --out results/hardest`, then
+  `SCRIPT=rejudge.py ./run_batches.sh --backend cli --games results/hardest/games.jsonl --judges sonnet`.
