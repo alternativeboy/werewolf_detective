@@ -1,5 +1,12 @@
 # Werewolf Detective: AI Debate & Lie Detection
 
+> **English summary.** A small, reproducible testbed for AI debate as a scalable-oversight
+> method: can a weaker judge model (Haiku) pick the werewolf from a debate between stronger
+> models (Sonnet) when it cannot see the case file? Short answer: *it held up only while someone
+> in the debate told the truth.* The full write-up, in English, is [WRITEUP.md](WRITEUP.md);
+> every design decision and its reason is in [ITERATIONS.md](ITERATIONS.md). Claude helped write
+> the code. The rest of this README (the pre-registration and run commands) is in Thai.
+
 นักสืบ (ไม่รู้คำตอบ) ถกเถียง 3 รอบกับผู้ต้องสงสัย 2 คน คนหนึ่งคือหมาป่า (รู้ว่าตัวเองผิดและโกหกได้)
 อีกคนเป็นผู้บริสุทธิ์ จากนั้นสภาชาวบ้าน (โมเดลที่อ่อนกว่า) โหวต **โดยไม่เห็นแฟ้มคดี**
 สภาเห็นแค่บทถกเถียง และทุกการอ้างหลักฐาน `[E#: ...]` ถูกโค้ดตรวจแล้วติดป้าย
