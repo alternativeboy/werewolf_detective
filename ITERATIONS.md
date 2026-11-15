@@ -34,6 +34,7 @@ the user; "Claude" = tooling or bug fixes that do not change what is measured.
 | 15 Nov | Before making the repo public: personal application context moved from CLAUDE.md to Claude's private memory; old CLAUDE.md versions and the author email stay in git history (no rewrite); English summary added to README | User | – |
 | 15 Nov | Repo alternativeboy/werewolf_detective made public (Claude ran `gh repo edit` on the user's explicit yes); repo and write-up links filled in WRITEUP.md and the presentation | User | – |
 | 15 Nov | README translated fully into English (no change in content; pre-registration frozen in Thai on 7 Nov stays in git history) | User | – |
+| 16 Nov | Report "can a stronger model mislead a weaker judge?" with one agreed sentence (lead-role framing misleads Haiku 6/15 on two runs, Sonnet never; the lying wolf alone did not; prompted, exploratory) in WRITEUP section 5 and README summary | User | it17, it21 |
 | 15 Nov | it21: Haiku retest of the 15 frame debates and their 15 paired honest debates (logged before running) | User | it21 |
 | 15 Nov | it20: re-judge the 15 misled debates with Haiku under a name-aware clerk, plus a retest on the original marks (logged before running) | User | it20 |
 | 15 Nov | it22: framing detective + innocent reads the detective's copy (no honest, informed speaker), 15 cases, Haiku + Sonnet; reading rule written before running | User | it22 |

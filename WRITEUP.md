@@ -107,9 +107,13 @@ paired framing games, it23 was −53 points [−80, −20] for Haiku and −33 [
 - **Debate helped the weak judge only when someone in the debate quoted the decisive truth.**
   That is the condition debate relies on, so this supports its premise rather than refuting it.
   But it shows how little the weak judge did on its own when the premise failed.
-- **The weak judge mostly follows the lead.** It reached the ceiling with an honest lead, and
-  followed a framing lead in about 40% of games even with the true alibi quoted and verified in
-  front of it. A judge as strong as the debaters did not.
+- **A stronger model in the lead role can mislead the weak judge.** In this setup, a weaker
+  judge could be misled by a stronger model in the lead role: when the detective framed an
+  innocent using only true, verified quotes, Haiku followed it in 6 of 15 games on two runs,
+  while Sonnet, judging the same transcripts, never did. The lying wolf alone did not fool the
+  weak judge while an honest, informed witness was in the debate. The framing was prompted, and
+  the test is exploratory (15 cases), so it shows the weakness exists, not how often it would
+  occur.
 - **Tools help with fakes, not with framing.** A better quote check fixed misquotes. A lead
   who frames with true quotes needs a better judge, or a different protocol, not a better
   checker.

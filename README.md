@@ -54,6 +54,13 @@ the missing fact out. The judge, Haiku, is weaker than the debaters and never se
    evidence that clears others, nobody quoted the alibi (0 of 15). Haiku was right in 1 of 15 (4 of
    15 reading the copy alone); Sonnet in 10 of 15 (10 of 15 alone).
 
+**Can a stronger model mislead a weaker judge?** In this setup, a weaker judge could be misled
+by a stronger model in the lead role: when the detective framed an innocent using only true,
+verified quotes, Haiku followed it in 6 of 15 games on two runs, while Sonnet, judging the same
+transcripts, never did. The lying wolf alone did not fool the weak judge while an honest,
+informed witness was in the debate. The framing was prompted, and the test is exploratory (15
+cases), so it shows the weakness exists, not how often it would occur.
+
 **Bottom line:** debate helped the weak judge only when someone in the debate quoted the
 decisive truth. That is the condition debate is built on, so this supports the idea, but it also
 shows how little the weak judge did on its own when the condition failed.
