@@ -176,7 +176,8 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
    alongside it17; then add it20 to `WRITEUP_DRAFT.md`.
 3. User labels `results/lie_check/sheet.html` (50 sentences, blind), saves `answers.json` to
    `results/lie_check/`, then `python3 lie_check.py score`; report the agreement.
-4. Write-up (README or blog, 2–3 pages, limitations, say Claude helped write the code).
+4. Write-up: `WRITEUP.md` assembled from `WRITEUP_DRAFT.md` (15 Nov, headline D, ~3 pages);
+   user edits it, fills [YOUR NAME] / [REPO LINK], removes [check] marks after reading the papers.
 5. Read Irving 2018, Michael 2023, Khan 2024, Kenton 2024 and check every [check] mark in the
    positioning draft (`WRITEUP_DRAFT.md` "Related work and positioning").
 
