@@ -16,6 +16,10 @@ Examples:
       --modes frame misled --out results/wrongdet
       # it17 (exploratory): detective secretly pushes the decoy / honestly reads a file that
       # points to the decoy; paired with the main-run honest games (same speakers and order)
+  python run.py --backend cli  --cases 15 --levels L2 L4 --detective-hides 1 --seed 0 \
+      --modes frame --innocent-sees copy --wolf-prompt quiet --out results/quietwolf
+      # it23 (exploratory): framing detective, innocent reads the copy, wolf never brings up
+      # evidence that clears others; paired with results/hardest (it22)
   --wolf-model opus   gives the wolf a different model (not used in any planned run)
   --max-games 70      stop after 70 new games; the same command again plays the next 70
 
@@ -65,6 +69,9 @@ def main():
     ap.add_argument("--innocent-sees", choices=["full", "copy"], default="full",
                     help="copy = the innocent speaker reads the detective's incomplete copy "
                          "instead of the full file (it16, exploratory; needs --detective-hides)")
+    ap.add_argument("--wolf-prompt", choices=["default", "quiet"], default="default",
+                    help="quiet = the wolf is told never to bring up evidence that clears another "
+                         "suspect (it23, exploratory); game id suffix -quietwolf")
     ap.add_argument("--max-games", type=int, default=None,
                     help="play at most this many new games, then stop (rerun the same command "
                          "for the next batch, e.g. to stay inside a plan usage window)")
@@ -89,6 +96,7 @@ def main():
                 f"-hide{a.detective_hides}" if a.detective_hides > 0 else "")
             gid = base + (f"-wolf{wolf}" if wolf else "") + (
                 "-innocopy" if a.innocent_sees == "copy" else "") + (
+                "-quietwolf" if a.wolf_prompt == "quiet" else "") + (
                 "-rand2" if a.speakers == "random2" else "")
             if gid not in done:
                 todo.append((case, mode, base, gid))
@@ -108,7 +116,7 @@ def main():
         rec = play_game(case, backend, mode, gid, n_votes=a.votes,
                         detective_sees=a.detective_sees, detective_hides=a.detective_hides,
                         wolf_model=wolf, draw_seed=seed, innocent_sees=a.innocent_sees,
-                        speakers_mode=a.speakers)
+                        speakers_mode=a.speakers, wolf_prompt=a.wolf_prompt)
         rec["seconds"] = round(time.time() - t0)
         with open(games_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")

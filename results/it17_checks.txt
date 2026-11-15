@@ -67,18 +67,21 @@
 == it22 hardest (frame + innocopy): 15 games ==
   judge=haiku: council 8/15, floor 6/15, ceiling 15/15
     council - floor: +13.3% 95% CI [-27%, +47%]
-    hardest - frame (innocent has full file): 9/15 paired; difference -6.7% 95% CI [-40%, +27%]
-    hardest - honest innocopy: 12/15 paired; difference -26.7% 95% CI [-53%, +0%]
+    it22 - frame (innocent has full file): 9/15 paired; difference -6.7% 95% CI [-40%, +27%]
+    it22 - honest innocopy: 12/15 paired; difference -26.7% 95% CI [-53%, +0%]
     council majority: {'decoy': 6, 'wolf': 8, 'no majority': 1}
+    floor majority:   {'decoy': 9, 'wolf': 6}
   judge=sonnet: council 14/15, floor 9/15, ceiling 15/15
     council - floor: +33.3% 95% CI [+0%, +67%]
-    hardest - frame (innocent has full file): 15/15 paired; difference -6.7% 95% CI [-20%, +0%]
+    it22 - frame (innocent has full file): 15/15 paired; difference -6.7% 95% CI [-20%, +0%]
     council majority: {'wolf': 14, 'decoy': 1}
+    floor majority:   {'decoy': 6, 'wolf': 9}
   first to cite the hidden clue: {'wolf': 14, None: 1}
   detective cites the hidden clue in 6/15 games
   wolf cites the hidden clue in 14/15 games
   innocent cites the hidden clue in 1/15 games
   detective private final = wolf: 15/15; accused the wolf out loud at least once: 2/15; decoy is the innocent speaker: 2/15
+  misquoted / not in file citations, by speaker: {}
 
 == rand2: 30 games ==
   wolf speaks: 17 games, council right 16/17, council majority for a speaker 16, decoy speaks in 4, first to cite the clue {'innocent': 15, 'wolf': 2}

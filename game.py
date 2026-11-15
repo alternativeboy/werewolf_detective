@@ -32,7 +32,7 @@ def misled_case(case, hidden_id):
 
 def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, detective_sees=1.0,
               detective_hides=0, wolf_model=None, draw_seed=None, innocent_sees="full",
-              speakers_mode="wolf+innocent", log=print):
+              speakers_mode="wolf+innocent", wolf_prompt="default", log=print):
     """detective_sees < 1: detective gets a random fraction of the evidence.
     detective_hides = n > 0: detective gets everything except n solution clues (see
     cases.detective_view_hiding). Use one or the other.
@@ -51,6 +51,8 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
         raise ValueError("use either detective_sees or detective_hides, not both")
     if detective_mode in ("frame", "misled") and detective_hides != 1:
         raise ValueError(f"detective_mode={detective_mode!r} needs detective_hides=1")
+    if wolf_prompt not in ("default", "quiet"):
+        raise ValueError(f"wolf_prompt must be 'default' or 'quiet', not {wolf_prompt!r}")
     if speakers_mode not in ("wolf+innocent", "random2"):
         raise ValueError(f"unknown speakers_mode {speakers_mode!r}")
     text = render_case(case)                        # full file: wolf, lie judge (and innocent)
@@ -104,6 +106,10 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
         rec["it17_version"] = P.IT17_VERSION
     if det_case:
         rec["detective_case"] = det_case
+    if wolf_prompt == "quiet":  # it23: wolf told never to bring up evidence that clears others
+        rec["wolf_prompt"] = "quiet"
+        rec["wolf_quiet_version"] = P.WOLF_QUIET_VERSION
+    wolf_sys = P.WOLF_SYSTEM_QUIET if wolf_prompt == "quiet" else P.WOLF_SYSTEM
     # Model per role, as passed to the backend (games before it16 do not have this field;
     # they used the backend defaults: Sonnet players, Haiku judge)
     role_model = {r: backend.models[r] for r in ("detective", "wolf", "innocent", "lie_judge", "judge")}
@@ -115,7 +121,7 @@ def play_game(case, backend, detective_mode, game_id, n_votes=N_JUDGE_VOTES, det
         det_sys = P.DETECTIVE_SYSTEM["frame"].format(target=decoy)
     else:  # "misled" uses the honest prompt: it is wrong because of its file, not its goal
         det_sys = P.DETECTIVE_SYSTEM["honest" if detective_mode == "misled" else detective_mode]
-    sys_for = {name: (P.WOLF_SYSTEM if role == "wolf" else P.INNOCENT_SYSTEM).format(name=name)
+    sys_for = {name: (wolf_sys if role == "wolf" else P.INNOCENT_SYSTEM).format(name=name)
                for role, name in speakers}
     file_for = {"wolf": text, "innocent": inno_text}
 
