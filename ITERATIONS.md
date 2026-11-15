@@ -30,6 +30,7 @@ the user; "Claude" = tooling or bug fixes that do not change what is measured.
 | 12 Nov | How to report it17 in the write-up | Open | it17 results |
 | 12 Nov | How to report the Sonnet result (it19) and the name-aware clerk (it20) | Open | it19, it20 results |
 | 15 Nov | Write-up and presentation headline: option C ("We built a debate testbed, then spent most of the project trying to break it. Two failures survived.") | User | WRITEUP_DRAFT.md |
+| 15 Nov | Headline replaced by option D ("...trying to break it. It held up only while someone in the debate told the truth."), after it23; write-up and presentation hero | User | WRITEUP_DRAFT.md |
 | 15 Nov | it21: Haiku retest of the 15 frame debates and their 15 paired honest debates (logged before running) | User | it21 |
 | 15 Nov | it20: re-judge the 15 misled debates with Haiku under a name-aware clerk, plus a retest on the original marks (logged before running) | User | it20 |
 | 15 Nov | it22: framing detective + innocent reads the detective's copy (no honest, informed speaker), 15 cases, Haiku + Sonnet; reading rule written before running | User | it22 |

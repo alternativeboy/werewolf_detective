@@ -3,14 +3,16 @@
 Draft sections for the final write-up. Claude drafted them; the user edits and decides the
 final wording. Numbers come from `results/it17_analysis.txt` and `results/it17_checks.txt`.
 
-## Headline (option C, chosen by the user on 15 Nov)
+## Headline (option D, chosen by the user on 15 Nov; replaces option C)
 
-**We built a debate testbed, then spent most of the project trying to break it. Two failures
-survived.**
+**We built a debate testbed, then spent most of the project trying to break it. It held up only
+while someone in the debate told the truth.**
 
-A lax quote checker let a one-name swap pass as verified. That one is fixable: a name-aware
-check took the council from 5/15 to 13/15. A framing lead with true quotes misled the weak
-judge in 6 of 15 games, on two runs. That one is not fixable by checking quotes.
+With an honest lead, the weak judge went from about 35% to 100%. A misquote slipped past our
+checker, and fixing the checker took the judge from 5/15 to 13/15. A lead who framed an
+innocent with true quotes misled the weak judge in 6 of 15 games, on two runs. When nobody
+quoted the truth, the weak judge was right in 1 of 15, no better than reading the incomplete
+file alone.
 
 ## Main run (pre-registered)
 
