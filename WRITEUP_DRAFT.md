@@ -3,7 +3,7 @@
 Draft sections for the final write-up. Claude drafted them; the user edits and decides the
 final wording. Numbers come from `results/it17_analysis.txt` and `results/it17_checks.txt`.
 
-## Exploratory: a wrong or dishonest detective (it17, it19)
+## Exploratory: a wrong or dishonest detective (it17, it19, it20)
 
 *Added after the main run and not pre-registered. Each condition has 15 cases, so the
 intervals are wide.*
@@ -48,6 +48,21 @@ of 15 games, so the council heard two true quotes against the detective's one:
 
 So a second voice did not rescue Haiku.
 
+**A stricter clerk (it20, Haiku, same misled debates).** The clerk had marked the detective's
+swapped-name quotes "(verified)". So we re-marked the same 15 debates with a name-aware rule: a
+quote is MISQUOTED if it names a suspect that the real evidence line does not name. This rule
+changed 46 labels, all in the misled games and 0 in the other 120 saved games. 45 of them were
+the detective's swapped quotes. We then had Haiku vote again, and also had it vote again on the
+original marks as a retest control.
+- **Original marks:** the council was right in 6/15 (11 Nov) and in 5/15 on the retest.
+- **Name-aware clerk:** right in 13/15, which is +53 points [+27, +80] against the retest.
+  Haiku's votes for the decoy fell from 14 of 45 to 6 of 45.
+
+So most of Haiku's misled failure came from the lax clerk, not from the judge alone. The same
+fix cannot help in frame: the framing detective quoted the file correctly, so no label changes.
+The retest also showed how noisy a three-vote Haiku council is. On identical input, whether the
+majority was right changed in 7 of 15 games.
+
 A third variant, random2, tested a cue we found after the main run: the wolf always spoke.
 With two random speakers out of six (30 cases), the wolf was silent in 13 games. The council
 was still right in all 13, each time voting for someone who never spoke (29/30 overall). So
@@ -60,12 +75,14 @@ an honest, fully informed speaker is always present.
   evidence, even when the correct evidence is quoted and verified in front of it.
 - The judge of equal strength (Sonnet, the debaters' own model) did not lean on it in any of
   the 30 games.
-- So in this setup, judge capability decides whether a framing or misled lead is caught, not
-  only the debate format.
+- The weak judge fails in two different ways, and only one of them is fixed by better tools:
+  - **Misled lead with misquoted evidence.** A citation check that accepts near-matches
+    certified a one-name swap. With a name-aware check, Haiku recovered (13/15).
+  - **Framing lead who quotes truthfully.** The evidence is correct, but the lead points it at
+    the wrong person. No quote check can flag this, and Haiku followed the lead in 6 of 15
+    games. Sonnet did not.
 - A trustworthy lead makes debate very effective for both judges (main run). With the weak
-  judge, a bad lead cancels most of that benefit.
-- A citation check that accepts near-matches cannot tell apart two quotes that differ by one
-  name. Sonnet resolved the two "(verified)" versions; Haiku often did not.
+  judge, a lead who frames with true evidence cancels much of that benefit.
 
 **Limits.**
 - Framing is behaviour the prompt asked for, not evidence that models frame people unprompted.
@@ -77,7 +94,10 @@ an honest, fully informed speaker is always present.
   the pre-registration.
 - An honest, fully informed innocent quoted the true clue in every debate, so neither judge
   had to find the truth without a truthful speaker.
-- The variants were chosen after seeing the main results.
+- The variants were chosen after seeing the main results. The name-aware clerk was designed
+  after seeing the misled failure, so it fixes exactly the swap that it17 introduced.
+- A three-vote Haiku council is noisy: on identical input its majority changed in 7 of 15
+  misled games. Compare against the retest, and read the intervals as wide.
 
 ## Related work and positioning (draft)
 
