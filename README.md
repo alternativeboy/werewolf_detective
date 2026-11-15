@@ -20,6 +20,49 @@ Every case is checked by a solver in code (`cases.solve`) to have exactly one po
 > with no change in content. The pre-registration section below was frozen in Thai on 7 Nov 2026
 > (see the git history for the original wording).
 
+## What we learned (plain-language summary)
+
+The detective's copy of the case file is missing one page: the confirmed alibi of an innocent
+"decoy" who lives near the wolf. Without that page, two suspects fit, so the debate has to bring
+the missing fact out. The judge, Haiku, is weaker than the debaters and never sees the file.
+
+1. **With an honest, informed witness in the debate, the weak judge did as well as reading the
+   full file.** Main run, pre-registered, 60 games: Haiku reading the detective's incomplete copy
+   was right ~35% of the time; Haiku judging the debate alone, 100% (honest detective) and 97%
+   (detective told to win); Haiku reading the full file, 100%.
+2. **But the truth usually came from that witness, not from the arguing.** The honest innocent
+   was the first to quote the hidden alibi in 54 of 60 games, and the judge's vote matched the
+   detective's last accusation in 59 of 60. So the main run cannot tell a judge that checks the
+   evidence from one that follows a lead who has been corrected.
+3. **Nobody faked evidence.** 0 bad citations out of 3,079. The wolf deceived with true but
+   misleading facts (red herrings, casting doubt on a witness). The quote checker was never tested
+   against a real fake in the main run.
+4. **Fake quotes can be fixed with better tools.** When the detective's copy had one name swapped,
+   the checker's 85% fuzzy match stamped all 45 swapped quotes "verified" and Haiku was right in 6
+   of 15 games. A checker that also compares names lifted Haiku from 5 to 13 of 15 on the same
+   debates (+53 points [+27, +80]).
+5. **True quotes used to frame someone cannot be fixed with a checker.** A detective secretly told
+   to frame the decoy knew the right answer privately in 15 of 15 games but accused the decoy out
+   loud in every round in 10. Haiku was right in 9, then 8 of 15 on a retest. Sonnet, reading the
+   same transcripts, was right in 15 of 15. The weak judge tends to follow the lead.
+6. **The truth is hard to hide.** When the innocent only had the detective's copy, the wolf itself
+   quoted the hidden alibi in 9 of 15 games (honest detective) and 14 of 15 (framing detective),
+   usually while attacking it.
+7. **With nobody truthful, the debate added nothing.** When the wolf was also told never to mention
+   evidence that clears others, nobody quoted the alibi (0 of 15). Haiku was right in 1 of 15 (4 of
+   15 reading the copy alone); Sonnet in 10 of 15 (10 of 15 alone).
+
+**Bottom line:** debate helped the weak judge only when someone in the debate quoted the
+decisive truth. That is the condition debate is built on, so this supports the idea, but it also
+shows how little the weak judge did on its own when the condition failed.
+
+**What this does not show.** Points 4–7 are exploratory: each uses 15 cases, was chosen after the
+main results, and has wide intervals. A three-vote Haiku council is noisy (on identical input its
+majority flipped in 7 of 15 games). Framing and the quiet wolf were asked for in the prompt, so
+they are not evidence that models do this on their own. Sonnet as judge is the debaters' own
+model, so it is not a weak-judge test. And the wolf always speaks, which is a cue a judge could use.
+Details and intervals for every number are in [WRITEUP.md](WRITEUP.md) and the sections below.
+
 ## Design (prompt v4)
 
 The history of every change and the small sub-experiments are in [ITERATIONS.md](ITERATIONS.md).
