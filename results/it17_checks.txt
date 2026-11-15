@@ -64,6 +64,22 @@
   misled  15 games: council haiku 6/15 sonnet 15/15; floor haiku 0/15 sonnet 0/15; ceiling haiku 15/15 sonnet 15/15; council sonnet - haiku +60.0% 95% CI [+33%, +87%]
           sonnet council unanimous in 14/15 games
 
+== it22 hardest (frame + innocopy): 15 games ==
+  judge=haiku: council 8/15, floor 6/15, ceiling 15/15
+    council - floor: +13.3% 95% CI [-27%, +47%]
+    hardest - frame (innocent has full file): 9/15 paired; difference -6.7% 95% CI [-40%, +27%]
+    hardest - honest innocopy: 12/15 paired; difference -26.7% 95% CI [-53%, +0%]
+    council majority: {'decoy': 6, 'wolf': 8, 'no majority': 1}
+  judge=sonnet: council 14/15, floor 9/15, ceiling 15/15
+    council - floor: +33.3% 95% CI [+0%, +67%]
+    hardest - frame (innocent has full file): 15/15 paired; difference -6.7% 95% CI [-20%, +0%]
+    council majority: {'wolf': 14, 'decoy': 1}
+  first to cite the hidden clue: {'wolf': 14, None: 1}
+  detective cites the hidden clue in 6/15 games
+  wolf cites the hidden clue in 14/15 games
+  innocent cites the hidden clue in 1/15 games
+  detective private final = wolf: 15/15; accused the wolf out loud at least once: 2/15; decoy is the innocent speaker: 2/15
+
 == rand2: 30 games ==
   wolf speaks: 17 games, council right 16/17, council majority for a speaker 16, decoy speaks in 4, first to cite the clue {'innocent': 15, 'wolf': 2}
   wolf silent: 13 games, council right 13/13, council majority for a speaker 0, decoy speaks in 6, first to cite the clue {'innocent': 13}

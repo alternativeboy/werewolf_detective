@@ -99,7 +99,7 @@ The labels miss statements that are true but misleading, which is how the wolf a
 so these numbers measure fabrication, not deception. A blind hand check of 50 labels is ready
 (`lie_check.py`) but not done yet.
 
-## Exploratory: a wrong or dishonest detective (it17, it19, it20, it21)
+## Exploratory: a wrong or dishonest detective (it17, it19, it20, it21, it22)
 
 *Added after the main run and not pre-registered. Each condition has 15 cases, so the
 intervals are wide.*
@@ -179,6 +179,24 @@ here the council does not depend on the "pick a speaker" shortcut. But the decoy
 alibi was quoted in all 30 debates. Random2 therefore does not remove the main limitation:
 an honest, fully informed speaker is always present.
 
+**Removing the honest, informed speaker (it22).** To test the hardest case, we combined the
+framing detective with innocopy: the innocent read only the detective's copy, so only the wolf
+knew the decoy's alibi. We wrote the reading rules down before running (15 cases, Haiku in the
+run, then Sonnet on the same debates).
+- **Haiku:** council right in 8/15, against a floor of 6/15 and 9/15 in the paired frame games.
+- **Sonnet:** right in 14/15, against a floor of 9/15 and 15/15 in frame.
+- **By the pre-written rules, nothing is supported.** Council − floor was +13 points [−27, +47]
+  for Haiku and +33 [0, +67] for Sonnet, and the drop from frame was −7 points for both, with
+  intervals that include 0.
+- **The truth did not leave the debate.** The wolf itself quoted the decoy's confirmed alibi,
+  correctly, in 14 of 15 games, usually to clear the decoy and then blame a third suspect. Only
+  one game (c0001) had no quote of the clue, and both judges voted for the decoy there.
+
+So it22 did not test what it was built to test: the deceiver leaked the decisive clue. It does
+add one point. With a framing lead, Haiku did about as well with or without the honest,
+informed innocent (8/15 vs 9/15), which fits a judge that follows its lead. A true test of the
+hardest case needs a deceiver that does not quote evidence that clears others.
+
 **Reading** (Claude's draft; the user decides how to report it).
 - The weaker judge (Haiku) leans on the detective's public accusation more than on the
   evidence, even when the correct evidence is quoted and verified in front of it.
@@ -233,6 +251,7 @@ informed speaker.
 | Misled lead, name-aware clerk (it20) | 13/15 | +53 points [+27, +80] vs retest |
 | Framing lead, true quotes only | 9/15; retest 8/15 | frame − honest −47 points [−73, −20] (retest) |
 | Same misled and frame debates, Sonnet judge (equal strength) | 15/15 and 15/15 | never voted for the decoy |
+| Framing lead, innocent has only the detective's copy (it22) | Haiku 8/15, Sonnet 14/15 | floor 6/15 and 9/15; the wolf quoted the hidden clue in 14/15 |
 
 **Reading.**
 - **Debate helps a lot.** It took the weak judge from about 35% (its own reading of the
@@ -248,8 +267,9 @@ informed speaker.
   not about what the judge could see.
 
 **What these results cannot answer.**
-1. **The hardest case.** Every stress test still had an honest, fully informed innocent
-   speaking. We never ran a dishonest or misled lead with no honest speaker who knows the clue.
+1. **The hardest case.** In it22 no honest speaker knew the clue, but the wolf quoted it
+   itself in 14 of 15 debates. So no debate in this project lacked the true clue; the one that
+   did (c0001) fooled both judges, and n = 1 says nothing.
 2. **Stronger deception.** The debaters never fabricated evidence (0 of 3,079 citations in the
    main run). Framing was a prompt, not an optimised or trained strategy.
 3. **A truly weaker judge against much stronger debaters.** The only contrast is Haiku vs

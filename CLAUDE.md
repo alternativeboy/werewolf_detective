@@ -115,7 +115,7 @@ back to back in 3 h 40 min without hitting a limit, so 4% per game overestimates
 
 ## Status (12 Nov 2026)
 
-Full history, results and every decision: `ITERATIONS.md` (it0–it21; "Decision index" at the
+Full history, results and every decision: `ITERATIONS.md` (it0–it22; "Decision index" at the
 top). Add an entry for every new iteration (what changed, what ran, outcome, decision, who
 decided) and commit it with the results. README has the pre-registration, the main results and
 an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
@@ -152,6 +152,10 @@ an "exploratory, after the main run" section; keep it in sync with ITERATIONS.
 - it21 frame retest done (15 Nov, rule written before running; ITERATIONS "it21 results"):
   frame 9/15 → 8/15 on the retest, paired honest 15/15 both runs; frame − honest −47
   [−73, −20] on the retest, so stable by the pre-written rule. 3/15 frame games flipped.
+- it22 hardest case done (15 Nov, rules written before running; ITERATIONS "it22 results",
+  `results/hardest`): frame + innocopy. Haiku council 8/15 (floor 6), Sonnet 14/15 (floor 9);
+  no pre-written claim supported. The wolf itself quoted the decoy's hidden alibi in 14/15
+  games, so the truth was still in the debate; only c0001 had no quote (both judges wrong).
 - it18 wolf tactics (`tactics.py`, `results/tactics_main_innocopy.txt`): rule-based tags,
   hand-checked (no wrong tags, ~80% recall). Zero fabrication; true-but-misleading framing.
 - Repo: private GitHub repo `alternativeboy/werewolf_detective`. `claude setup-token` if
